@@ -26,4 +26,5 @@
 #     实际 CR 数   tr -cd '\r' < file | wc -c
 #     git 认为的行尾 git ls-files --eol file     # 注意它报的是规则预期，不是实测
 #     实际前几字节  od -c file | head
-#   （本仓库唯一真 CRLF 文件是初版 functions/_lib/sources.js，已在 2b1f0a2 归一。）
+#   本仓库唯一真 CRLF 文件是初版 functions/_lib/sources.js，归一发生在首次提交之前
+#   （磁盘上改完才 git add），所以它并不对应某个提交，而是直接进了 5bc9264。
