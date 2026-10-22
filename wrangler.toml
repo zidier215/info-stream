@@ -1,0 +1,26 @@
+name = "myinfostream"
+compatibility_date = "2024-09-23"
+
+# ---------- 构建 ----------
+# v2.4 修掉的真实问题：原来 pages_build_output_dir = "."，会把整个项目
+# （含 functions/_lib/*.js 源码、*.mjs 测试脚本）当作静态资源上传，
+# 任何人访问 /functions/_lib/sources.js 就能拿到完整源码。
+# 现在由 build.mjs 白名单拷贝到 public/，只有该发布的才发布。
+command = "node build.mjs"
+pages_build_output_dir = "public"
+
+# 三个域名绑定后，https://<name>.pages.dev 会 301 到自定义域。
+# canonical 由 functions/index.js 按 Host 动态注入，三站各自独立。
+
+# ---------- 接口保护（v2.2）----------
+# 所有值都是可选的，不配也能跑；生产建议至少配 API_SECRET。
+#
+# API_SECRET        自定义密钥。配了之后 /api/discover 与 /api/translate 才开放（默认关闭 = 403）。
+#                   自己访问时在地址栏带 ?key=你的密钥 即可，密钥记在 localStorage。
+# FEED_LIMIT        /api/feed 每 IP 每分钟的请求数上限，默认 30。
+# FEED_REQUIRE_KEY  设为 "1" 则 /api/feed 也要密钥。默认 "0"——首页要靠它出数据，
+#                   彻底关掉页面就空了，所以默认只做限流 + 同源校验。
+# RATE_LIMIT        私有接口每 IP 每分钟上限，默认 10。
+# ALLOW_NO_ORIGIN   设为 "1" 允许不带 Origin 头的请求（curl / 脚本调试）。默认 "0"。
+#
+# 密钥请在 Cloudflare 控制台配置（Settings → Environment variables），不要写进本文件。

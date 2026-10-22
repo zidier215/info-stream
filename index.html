@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>信息河 · InfoStream</title>
+  <meta name="description" content="一条面向全球用户的无限信息河：热搜、娱乐、天气、游戏、市场、足球、AI，多语言、暖心设计。" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+
+  <!-- SEO：让搜索/社交抓到唯一的规范地址，避免 pages.dev 与自定义域重复计权 -->
+  <link rel="canonical" href="https://myinfostream.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="信息河 InfoStream" />
+  <meta property="og:title" content="信息河 · InfoStream" />
+  <meta property="og:description" content="一条面向全球用户的无限信息河：热搜、娱乐、天气、游戏、市场、足球、AI，多语言、暖心设计。" />
+  <meta property="og:url" content="https://myinfostream.com/" />
+  <meta property="og:image" content="https://myinfostream.com/favicon.svg" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta property="og:locale:alt" content="zh_TW" />
+  <meta property="og:locale:alt" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="信息河 · InfoStream" />
+  <meta name="twitter:description" content="一条面向全球用户的无限信息河：热搜、娱乐、天气、游戏、市场、足球、AI，多语言、暖心设计。" />
+  <meta name="theme-color" content="#fdf6ee" />
+
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🌊</span>
+      <div>
+        <!-- 品牌名双轨：主名随语言切换，副名固定 InfoStream -->
+        <h1><span data-brand="main">信息河</span> <small data-brand="sub">InfoStream</small></h1>
+        <p class="tagline" data-i18n="tagline">滚动不息 · 多源聚合 · 全球信息，为你而生</p>
+      </div>
+    </div>
+    <div class="controls">
+      <select id="lang" class="lang" aria-label="语言 / Language"></select>
+      <button id="translateBtn" class="btn" data-i18n="translate" style="display:none">🌐 翻译</button>
+      <button id="autoBtn" class="btn" data-i18n="autoStart">▶ 自动滚动</button>
+      <button id="refreshBtn" class="btn" data-i18n="refresh">⟳ 刷新</button>
+    </div>
+  </header>
+
+  <!-- 顶部 Tab：由 app.js 按 __HOST_CONFIG__.tabs 渲染（每个站自己的 tab 组合不同） -->
+  <nav id="tabs" class="tabs" aria-label="内容分区" hidden></nav>
+
+  <!-- 主站入口卡片（portal 模式）：跳向 ai / news 子站。只有主站渲染，子站整段 hidden -->
+  <section id="entries" class="entries" hidden></section>
+
+  <!-- 常驻看板：只有主站渲染（reloadWidgets 里 if (!IS_MAIN) return） -->
+  <section class="widgets-wrap" id="widgetsWrap">
+    <h2 class="section-title" data-i18n="widgetsTitle">常驻看板</h2>
+    <div class="widgets">
+      <!-- 天气 -->
+      <div class="widget" id="w-weather">
+        <div class="widget-head">
+          <span class="widget-title" data-i18n="weather">天气</span>
+          <div class="widget-tools">
+            <input id="cityInput" class="mini-input" type="text" data-i18n-ph="cityPlaceholder" placeholder="输入城市" />
+            <button id="cityGo" class="mini-btn">→</button>
+            <button id="geoBtn" class="mini-btn" data-i18n="myLocation" title="我的位置">📍</button>
+          </div>
+        </div>
+        <div class="widget-body" id="weatherBody"></div>
+      </div>
+      <!-- 游戏 -->
+      <div class="widget" id="w-games">
+        <div class="widget-head">
+          <span class="widget-title" data-i18n="games">游戏</span>
+          <button class="mini-btn w-refresh" data-widget="游戏">⟳</button>
+        </div>
+        <div class="widget-body" id="gamesBody"></div>
+      </div>
+      <!-- AI -->
+      <div class="widget" id="w-ai">
+        <div class="widget-head">
+          <span class="widget-title" data-i18n="ai">AI</span>
+          <button class="mini-btn w-refresh" data-widget="AI">⟳</button>
+        </div>
+        <div class="widget-body" id="aiBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 私有工具区：默认隐藏。地址栏带 ?key=你的密钥 才显示（见 README「只给自己用」） -->
+  <section class="discover-wrap" id="discoverWrap" hidden>
+    <h2 class="section-title" data-i18n="discoverTitle">发现全球免费接口</h2>
+    <p class="discover-hint" data-i18n="discoverHint">搜索全球各类免费、无需密钥的公共 API，点击前往。</p>
+    <input id="discoverInput" class="discover-input" type="text" data-i18n-ph="discoverSearch" placeholder="搜索接口，如 weather / 翻译 / 图片 …" />
+    <div class="discover-results" id="discoverResults"></div>
+  </section>
+
+  <main>
+    <section id="feed" class="feed" aria-live="polite"></section>
+    <div id="sentinel" class="sentinel">
+      <div class="loader"><span></span><span></span><span></span></div>
+      <p id="status" data-i18n="loading">正在汇聚信息洪流…</p>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <span data-i18n="foot1">数据源：微博/百度/抖音热搜 · Hacker News · Open-Meteo · Epic · Exchangerate/Binance · OpenLigaDB · HuggingFace</span>
+    <span data-i18n="foot2">部署于 Cloudflare Pages · 服务端聚合 · 公共接口已限流并校验来源，私有接口需密钥</span>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

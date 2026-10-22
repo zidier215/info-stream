@@ -1,0 +1,18 @@
+# 行尾统一（2026-10-22）
+#
+# 为什么需要这个文件：Windows 上 git 默认 core.autocrlf=true，会在「仓库存 LF /
+# 工作区转 CRLF」之间来回换。第一次 add 时满屏 "LF will be replaced by CRLF"
+# 警告就是它。但这套隐患是双向的 —— 换一台 autocrlf 配置不同的机器再拉下来，
+# 整个文件会变成「每一行都变了」的假 diff，git blame 和 code review 全废。
+#
+# 这里显式写死 eol=lf，理由是这个项目最终跑在 Cloudflare Pages（Linux 侧），
+# 且 .sh 之外的配置/脚本都直接被 wrangler 读取，CRLF 没有存在的必要。
+# 锁成 LF 之后，仓库和工作区一致，跨机器、跨平台都不会产生行尾噪音。
+* text=auto eol=lf
+
+# 二进制：禁止行尾转换与文本 diff，避免被当成文本处理时损坏内容
+*.png binary
+*.jpg binary
+*.zip binary
+*.woff  binary
+*.woff2 binary
