@@ -16,3 +16,14 @@
 *.zip binary
 *.woff  binary
 *.woff2 binary
+
+#
+# 排查行尾时的一个陷阱（2026-10-22 实测踩到）：
+#   `grep -c $'\r' assets/app.js` 会报出「1166 行含 CR」，
+#   但 `tr -cd '\r' < assets/app.js | wc -c` 是 0，`od -c` 显示全是 \n —— 纯 LF。
+#   也就是说这个 grep 在本机会对纯 LF 文件报出上千条假阳性。
+#   当两个验证手段给出矛盾结论时，不要采信更"顺眼"的那个，要降到字节级复核：
+#     实际 CR 数   tr -cd '\r' < file | wc -c
+#     git 认为的行尾 git ls-files --eol file     # 注意它报的是规则预期，不是实测
+#     实际前几字节  od -c file | head
+#   （本仓库唯一真 CRLF 文件是初版 functions/_lib/sources.js，已在 2b1f0a2 归一。）
