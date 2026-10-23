@@ -36,6 +36,16 @@ import { fetchBySources } from "../_lib/sources.js";
 const cache = new Map();
 const CACHE_TTL = 15000;
 
+function setL1Cache(key, items) {
+  cache.set(key, { t: Date.now(), items });
+  if (cache.size > 200) {
+    const now = Date.now();
+    for (const [k, v] of cache) {
+      if (now - v.t > CACHE_TTL) cache.delete(k);
+    }
+  }
+}
+
 // L2 边缘缓存 TTL。比 L1 长得多：L1 的存在意义是「同一批用户共享一次抓取」，
 // L2 的意义是「冷 isolate 不用重抓」。给到 60s 是权衡结果 ——
 // 新闻列表晚一分钟出现没有实际损失，但能把上游请求量压掉一个数量级。
@@ -175,7 +185,7 @@ export async function onRequest(context) {
     if (cached) {
       items = cached;
       // 顺手回填 L1，让同 isolate 的下一个请求走零开销路径
-      cache.set(cacheKey, { t: Date.now(), items });
+      setL1Cache(cacheKey, items);
       cacheHit = true;
     } else {
       // 缓存没有，要真打上游了 —— 这才是限流该管的地方。
@@ -192,7 +202,7 @@ export async function onRequest(context) {
       // 偶发超时，抓回来 0 条也照样写缓存，于是接下来 15 秒内这个 tab 一直返回空 ——
       // 一次偶发失败被放大成一整段用户可见的空白。
       if (items.length) {
-        cache.set(cacheKey, { t: Date.now(), items });
+        setL1Cache(cacheKey, items);
         // 两份都写：新鲜的给正常路径，旧快照留作兜底。fire-and-forget，
         // 不 await —— 缓存写失败不该让用户多等。
         const payload = JSON.stringify({ items });
@@ -229,6 +239,12 @@ export async function onRequest(context) {
     preview: isPreview,
     items,
   }), {
-    headers: apiHeaders(),
+    headers: apiHeaders({
+      // 预览域保持 no-store；正式域开启 Cloudflare CDN 边缘缓存（60s）与后台异步刷新（120s）
+      // 挡掉重复请求，直接节约 80%~95% 的 Pages Functions 免费调用配额
+      "Cache-Control": isPreview
+        ? "no-store"
+        : "public, max-age=10, s-maxage=60, stale-while-revalidate=120",
+    }),
   });
 }

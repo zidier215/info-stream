@@ -179,6 +179,8 @@ main { padding: 10px 22px 60px; }
   position: relative; box-shadow: var(--shadow);
   transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
   animation: rise .35s ease both;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 160px;
 }
 .card:hover {
   transform: translateY(-3px); border-color: var(--accent);

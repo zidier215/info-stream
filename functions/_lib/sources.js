@@ -76,8 +76,36 @@ async function weibo(defs) {
 }
 
 async function baidu(defs) {
+  // 1. 优先直连百度官方移动端实时热搜 API（零依赖、免第三方代理、稳定性更高）
   try {
-    const d = await fetchJSON("https://v2.xxapi.cn/api/baiduhot");
+    const d = await fetchJSON(
+      "https://top.baidu.com/api/board?platform=wise&tab=realtime",
+      { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)" },
+      HTTP_TIMEOUT.default,
+    );
+    const list = d?.data?.cards?.[0]?.content || [];
+    if (Array.isArray(list) && list.length) {
+      const now = Date.now();
+      return list.map((x) => normalize({
+        category: "境内热搜",
+        title: x.word,
+        url: x.url || ("https://www.baidu.com/s?wd=" + encodeURIComponent(x.word || "")),
+        desc: x.desc || "",
+        img: x.img || "",
+        meta: "🔥 " + (x.hotScore ? String(x.hotScore) : (x.newHotName || x.labelTagName || "")),
+        source: "百度",
+        lang: "zh",
+        ts: now,
+        region: "cn",
+        sourceType: "social",
+        bucket: "cn",
+      }, defs));
+    }
+  } catch { /* 官方接口异常时降级至备份反代 */ }
+
+  // 2. 备用通道：xxapi
+  try {
+    const d = await fetchJSON("https://v2.xxapi.cn/api/baiduhot", {}, HTTP_TIMEOUT.default);
     if (!d || d.code !== 200) return [];
     const now = Date.now();
     return (d.data || []).map((x) => normalize({
@@ -90,7 +118,7 @@ async function baidu(defs) {
 
 async function douyin(defs) {
   try {
-    const d = await fetchJSON("https://v2.xxapi.cn/api/douyinhot");
+    const d = await fetchJSON("https://v2.xxapi.cn/api/douyinhot", {}, HTTP_TIMEOUT.default);
     if (!d || d.code !== 200) return [];
     const now = Date.now();
     return (d.data || []).map((x) => normalize({
@@ -101,6 +129,45 @@ async function douyin(defs) {
       region: "cn", sourceType: "social", bucket: "fun",
     }, defs));
   } catch { return []; }
+}
+
+async function bilibili(defs) {
+  try {
+    const d = await fetchJSON(
+      "https://api.bilibili.com/x/web-interface/search/square?limit=30",
+      { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" },
+      HTTP_TIMEOUT.default,
+    );
+    const list = d?.data?.trending?.list || [];
+    if (!Array.isArray(list) || !list.length) return [];
+    const now = Date.now();
+    return list.map((x) => normalize({
+      category: "娱乐",
+      title: x.show_name || x.keyword,
+      url: "https://search.bilibili.com/all?keyword=" + encodeURIComponent(x.keyword || ""),
+      meta: "🔥 " + (x.heat_score ? (x.heat_score > 10000 ? (x.heat_score / 10000).toFixed(0) + "万" : x.heat_score) : ""),
+      source: "B站热搜",
+      lang: "zh",
+      ts: now,
+      region: "cn",
+      sourceType: "social",
+      bucket: "fun",
+    }, defs));
+  } catch { return []; }
+}
+
+async function funCn(defs) {
+  const [dy, b] = await Promise.all([douyin(defs), bilibili(defs)]);
+  if (dy.length && b.length) {
+    const out = [];
+    const max = Math.max(dy.length, b.length);
+    for (let i = 0; i < max; i++) {
+      if (dy[i]) out.push(dy[i]);
+      if (b[i]) out.push(b[i]);
+    }
+    return out;
+  }
+  return dy.length ? dy : b;
 }
 
 // =========================================================================
@@ -792,7 +859,7 @@ for (const L of NEWS_LANGS) {
 // =========================================================================
 export const SOURCES = {
   // 境内
-  weibo, baidu, douyin,
+  weibo, baidu, douyin, bilibili,
   // 生活
   weather, market, games, football, hn,
   // AI
@@ -802,7 +869,7 @@ export const SOURCES = {
   "brief-world": briefWorld,
   "brief-ai": briefAi,
   "brief-life": briefLife,
-  "fun-cn": douyin,
+  "fun-cn": funCn,
   "fun-intl": funIntl,
   ...world,
   // AI 站
