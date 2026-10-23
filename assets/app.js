@@ -168,6 +168,13 @@ const UI_I18N = {
   bdEdition:{ zh: "完全版", "zh-Hant": "完全版", en: "Complete Edition", es: "Edición Completa", fr: "Édition Complète", ja: "コンプリート版", de: "Vollständige Edition", ru: "Полное издание", ar: "الإصدار الكامل", pt: "Edição Completa" },
   bdDeluxe: { zh: "豪华版", "zh-Hant": "豪華版", en: "Deluxe Edition", es: "Edición Deluxe", fr: "Édition Deluxe", ja: "デラックス版", de: "Deluxe-Edition", ru: "Издание Deluxe", ar: "إصدار ديلوكس", pt: "Edição Deluxe" },
   bdBundle: { zh: "捆绑包", "zh-Hant": "捆綁包", en: "Bundle", es: "Paquete", fr: "Pack", ja: "バンドル", de: "Bundle", ru: "Набор", ar: "حزمة", pt: "Pacote" },
+
+  // ---------- 综合简报：四大分类板块与模块定制 ----------
+  secFilterLabel: { zh: "模块定制：", "zh-Hant": "模組自訂：", en: "Sections: ", es: "Módulos: ", fr: "Modules : ", ja: "表示設定：", de: "Module: ", ru: "Модули: ", ar: "تخصيص: ", pt: "Módulos: " },
+  secHot:         { zh: "今日全网热点", "zh-Hant": "今日全網熱點", en: "Top Trending", es: "Tendencias Hoy", fr: "Tendances du Jour", ja: "今日のトレンド", de: "Top-Trends", ru: "Главные тренды", ar: "الأكثر رواجاً اليوم", pt: "Tendências de Hoje" },
+  secWorld:       { zh: "全球要闻聚焦", "zh-Hant": "全球要聞聚焦", en: "World Headlines", es: "Titulares Mundiales", fr: "À la Une Mondiale", ja: "世界のヘッドライン", de: "Weltnachrichten", ru: "Мировые новости", ar: "أبرز أخبار العالم", pt: "Manchetes Globais" },
+  secAi:          { zh: "前沿科技与 AI", "zh-Hant": "前沿科技與 AI", en: "Frontier Tech & AI", es: "Tecnología de Vanguardia e IA", fr: "High-Tech & IA", ja: "先端テック＆AI", de: "Spitzentechnologie & KI", ru: "Передовые технологии и ИИ", ar: "التقنية المتقدمة والذكاء", pt: "Tecnologia de Ponta e IA" },
+  secLife:        { zh: "生活与市场速递", "zh-Hant": "生活與市場速遞", en: "Life & Markets", es: "Vida y Mercados", fr: "Vie & Marchés", ja: "生活・マーケット速報", de: "Leben & Märkte", ru: "Жизнь и рынки", ar: "الحياة والأسواق", pt: "Vida e Mercados" },
 };
 
 function uiText(key) {
@@ -204,7 +211,7 @@ const I18N = {
 // category 标签决定。这里只做「显示名」映射，未收录的类目直接显示服务端给的原文
 // —— 宁可显示英文原名，也不要显示一个错的翻译。
 const CAT_KEY = {
-  "热搜": "hot", "境内热搜": "hot", "国际要闻": "worldNews", "头条": "topNews", "地区": "region",
+  "热搜": "hot", "境内热搜": "hot", "B站热搜": "hot", "国际要闻": "worldNews", "头条": "topNews", "地区": "region",
   "娱乐": "fun", "市场": "market", "足球": "football", "天气": "weather", "游戏": "games",
   "AI": "ai", "AI 快讯": "ai", "AI 商业": "ai", "AI 产品": "ai", "AI 论文": "aiPapers",
   "大模型": "aiModels", "芯片算力": "aiChips", "技术社区": "tech",
@@ -213,7 +220,7 @@ const CAT_KEY = {
 
 // 类目强调色。新增类目必须同时在这里登记颜色，否则卡片会退回默认橙。
 const CAT_COLOR = {
-  "热搜": "#e8553b", "境内热搜": "#e8553b",
+  "热搜": "#e8553b", "境内热搜": "#e8553b", "B站热搜": "#f0902a",
   "娱乐": "#f0902a",
   "天气": "#e0a83c",
   "游戏": "#c0659a",
@@ -638,10 +645,20 @@ function renderEntries() {
 }
 
 // ---------- 卡片 ----------
+function getCardAccent(it) {
+  if (it && it.category && CAT_COLOR[it.category]) return CAT_COLOR[it.category];
+  const sec = getCardSection(it);
+  if (sec === "hot") return "#e8553b";
+  if (sec === "world") return "#357abb";
+  if (sec === "ai") return "#7a52aa";
+  if (sec === "life") return "#d27329";
+  return "#e8743b";
+}
+
 function makeCard(it) {
   const el = document.createElement("article");
   el.className = "card";
-  el.style.setProperty("--accent", CAT_COLOR[it.category] || "#e8743b");
+  el.style.setProperty("--accent", getCardAccent(it));
   const thumb = it.img ? `<div class="thumb" style="background-image:url('${escapeHtml(it.img)}')"></div>` : "";
   const desc = it.desc ? `<p class="desc">${escapeHtml(it.desc)}</p>` : "";
   // badge 有值就按当前语言重排（Epic），没有才用服务端拼好的 meta 兜底。
@@ -837,26 +854,116 @@ async function loadFeed(force) {
   } finally {
     loading = false;
     // 数据到货但页面还是空的 → 主动画出来。
-    // 踩坑记录（2026-10-22）：v2.4 重构时这里只剩 setStatus，把原来的绘制调用丢了。
-    // 后果是「后端返回 19 条、buffer 有数据、但 #feed 零张卡片」——死锁：
-    // 启动时 IO 触发 pump → renderMore 发现 buffer 空 → 异步 loadFeed 起飞 →
-    // renderMore 循环什么都没画就返回 → loadFeed 回来只塞 buffer 不画 →
-    // sentinel 相交状态没变，IO 不再触发，用户不滚动，scroll 兜底也不跑。
-    // 表面症状是「接口 200 有数据，页面全白」，curl 和接口测试全都测不出来。
-    // 只有渲染路径能画，用 feed.childElementCount===0 精确判断「用户还没看到东西」。
-    //
-    // 第二条（2026-10-22 又踩一次）：不能只看「页面是不是空的」。补货回来后
-    // buffer 里往往还剩几条没画，而把它们逼出来的只有 IO 与 scroll 两个**边沿**触发：
-    //   · IO 只在 sentinel 相交状态「变化」时回调，内容变高但 sentinel 仍在视口内 → 不再触发
-    //   · scroll 兜底有 220ms 节流，用户恰好在节流窗口里停下滚动 → 那一次 pump 被丢掉
-    // 实测：首屏 24 张 → 滚一下变 36 张，buffer 里还剩 3 张，
-    // 之后无论怎么滚都停在 36，底部却写着「✓ 暂时到底」——货在 buffer 里画不出来。
-    // 所以判断标准补一条：底部还露着（nearBottom）就继续画，与 feedExhausted 无关。
-    if (buffer.length && (feed.childElementCount === 0 || nearBottom())) {
+    if (buffer.length && (feed.querySelectorAll(".card").length === 0 || nearBottom())) {
       renderMore(pumpNeed());
       return;                       // renderMore 内部会 setStatus
     }
     setStatus(loading ? "loading" : buffer.length > 0 ? "more" : "end");
+  }
+}
+
+// ---------- 综合简报：板块定义与分类 ----------
+const SECTION_DEFS = [
+  { id: "hot", i18n: "secHot", icon: "🔥", link: "https://hot.myinfostream.com/", linkText: "entryHot" },
+  { id: "world", i18n: "secWorld", icon: "🌐", link: "https://news.myinfostream.com/", linkText: "entryNews" },
+  { id: "ai", i18n: "secAi", icon: "🤖", link: "https://ai.myinfostream.com/", linkText: "entryAi" },
+  { id: "life", i18n: "secLife", icon: "☕", link: "https://game.myinfostream.com/", linkText: "entryGame" },
+];
+
+function getCardSection(it) {
+  if (!it) return "hot";
+  const cat = it.category || "";
+  const src = it.source || "";
+  if (it.bucket === "cn" || cat === "境内热搜" || cat === "热搜" || cat === "娱乐" || src === "微博" || src === "百度" || src === "B站热搜" || src === "抖音") return "hot";
+  if (cat === "国际要闻" || cat === "国际" || cat === "头条" || cat === "地区") return "world";
+  if (cat.startsWith("AI") || cat === "大模型" || cat === "芯片算力" || cat === "技术社区" || src === "HuggingFace" || src === "arXiv") return "ai";
+  if (it.bucket === "life" || cat === "天气" || cat === "市场" || cat.startsWith("游戏") || cat === "足球" || cat === "生活") return "life";
+  return "hot";
+}
+
+function loadEnabledSections() {
+  try {
+    const saved = localStorage.getItem("infostream_sections");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return ["hot", "world", "ai", "life"];
+}
+
+let enabledSections = loadEnabledSections();
+
+function saveEnabledSections(list) {
+  enabledSections = list;
+  try {
+    localStorage.setItem("infostream_sections", JSON.stringify(list));
+  } catch {}
+}
+
+function ensureBriefContainers() {
+  let selector = document.getElementById("secSelector");
+  if (!selector) {
+    selector = document.createElement("div");
+    selector.id = "secSelector";
+    selector.className = "sec-selector-wrap";
+    selector.innerHTML = `
+      <span class="sec-selector-label">${escapeHtml(uiText("secFilterLabel"))}</span>
+      <div class="sec-chips">
+        ${SECTION_DEFS.map((s) => {
+          const on = enabledSections.includes(s.id);
+          return `<button type="button" class="sec-chip${on ? " active" : ""}" data-sec="${s.id}">${s.icon} ${escapeHtml(uiText(s.i18n))}</button>`;
+        }).join("")}
+      </div>
+    `;
+    feed.appendChild(selector);
+    selector.addEventListener("click", (e) => {
+      const btn = e.target.closest(".sec-chip");
+      if (!btn) return;
+      const secId = btn.dataset.sec;
+      if (enabledSections.includes(secId)) {
+        if (enabledSections.length <= 1) return; // 至少保留一个板块
+        enabledSections = enabledSections.filter((x) => x !== secId);
+        btn.classList.remove("active");
+      } else {
+        enabledSections.push(secId);
+        btn.classList.add("active");
+      }
+      saveEnabledSections(enabledSections);
+      updateSectionVisibility();
+    });
+  }
+
+  for (const s of SECTION_DEFS) {
+    let secBox = document.getElementById("sec-" + s.id);
+    if (!secBox) {
+      secBox = document.createElement("section");
+      secBox.id = "sec-" + s.id;
+      secBox.dataset.sec = s.id;
+      secBox.className = "brief-section" + (enabledSections.includes(s.id) ? "" : " is-hidden");
+      secBox.innerHTML = `
+        <div class="brief-sec-header">
+          <div class="brief-sec-title">
+            <span class="brief-sec-icon">${s.icon}</span>
+            <span class="brief-sec-name">${escapeHtml(uiText(s.i18n))}</span>
+            <span class="brief-sec-count" id="count-${s.id}">0</span>
+          </div>
+          <a class="brief-sec-link" href="${s.link}" target="_blank" rel="noopener">${escapeHtml(uiText(s.linkText))} →</a>
+        </div>
+        <div class="brief-sec-grid feed" id="grid-${s.id}"></div>
+      `;
+      feed.appendChild(secBox);
+    }
+  }
+}
+
+function updateSectionVisibility() {
+  for (const s of SECTION_DEFS) {
+    const box = document.getElementById("sec-" + s.id);
+    if (box) {
+      if (enabledSections.includes(s.id)) box.classList.remove("is-hidden");
+      else box.classList.add("is-hidden");
+    }
   }
 }
 
@@ -868,15 +975,32 @@ function renderMore(n) {
     else if (!feedExhausted) loadFeed();                          // 真实模式按需 fetch
     else { setStatus("end"); return; }
   }
-  const frag = document.createDocumentFragment();
-  // n<=0 表示"一次画完整个 buffer"
+
+  const isBrief = IS_MAIN && activeTab === "brief";
+  if (isBrief) ensureBriefContainers();
+
   const want = n > 0 ? n : Infinity;
   let drew = 0;
-  for (let i = 0; i < want && buffer.length > 0; i++) {
-    frag.appendChild(makeCard(buffer.shift()));
-    drew++;
+
+  if (isBrief) {
+    for (let i = 0; i < want && buffer.length > 0; i++) {
+      const it = buffer.shift();
+      const cardEl = makeCard(it);
+      const secId = getCardSection(it);
+      const grid = document.getElementById("grid-" + secId) || feed;
+      grid.appendChild(cardEl);
+      const countEl = document.getElementById("count-" + secId);
+      if (countEl) countEl.textContent = String(grid.children.length);
+      drew++;
+    }
+  } else {
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < want && buffer.length > 0; i++) {
+      frag.appendChild(makeCard(buffer.shift()));
+      drew++;
+    }
+    if (frag.childNodes.length) feed.appendChild(frag);
   }
-  if (frag.childNodes.length) feed.appendChild(frag);
 
   // 演示模式：永远别让 buffer 见底
   if (useDemo && buffer.length < 12) loadDemoBatch(20);

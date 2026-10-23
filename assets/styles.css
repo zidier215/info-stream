@@ -244,6 +244,121 @@ main { padding: 10px 22px 60px; }
   box-shadow: 0 6px 18px rgba(214, 160, 25, .28);
 }
 
+/* ---------------- 综合简报：分门别类板块流与定制 ---------------- */
+.sec-selector-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  background: #fff9f0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  margin-bottom: 22px;
+  box-shadow: 0 1px 3px rgba(90, 60, 30, 0.05);
+}
+.sec-selector-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+}
+.sec-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sec-chip {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: #7a5a40;
+  font-size: 12.5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all .15s ease;
+  user-select: none;
+  font-weight: 600;
+}
+.sec-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.sec-chip.active {
+  background: #ffe6cf;
+  border-color: #e8743b;
+  color: #943a0e;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(232, 116, 59, 0.2);
+}
+.sec-chip:not(.active) {
+  opacity: 0.55;
+  background: #fdfbf7;
+  color: #a48b78;
+}
+
+.brief-section {
+  margin-bottom: 32px;
+  transition: opacity .2s ease;
+}
+.brief-section.is-hidden {
+  display: none !important;
+}
+.brief-sec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #eddcd0;
+}
+.brief-sec-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.brief-sec-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.brief-sec-name {
+  font-size: 17px;
+  font-weight: 800;
+  color: #4a3325;
+}
+.brief-sec-count {
+  font-size: 11px;
+  font-weight: 700;
+  background: #faeedf;
+  color: #b3531f;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 2px;
+}
+.brief-sec-link {
+  font-size: 12.5px;
+  color: #b3531f;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #fff4ea;
+  border: 1px solid #ffd8bc;
+  transition: all .15s ease;
+}
+.brief-sec-link:hover {
+  background: #ffe3cc;
+  border-color: #e8743b;
+  text-decoration: none;
+  transform: translateX(2px);
+}
+.brief-sec-grid {
+  column-width: 320px;
+  column-gap: var(--gap);
+}
+
 /* ---------------- 页脚 ---------------- */
 .foot {
   padding: 18px 22px 30px; border-top: 1px solid var(--line);
