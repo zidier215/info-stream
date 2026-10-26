@@ -924,8 +924,6 @@ export const SOURCES = {
   // AI 与开源
   hfPapers, arxiv, techcrunch, githubTrending,
   "github-trending": githubTrending,
-  "techcrunch": techcrunch,
-  "bilibili": bilibili,
   // 主站
   "brief-cn": briefCn,
   "brief-world": briefWorld,

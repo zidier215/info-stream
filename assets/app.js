@@ -758,7 +758,9 @@ function getClientFeed(key) {
     if (!raw) return null;
     const obj = JSON.parse(raw);
     if (obj && obj.t && (Date.now() - obj.t < CLIENT_CACHE_TTL) && obj.data) {
-      return obj.data;
+      // 读出来时也把 stale 抹掉：老版本写进 localStorage 的缓存里还带着它，
+      // 不抹的话老用户即使代码更新了也会继续看到那条误报的故障横幅。
+      return Object.assign({}, obj.data, { stale: false });
     }
   } catch {}
   return null;
@@ -767,7 +769,18 @@ function getClientFeed(key) {
 function setClientFeed(key, data) {
   try {
     if (data && Array.isArray(data.items) && data.items.length) {
-      localStorage.setItem("infostream_feed_" + key, JSON.stringify({ t: Date.now(), data }));
+      // 客户端缓存只存「内容」，不存「状态」。
+      //
+      // stale 说的是「**这一次**请求实时源全挂了，我给你的是旧快照」，
+      // 是响应时点的状态，不是内容本身的属性。
+      // 把它和内容一起存 1 小时的恶果（2026-10-26 staletest 场景2 实测）：
+      //   缓存命中 → fetchFeed 直接返回、根本不发请求 → data.stale 仍是 true
+      //   → 「实时源暂时无响应」的横幅在本地一直挂着
+      //   → 后端早就恢复了这横幅也不消失，用户点刷新也修不好
+      //     （只有 force=1 才绕过缓存）
+      // 换句话说，这是一条「用户无法自行消除的假故障提示」。
+      const { stale, ...content } = data;
+      localStorage.setItem("infostream_feed_" + key, JSON.stringify({ t: Date.now(), data: content }));
     }
   } catch {}
 }

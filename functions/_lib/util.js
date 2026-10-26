@@ -36,9 +36,23 @@ async function fetchGuarded(url, headers, timeout, reader) {
   // 交由上层的 withDeadline 处理 —— 但仍要把 signal 传下去，好让上层能取消。
   const id = timeout > 0 ? setTimeout(() => ctrl.abort(), timeout) : null;
   try {
+    // header 合并必须大小写不敏感（2026-10-26 B 站 -352 风控踩坑）。
+    //
+    // 为什么不能直接 Object.assign：
+    //   默认值用小写 "user-agent"，调用方（B 站/GitHub Trending 源）传的是
+    //   大写 "User-Agent"。JS 对象的 key 大小写敏感，Object.assign 会把
+    //   两个 key 都留下，undici 归一化时把它们**拼成一条**：
+    //     user-agent: "Mozilla/5.0 (compatible; InfoStream/2.4), Mozilla/5.0 ... Chrome/122..."
+    //   上游看到 UA 开头是自报爬虫标识的 InfoStream/2.4，直接判风控 ——
+    //   B 站 ranking/v2 稳定返回 code:-352，列表被吞成 0 条。
+    //
+    // Headers.set() 本身大小写不敏感且同名即覆盖，
+    // 所以传了 UA 的源拿到的是干净的单一 UA，没传的源保持原默认值。
+    const h = new Headers({ "user-agent": "Mozilla/5.0 (compatible; InfoStream/2.4)" });
+    for (const [k, v] of Object.entries(headers || {})) h.set(k, v);
     const res = await fetch(url, {
       signal: ctrl.signal,
-      headers: Object.assign({ "user-agent": "Mozilla/5.0 (compatible; InfoStream/2.4)" }, headers || {}),
+      headers: h,
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
     return await reader(res);
