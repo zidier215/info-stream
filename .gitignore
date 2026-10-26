@@ -31,3 +31,5 @@ dumptpl-*.html
 Thumbs.db
 *.log
 *.zip
+# 发布前的 zip 快照备份（只留本地，不进版本库）
+*.zip.bak-*

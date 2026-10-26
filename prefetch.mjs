@@ -26,6 +26,7 @@ const TABS = [
   { host: "news.myinfostream.com", tab: "top", lang: "en" },
   { host: "game.myinfostream.com", tab: "live", lang: "zh" },
   { host: "hot.myinfostream.com", tab: "weibo", lang: "zh" },
+  { host: "hot.myinfostream.com", tab: "bilibili", lang: "zh" },
 ];
 
 console.log("==> 开始预生成静态数据快照 (方案2)...");

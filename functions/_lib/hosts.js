@@ -51,8 +51,8 @@ export const HOSTS = {
     tabs: [
       { id: "brief", i18n: "brief", sources: ["brief-cn", "brief-world", "brief-ai", "brief-life"] },
       { id: "world", i18n: "world", sources: ["world-zh", "world-en", "world-es", "world-fr", "world-ar", "world-ru"] },
-      { id: "ai", i18n: "ai", sources: ["ai-news", "ai-papers", "ai-intl"] },
-      { id: "fun", i18n: "fun", sources: ["fun-cn", "fun-intl"] },
+      { id: "ai", i18n: "ai", sources: ["ai-news", "techcrunch", "github-trending", "ai-papers", "ai-intl"] },
+      { id: "fun", i18n: "fun", sources: ["fun-cn", "bilibili", "fun-intl"] },
     ],
     entries: [
       { host: "ai.myinfostream.com", key: "ai", i18n: "entryAi", fallback: "AI 情报站", fallbackEn: "AI Intelligence" },
@@ -80,10 +80,10 @@ export const HOSTS = {
     // 要加韩语：先在 app.js 补 LANGS 里的 {code:"ko"} 与 I18N.ko 的全部文案，再回来加这一行。
     langs: ["zh", "zh-Hant", "en", "es", "fr", "ja", "ru", "ar", "de", "pt"],
     tabs: [
-      { id: "all", i18n: "all", sources: ["ai-news", "ai-papers", "ai-intl", "ai-chips", "ai-biz"] },
+      { id: "all", i18n: "all", sources: ["ai-news", "techcrunch", "github-trending", "ai-papers", "ai-intl", "ai-chips", "ai-biz"] },
       { id: "models", i18n: "tabModels", sources: ["ai-models", "ai-news"] },
       { id: "chips", i18n: "tabChips", sources: ["ai-chips"] },
-      { id: "biz", i18n: "tabBiz", sources: ["ai-biz", "ai-intl"] },
+      { id: "biz", i18n: "tabBiz", sources: ["ai-biz", "techcrunch", "ai-intl"] },
       { id: "papers", i18n: "tabPapers", sources: ["ai-papers"] },
     ],
     siblings: ["myinfostream.com", "news.myinfostream.com", "game.myinfostream.com", "hot.myinfostream.com"],
@@ -160,10 +160,10 @@ export const HOSTS = {
     host: "hot.myinfostream.com",
     title: "热搜站",
     titleEn: "Trending",
-    desc: "微博、百度、抖音三大实时热搜榜：分榜对照，一眼看出全网此刻在关注什么。",
-    descEn: "Live trending from Weibo, Baidu and Douyin — three boards side by side, so you can see what the internet is watching right now.",
-    tagline: "三榜实时 · 分榜对照 · 不做推荐",
-    taglineEn: "Three live boards · Side by side · No recommendations",
+    desc: "微博、百度、B站、抖音四大实时热门榜：分榜对照，一眼看出全网此刻在关注什么。",
+    descEn: "Live trending from Weibo, Baidu, Bilibili and Douyin — boards side by side, so you can see what the internet is watching right now.",
+    tagline: "四榜实时 · 分榜对照 · 不做推荐",
+    taglineEn: "Four live boards · Side by side · No recommendations",
     defaultLang: "zh",
     // 热搜内容源全是中文（微博/百度/抖音），界面语言放开但内容恒为中文，
     // 这与 news 站的「内容随 srcLang 变」是两种不同形态。
@@ -171,6 +171,7 @@ export const HOSTS = {
     tabs: [
       { id: "weibo", i18n: "tabHotWeibo", sources: ["weibo"] },
       { id: "baidu", i18n: "tabHotBaidu", sources: ["baidu"] },
+      { id: "bilibili", i18n: "tabHotBilibili", sources: ["bilibili"] },
       { id: "douyin", i18n: "tabHotDouyin", sources: ["douyin"] },
     ],
     siblings: ["myinfostream.com", "ai.myinfostream.com", "news.myinfostream.com", "game.myinfostream.com"],

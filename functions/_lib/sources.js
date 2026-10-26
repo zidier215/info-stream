@@ -103,6 +103,31 @@ async function douyin(defs) {
   } catch { return []; }
 }
 
+async function bilibili(defs) {
+  try {
+    const d = await fetchJSON("https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all", {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      "Referer": "https://www.bilibili.com/",
+    });
+    const list = d?.data?.list;
+    if (!Array.isArray(list)) return [];
+    return list.slice(0, 15).map((x) => normalize({
+      category: "娱乐",
+      title: x.title,
+      url: x.short_link_v2 || `https://www.bilibili.com/video/${x.bvid}`,
+      desc: x.desc || (x.rcmd_reason && x.rcmd_reason.content) || "",
+      img: x.pic || "",
+      meta: `🎬 ${x.owner?.name || "B站"} · ${(x.stat?.view ? (x.stat.view / 10000).toFixed(1) + "万播放" : "热门")}`,
+      source: "B站",
+      lang: "zh",
+      ts: toTs(x.pubdate * 1000) || Date.now(),
+      region: "cn",
+      sourceType: "social",
+      bucket: "fun",
+    }, defs));
+  } catch { return []; }
+}
+
 // =========================================================================
 // 2. 生活服务源（主站简报用）
 // =========================================================================
@@ -157,7 +182,7 @@ async function weather(opts, defs) {
 //   悄悄丢掉这两张卡，绝不让它拖慢整个简报页。
 const CRYPTO_ENDPOINTS = [
   {
-    name: "Binance", url: 'https://api.binance.com/api/v3/ticker/price?symbols=%5B%22BTCUSDT%22,%22ETHUSDT%22%5D',
+    name: "Binance", url: 'https://api.binance.com/api/v3/ticker/price?symbols=%5B%22BTCUSDT%22,%22ETHUSDT%22,%22SOLUSDT%22%5D',
     pick: (d) => (Array.isArray(d) ? d.map((t) => ({ sym: t.symbol, price: Number(t.price) })) : null)
   },
   {
@@ -172,9 +197,20 @@ const CRYPTO_ENDPOINTS = [
       return c ? [{ sym: "BTCUSDT", price: Number(c) }] : null;
     }
   },
+  {
+    name: "CoinGecko", url: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd",
+    pick: (d) => {
+      if (!d) return null;
+      const res = [];
+      if (d.bitcoin?.usd) res.push({ sym: "BTCUSDT", price: Number(d.bitcoin.usd) });
+      if (d.ethereum?.usd) res.push({ sym: "ETHUSDT", price: Number(d.ethereum.usd) });
+      if (d.solana?.usd) res.push({ sym: "SOLUSDT", price: Number(d.solana.usd) });
+      return res.length ? res : null;
+    }
+  },
 ];
 
-const CRYPTO_NAMES = { BTCUSDT: "比特币 BTC", ETHUSDT: "以太坊 ETH" };
+const CRYPTO_NAMES = { BTCUSDT: "比特币 BTC", ETHUSDT: "以太坊 ETH", SOLUSDT: "Solana SOL" };
 
 async function marketCrypto(defs) {
   const tryOne = async (ep) => {
@@ -508,6 +544,69 @@ async function hn(defs) {
   } catch { return []; }
 }
 
+// TechCrunch（国际一线科技媒体）
+async function techcrunch(defs) {
+  try {
+    const xml = await fetchText("https://techcrunch.com/feed/", {}, HTTP_TIMEOUT.gnews);
+    const blocks = parseRssItems(xml);
+    return blocks.slice(0, 12).map((b) => {
+      const pub = xmlPick(b, "pubDate");
+      return normalize({
+        category: "科技前沿",
+        title: xmlPick(b, "title"),
+        url: xmlPick(b, "link"),
+        desc: stripTags(xmlPick(b, "description"), 180),
+        meta: "🚀 TechCrunch" + (pub ? " · " + ago(pub, "en") : ""),
+        source: "TechCrunch",
+        lang: "en",
+        ts: toTs(pub),
+        region: "intl",
+        sourceType: "news",
+        bucket: "tech",
+      }, defs);
+    }).filter((x) => x.title);
+  } catch { return []; }
+}
+
+// GitHub Trending（每日开源热榜）
+async function githubTrending(defs) {
+  try {
+    const html = await fetchText("https://github.com/trending?since=daily", {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+    }, HTTP_TIMEOUT.gnews);
+    const re = /<article class="Box-row">([\s\S]*?)<\/article>/g;
+    let m;
+    const list = [];
+    const now = Date.now();
+    while ((m = re.exec(html)) && list.length < 15) {
+      const block = m[1];
+      const linkM = block.match(/<h2 class="h3 lh-condensed">[\s\S]*?<a\s+[^>]*?href="\/([a-zA-Z0-9_\-\.]+\/[a-zA-Z0-9_\-\.]+)"/);
+      if (!linkM) continue;
+      const name = linkM[1].trim();
+      const descM = block.match(/<p\s+class="[^"]*color-fg-muted[^"]*">([\s\S]*?)<\/p>/);
+      const desc = descM ? descM[1].replace(/<[^>]+>/g, "").trim().replace(/\s+/g, " ") : "";
+      const starM = block.match(/(\d[\d,]*)\s+stars today/i) || block.match(/aria-label="star"[\s\S]*?<\/svg>\s*([\d,]+)/);
+      const stars = starM ? starM[1].trim() : "";
+      const langM = block.match(/itemprop="programmingLanguage">([^<]+)</);
+      const codeLang = langM ? langM[1].trim() : "";
+      list.push(normalize({
+        category: "开源热榜",
+        title: name,
+        desc,
+        url: `https://github.com/${name}`,
+        meta: `⭐ 今日 +${stars || "100+"} · ${codeLang || "GitHub"}`,
+        source: "GitHub",
+        lang: "en",
+        ts: now,
+        region: "global",
+        sourceType: "community",
+        bucket: "tech",
+      }, defs));
+    }
+    return list;
+  } catch { return []; }
+}
+
 // =========================================================================
 // 4. Google News 组合源
 // =========================================================================
@@ -523,8 +622,8 @@ const g = (o) => (opts, defs) => makeGNews({ ...(defs || {}), ...o })().then((it
 
 // 主站简报：境内热搜（微博+百度，前端再排序取头部）
 const briefCn = async (opts, defs) => {
-  const [a, b] = await Promise.all([weibo(defs), baidu(defs)]);
-  return dedupeBy(a.concat(b), (x) => x.title).slice(0, 12);
+  const [a, b, c] = await Promise.all([weibo(defs), baidu(defs), bilibili(defs)]);
+  return dedupeBy(a.concat(b, c), (x) => x.title).slice(0, 15);
 };
 // 主站简报：国际要闻（中 + 英 + 西多语种混合，中文保障可读性，英美保障一手深度）
 const briefWorld = async (opts, defs) => {
@@ -536,11 +635,13 @@ const briefWorld = async (opts, defs) => {
   return zh.concat(en, es);
 };
 const briefAi = async (opts, defs) => {
-  const [a, b] = await Promise.all([
+  const [a, b, tc, gh] = await Promise.all([
     g({ lang: "en", extra: "artificial intelligence OR OpenAI OR Anthropic OR Nvidia", when: "1d", category: "AI 快讯", topic: "main", limit: 6, label: "AI News" })(opts, defs),
     g({ lang: "en", extra: "AI startup OR AI funding OR \"machine learning\"", when: "2d", category: "AI 商业", topic: "main", limit: 4, label: "AI Business" })(opts, defs),
+    techcrunch(defs),
+    githubTrending(defs),
   ]);
-  return a.concat(b);
+  return a.concat(b, tc.slice(0, 3), gh.slice(0, 3));
 };
 const briefLife = async (opts, defs) => {
   const [w, m, g2] = await Promise.all([weather(opts, defs), market(opts, defs), games(opts, defs)]);
@@ -817,17 +918,23 @@ for (const L of NEWS_LANGS) {
 // =========================================================================
 export const SOURCES = {
   // 境内
-  weibo, baidu, douyin,
+  weibo, baidu, douyin, bilibili,
   // 生活
   weather, market, games, football, hn,
-  // AI
-  hfPapers, arxiv,
+  // AI 与开源
+  hfPapers, arxiv, techcrunch, githubTrending,
+  "github-trending": githubTrending,
+  "techcrunch": techcrunch,
+  "bilibili": bilibili,
   // 主站
   "brief-cn": briefCn,
   "brief-world": briefWorld,
   "brief-ai": briefAi,
   "brief-life": briefLife,
-  "fun-cn": douyin,
+  "fun-cn": async (defs) => {
+    const [a, b] = await Promise.all([douyin(defs), bilibili(defs)]);
+    return a.concat(b);
+  },
   "fun-intl": funIntl,
   ...world,
   // AI 站
