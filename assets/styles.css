@@ -120,6 +120,28 @@ body {
   font-weight: 700;
 }
 
+.github-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.github-btn:hover {
+  background: var(--card-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
 /* ---------------- 顶部 Tab ----------------
    v2.4 从 .chips/.chip 改成 .tabs/.tab。视觉上刻意保持一致（同样的胶囊形状、
    同样的 sticky 位置），这样切换 tab 时页面不会整体跳动一格——
