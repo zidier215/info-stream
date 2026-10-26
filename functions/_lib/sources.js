@@ -526,13 +526,14 @@ const briefCn = async (opts, defs) => {
   const [a, b] = await Promise.all([weibo(defs), baidu(defs)]);
   return dedupeBy(a.concat(b), (x) => x.title).slice(0, 12);
 };
-// 主站简报：国际要闻（英 + 西）
+// 主站简报：国际要闻（中 + 英 + 西多语种混合，中文保障可读性，英美保障一手深度）
 const briefWorld = async (opts, defs) => {
-  const [a, b] = await Promise.all([
+  const [zh, en, es] = await Promise.all([
+    g({ lang: "zh", extra: "(国际局势 OR 联合早报 OR 路透 OR 中东 OR 美联储 OR 欧洲 OR 外交部)", strictSource: false, when: "2d", category: "国际要闻", topic: "main", limit: 6, label: "环球要闻" })(opts, defs),
     g({ lang: "en", sources: GN_SOURCES.en.slice(0, 6), when: "1d", category: "国际要闻", topic: "main", limit: 6, label: "Reuters · BBC · FT" })(opts, defs),
-    g({ lang: "es", sources: GN_SOURCES.es.slice(0, 4), when: "1d", category: "国际要闻", topic: "main", limit: 4, label: "El País · EFE" })(opts, defs),
+    g({ lang: "es", extra: "(internacional OR política OR economía)", strictSource: false, when: "2d", category: "国际要闻", topic: "main", limit: 4, label: "El País · EFE" })(opts, defs),
   ]);
-  return a.concat(b);
+  return zh.concat(en, es);
 };
 const briefAi = async (opts, defs) => {
   const [a, b] = await Promise.all([
@@ -784,13 +785,31 @@ const newsRegion = async (opts, defs) => {
   return dedupeBy(out, (x) => x.title);
 };
 
-// 主站「国际」Tab 的五语种源。放在这里而不是函数区，因为要用到 NEWS_LANGS
-// —— 提前引用会踩 const 的 TDZ（暂时性死区）直接抛 ReferenceError。
-const world = {};
+// 主站「国际」Tab 的多语种源：包含中文国际要闻以及五大语种主流媒体。
+// 修复核心：小语种必须带 fallback 关键词 L.fb，否则纯 when:1d 会被 Google News 返回 0 条。
+const world = {
+  "world-zh": g({
+    lang: "zh",
+    extra: "(国际局势 OR 联合早报 OR 路透 OR 中东 OR 美联储 OR 欧洲 OR 联合国)",
+    strictSource: false,
+    when: "2d",
+    category: "国际",
+    topic: "main",
+    limit: 12,
+    label: "环球要闻",
+  }),
+};
 for (const L of NEWS_LANGS) {
   world["world-" + L.k] = g({
-    lang: L.hl, sources: L.sources, strictSource: L.strict, when: "1d",
-    category: "国际", topic: "main", limit: 10, label: L.hl,
+    lang: L.hl,
+    sources: L.sources,
+    strictSource: L.strict,
+    extra: L.fb || "",
+    when: "2d",
+    category: "国际",
+    topic: "main",
+    limit: 10,
+    label: L.hl,
   });
 }
 // =========================================================================

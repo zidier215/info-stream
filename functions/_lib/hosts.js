@@ -50,7 +50,7 @@ export const HOSTS = {
     // 主站 = 简报 + 入口，不再把所有类目混成一条瀑布流
     tabs: [
       { id: "brief", i18n: "brief", sources: ["brief-cn", "brief-world", "brief-ai", "brief-life"] },
-      { id: "world", i18n: "world", sources: ["world-en", "world-es", "world-fr", "world-ar", "world-ru"] },
+      { id: "world", i18n: "world", sources: ["world-zh", "world-en", "world-es", "world-fr", "world-ar", "world-ru"] },
       { id: "ai", i18n: "ai", sources: ["ai-news", "ai-papers", "ai-intl"] },
       { id: "fun", i18n: "fun", sources: ["fun-cn", "fun-intl"] },
     ],
