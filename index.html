@@ -56,6 +56,14 @@
         <button type="button" id="btnViewList" class="view-btn active" data-view="list" title="形态1：规整线性列表流（高密度单行，15-20条/屏）">📑 列表</button>
         <button type="button" id="btnViewGrid" class="view-btn" data-view="grid" title="形态4：规整标准化网格卡片（等高棋盘格）">🔲 网格</button>
       </div>
+      <!-- 排版列数控制：自适应 / 3列 / 4列 / 2列 / 全屏铺满 -->
+      <select id="colSelect" class="col-select" aria-label="排版列数" title="排版列数与自适应选项">
+        <option value="auto">⚡ 自适应</option>
+        <option value="3">3 列</option>
+        <option value="4">4 列</option>
+        <option value="2">2 列</option>
+        <option value="full">全屏铺满</option>
+      </select>
       <button type="button" id="btnCustomize" class="btn btn-customize" title="定制板块与数据源">⚙️ <span data-i18n="customize">定制</span></button>
       <select id="lang" class="lang" aria-label="语言 / Language"></select>
       <button id="translateBtn" class="btn" data-i18n="translate" style="display:none">🌐 翻译</button>

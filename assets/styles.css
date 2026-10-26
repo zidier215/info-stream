@@ -86,6 +86,22 @@ body {
   font-weight: 700;
   box-shadow: 0 1px 3px rgba(160, 110, 70, 0.15);
 }
+.col-select {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 9px;
+  transition: all .15s ease;
+  line-height: 1.4;
+}
+.col-select:hover, .col-select:focus {
+  border-color: var(--accent);
+  background: var(--card-hover);
+}
 
 /* ---------------- 顶栏天气（语言选择器前的小胶囊 + 弹层） ---------------- */
 .wx { position: relative; }
@@ -197,26 +213,98 @@ body {
 .api-card a.api-link { font-size: 12px; color: #b3531f; text-decoration: none; font-weight: 700; }
 .api-card a.api-link:hover { text-decoration: underline; }
 
-/* ---------------- 信息流容器与视图模式 ---------------- */
-main { padding: 10px 22px 60px; }
+/* ---------------- 信息流容器与自适应列数系统 ---------------- */
+main {
+  padding: 12px 24px 60px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
 .feed {
   width: 100%;
   margin: 0 auto;
-  transition: opacity .15s ease;
+  transition: max-width .2s ease;
 }
 .card.is-hidden {
   display: none !important;
 }
 
+/* ⚡ 智能自适应模式（Auto Fluid：默认开启，根据屏幕宽度自动填满 2~5 列，消灭大片空白） */
+.feed.cols-auto {
+  max-width: 1720px;
+}
+.feed.cols-auto .feed-sec-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 16px;
+}
+
+/* 2 列紧凑模式（适合分屏、半屏或小窗口） */
+.feed.cols-2 {
+  max-width: 980px;
+}
+.feed.cols-2 .feed-sec-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* 3 列标准宽屏模式（最舒适的桌面黄金比例） */
+.feed.cols-3 {
+  max-width: 1440px;
+}
+.feed.cols-3 .feed-sec-body {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* 4 列大屏模式（24寸/27寸宽屏大显示器） */
+.feed.cols-4 {
+  max-width: 1840px;
+}
+.feed.cols-4 .feed-sec-body {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* 全屏铺满模式（100% Full Width 极限饱满无留白） */
+.feed.cols-full {
+  max-width: 100%;
+}
+.feed.cols-full .feed-sec-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 16px;
+}
+
+/* 移动端与平板端平滑降级 */
+@media (max-width: 1100px) {
+  .feed.cols-3 .feed-sec-body,
+  .feed.cols-4 .feed-sec-body {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 720px) {
+  .feed.cols-2 .feed-sec-body,
+  .feed.cols-3 .feed-sec-body,
+  .feed.cols-4 .feed-sec-body,
+  .feed.cols-auto .feed-sec-body,
+  .feed.cols-full .feed-sec-body {
+    grid-template-columns: 1fr;
+  }
+  main {
+    padding: 8px 12px 40px;
+  }
+}
+
 /* =========================================================================
    形态 1：规整极简列表流 (.view-list)
-   单列或大屏规整排列，条目高度严格统一（约42px），单行极简高密度，一屏15-20条
    ========================================================================= */
 .feed.view-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-width: 960px;
   column-width: auto;
 }
 .feed.view-list .card {
@@ -555,13 +643,7 @@ main { padding: 10px 22px 60px; }
   gap: 16px;
 }
 
-/* 视图模式对看板的调优：网格模式下多列紧凑，列表模式下单列展开 */
-.feed.view-list .feed-sec-body {
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-}
-.feed.view-grid .feed-sec-body {
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-}
+/* 看板基础流式网格（由 .cols-* 类精细控制列数） */
 
 /* =========================================================================
    数据源排行榜微模块 (Source Leaderboard Module)
@@ -808,6 +890,47 @@ main { padding: 10px 22px 60px; }
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+.modal-layout-wrap {
+  background: #fff;
+  border: 1px solid rgba(180, 130, 90, 0.18);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.modal-layout-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: #4a3427;
+}
+.modal-layout-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.layout-chip {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: #fffaf3;
+  color: #7a5a40;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all .15s ease;
+}
+.layout-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.layout-chip.active {
+  background: #ffe6cf;
+  border-color: #e8743b;
+  color: #943a0e;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(232, 116, 59, 0.2);
 }
 .modal-sec-box {
   background: #fff;

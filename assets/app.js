@@ -288,6 +288,7 @@ const wxGo = document.getElementById("wxGo");
 const wxIp = document.getElementById("wxIp");
 const btnViewList = document.getElementById("btnViewList");
 const btnViewGrid = document.getElementById("btnViewGrid");
+const colSelect = document.getElementById("colSelect");
 const btnCustomize = document.getElementById("btnCustomize");
 const customizeModal = document.getElementById("customizeModal");
 const modalClose = document.getElementById("modalClose");
@@ -915,6 +916,32 @@ function applyViewMode(view) {
   }
 }
 
+// ---------- 自适应排版列数系统（自适应 / 3列 / 4列 / 2列 / 全屏铺满） ----------
+const COLS_STORAGE_KEY = "infostream_cols";
+function getSavedCols() {
+  try {
+    const c = localStorage.getItem(COLS_STORAGE_KEY);
+    if (["auto", "2", "3", "4", "full"].includes(c)) return c;
+  } catch {}
+  return "auto"; // 默认智能自适应铺满
+}
+
+let currentCols = getSavedCols();
+
+function applyColMode(mode) {
+  currentCols = mode;
+  try { localStorage.setItem(COLS_STORAGE_KEY, mode); } catch {}
+  if (feed) {
+    feed.classList.remove("cols-auto", "cols-2", "cols-3", "cols-4", "cols-full");
+    feed.classList.add("cols-" + mode);
+  }
+  if (colSelect) {
+    colSelect.value = mode;
+  }
+  const chips = document.querySelectorAll(".layout-chip");
+  chips.forEach((c) => c.classList.toggle("active", c.dataset.col === mode));
+}
+
 // =========================================================================
 // 综合简报：四大分类板块与模块配置体系
 // =========================================================================
@@ -1022,6 +1049,27 @@ function renderModalModuleList() {
   if (!modalModuleList) return;
   const cfg = getCustomConfig();
   modalModuleList.innerHTML = "";
+
+  const layoutWrap = document.createElement("div");
+  layoutWrap.className = "modal-layout-wrap";
+  layoutWrap.innerHTML = `
+    <span class="modal-layout-title">📐 排版列数与自适应：</span>
+    <div class="modal-layout-chips">
+      <button type="button" class="layout-chip ${currentCols === 'auto' ? 'active' : ''}" data-col="auto">⚡ 智能自适应 (填满无留白)</button>
+      <button type="button" class="layout-chip ${currentCols === '3' ? 'active' : ''}" data-col="3">3 列 (标准宽屏)</button>
+      <button type="button" class="layout-chip ${currentCols === '4' ? 'active' : ''}" data-col="4">4 列 (大显示器)</button>
+      <button type="button" class="layout-chip ${currentCols === '2' ? 'active' : ''}" data-col="2">2 列 (紧凑并排)</button>
+      <button type="button" class="layout-chip ${currentCols === 'full' ? 'active' : ''}" data-col="full">全屏铺满</button>
+    </div>
+  `;
+  modalModuleList.appendChild(layoutWrap);
+
+  layoutWrap.querySelectorAll(".layout-chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      applyColMode(btn.dataset.col);
+      layoutWrap.querySelectorAll(".layout-chip").forEach((b) => b.classList.toggle("active", b === btn));
+    });
+  });
 
   cfg.sections.forEach((secCfg, idx) => {
     const def = DEFAULT_SECTIONS.find((s) => s.id === secCfg.id);
@@ -1290,6 +1338,7 @@ function resetFeed() {
   feedSeen.clear();
   feed.innerHTML = "";
   applyViewMode(currentView);
+  applyColMode(currentCols);
   bootstrapFeed();
 }
 
@@ -1565,6 +1614,7 @@ if (wxInput) wxInput.addEventListener("keydown", (e) => { if (e.key === "Enter")
 if (wxIp) wxIp.addEventListener("click", weatherByIp);
 if (btnViewList) btnViewList.addEventListener("click", () => applyViewMode("list"));
 if (btnViewGrid) btnViewGrid.addEventListener("click", () => applyViewMode("grid"));
+if (colSelect) colSelect.addEventListener("change", (e) => applyColMode(e.target.value));
 if (btnCustomize) btnCustomize.addEventListener("click", openCustomizeModal);
 if (modalClose) modalClose.addEventListener("click", closeCustomizeModal);
 if (customizeModal) {
@@ -1576,6 +1626,7 @@ if (btnResetConfig) {
   btnResetConfig.addEventListener("click", () => {
     const def = getDefaultConfig();
     saveCustomConfig(def);
+    applyColMode("auto");
     renderModalModuleList();
     renderStructuredFeed();
   });
@@ -1631,6 +1682,7 @@ buildLangSelect();
 // 这里不要再来一遍 —— 重复调会让首屏打两次 /api/feed，浪费一次上游抓取。
 applyLang(currentLang);
 applyViewMode(currentView);
+applyColMode(currentCols);
 initWeather();
 if (DEV_MODE) loadDiscover("");
 requestAnimationFrame(tick);
