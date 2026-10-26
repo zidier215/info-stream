@@ -83,10 +83,11 @@ async function baidu(defs) {
       { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)" },
       HTTP_TIMEOUT.default,
     );
-    const list = d?.data?.cards?.[0]?.content || [];
+    const rawList = d?.data?.cards?.[0]?.content || [];
+    const list = (rawList[0]?.content && Array.isArray(rawList[0].content)) ? rawList[0].content : rawList;
     if (Array.isArray(list) && list.length) {
       const now = Date.now();
-      return list.map((x) => normalize({
+      return list.filter((x) => x && x.word).map((x) => normalize({
         category: "境内热搜",
         title: x.word,
         url: x.url || ("https://www.baidu.com/s?wd=" + encodeURIComponent(x.word || "")),
@@ -585,7 +586,7 @@ const g = (o) => (opts, defs) => makeGNews({ ...(defs || {}), ...o })().then((it
 // 主站简报：境内热搜（微博+百度，前端再排序取头部）
 const briefCn = async (opts, defs) => {
   const [a, b] = await Promise.all([weibo(defs), baidu(defs)]);
-  return dedupeBy(a.concat(b), (x) => x.title).slice(0, 12);
+  return dedupeBy(a.slice(0, 10).concat(b.slice(0, 10)), (x) => x.title);
 };
 // 主站简报：国际要闻（英 + 西）
 const briefWorld = async (opts, defs) => {
@@ -603,8 +604,8 @@ const briefAi = async (opts, defs) => {
   return a.concat(b);
 };
 const briefLife = async (opts, defs) => {
-  const [w, m, g2] = await Promise.all([weather(opts, defs), market(opts, defs), games(opts, defs)]);
-  return w.slice(0, 2).concat(m.slice(0, 3), g2.slice(0, 2));
+  const [m, g2] = await Promise.all([market(opts, defs), games(opts, defs)]);
+  return m.slice(0, 4).concat(g2.slice(0, 4));
 };
 
 // 主站「国际」Tab 的五语种源，在 NEWS_LANGS 定义之后注册（见下方 news 章节末尾）。

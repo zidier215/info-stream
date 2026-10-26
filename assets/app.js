@@ -1,14 +1,14 @@
 // assets/app.js
 // 前端逻辑：多语言(i18n) + 站点形态切换(portal / topic) + 顶部 Tab 信息流
-//           + 固定部件(天气/游戏/AI) + 全球免费接口发现 + 内容翻译 + 本地演示降级。
+//           + 顶栏天气(IP 定位) + 全球免费接口发现 + 内容翻译 + 本地演示降级。
 //
 // v2.4 关键改动：这份代码同时服务三个域名，站点差异全部来自服务端注入的
 // window.__HOST_CONFIG__（见 functions/_lib/page.js），前端不再硬编码任何站点信息：
-//   myinfostream.com       mode=portal  顶部 Tab（简报/国际/AI/娱乐）+ 子站入口卡片 + 常驻看板
+//   myinfostream.com       mode=portal  顶部 Tab（简报/国际/AI/娱乐）+ 专题站导航行
 //   ai.myinfostream.com    mode=topic   顶部 Tab（全部/大模型/芯片/商业/论文）
 //   news.myinfostream.com  mode=topic   顶部 Tab（头条/商业/科技/地区）
-// portal 与 topic 的差异全在两个守门：renderEntries() 只在 IS_MAIN 渲染入口卡片，
-// reloadWidgets() 只在 IS_MAIN 拉看板。其余代码路径两边共用。
+// portal 与 topic 的差异守门在 renderEntries()（只在 IS_MAIN 渲染专题站导航）
+// 与简报板块分流（renderMore 里的 isBrief）。其余代码路径两边共用。
 // 取数统一走 /api/feed?tab=<id>，tab 与源组合由 functions/_lib/hosts.js 声明，
 // 前端不关心「这个 tab 该拉哪些源」。本地 file:// 打开时没有注入，回落到 FALLBACK_HOST。
 
@@ -171,10 +171,15 @@ const UI_I18N = {
 
   // ---------- 综合简报：四大分类板块与模块定制 ----------
   secFilterLabel: { zh: "模块定制：", "zh-Hant": "模組自訂：", en: "Sections: ", es: "Módulos: ", fr: "Modules : ", ja: "表示設定：", de: "Module: ", ru: "Модули: ", ar: "تخصيص: ", pt: "Módulos: " },
-  secHot:         { zh: "今日全网热点", "zh-Hant": "今日全網熱點", en: "Top Trending", es: "Tendencias Hoy", fr: "Tendances du Jour", ja: "今日のトレンド", de: "Top-Trends", ru: "Главные тренды", ar: "الأكثر رواجاً اليوم", pt: "Tendências de Hoje" },
-  secWorld:       { zh: "全球要闻聚焦", "zh-Hant": "全球要聞聚焦", en: "World Headlines", es: "Titulares Mundiales", fr: "À la Une Mondiale", ja: "世界のヘッドライン", de: "Weltnachrichten", ru: "Мировые новости", ar: "أبرز أخبار العالم", pt: "Manchetes Globais" },
-  secAi:          { zh: "前沿科技与 AI", "zh-Hant": "前沿科技與 AI", en: "Frontier Tech & AI", es: "Tecnología de Vanguardia e IA", fr: "High-Tech & IA", ja: "先端テック＆AI", de: "Spitzentechnologie & KI", ru: "Передовые технологии и ИИ", ar: "التقنية المتقدمة والذكاء", pt: "Tecnologia de Ponta e IA" },
-  secLife:        { zh: "生活与市场速递", "zh-Hant": "生活與市場速遞", en: "Life & Markets", es: "Vida y Mercados", fr: "Vie & Marchés", ja: "生活・マーケット速報", de: "Leben & Märkte", ru: "Жизнь и рынки", ar: "الحياة والأسواق", pt: "Vida e Mercados" },
+  secHot:         { zh: "全网热榜", "zh-Hant": "全網熱榜", en: "Top Trending", es: "Tendencias Hoy", fr: "Tendances du Jour", ja: "今日のトレンド", de: "Top-Trends", ru: "Главные тренды", ar: "الأكثر رواجاً اليوم", pt: "Tendências de Hoje" },
+  secWorld:       { zh: "环球视野与要闻", "zh-Hant": "環球視野與要聞", en: "World Headlines", es: "Titulares Mundiales", fr: "À la Une Mondiale", ja: "世界のヘッドライン", de: "Weltnachrichten", ru: "Мировые новости", ar: "أبرز أخبار العالم", pt: "Manchetes Globais" },
+  secAi:          { zh: "科技前沿 & AI", "zh-Hant": "科技前沿 & AI", en: "Frontier Tech & AI", es: "Tecnología de Vanguardia e IA", fr: "High-Tech & IA", ja: "先端テック＆AI", de: "Spitzentechnologie & KI", ru: "Передовые технологии и ИИ", ar: "التقنية المتقدمة والذكاء", pt: "Tecnologia de Ponta e IA" },
+  secLife:        { zh: "生活与游戏福利", "zh-Hant": "生活與遊戲福利", en: "Life & Benefits", es: "Vida y Beneficios", fr: "Vie & Bons Plans", ja: "生活・ゲーム特典", de: "Leben & Vorteile", ru: "Жизнь и бонусы", ar: "الحياة والمزايا", pt: "Vida e Benefícios" },
+  customize:      { zh: "定制", "zh-Hant": "自訂", en: "Customize", es: "Personalizar", fr: "Personnaliser", ja: "カスタマイズ", de: "Anpassen", ru: "Настроить", ar: "تخصيص", pt: "Personalizar" },
+  customizeTitle: { zh: "定制板块与数据源", "zh-Hant": "自訂板塊與資料來源", en: "Customize Sections & Sources", es: "Personalizar Secciones y Fuentes", fr: "Personnaliser Sections & Sources", ja: "セクションとソースのカスタマイズ", de: "Bereiche und Quellen anpassen", ru: "Настройка разделов и источников", ar: "تخصيص الأقسام والمصادر", pt: "Personalizar Seções e Fontes" },
+  customizeSub:   { zh: "自由勾选需要关注的板块，调整显示顺序，设置自动保存在本地浏览器。", "zh-Hant": "自由勾選需要關注的板塊，調整顯示順序，設定自動保存在本地瀏覽器。", en: "Toggle modules and adjust order. Saved automatically in browser.", es: "Elige qué módulos ver y su orden. Se guarda en el navegador.", fr: "Activez les modules et réorganisez-les. Enregistré localement.", ja: "表示するモジュールを選択・並び替え。ブラウザに自動保存されます。", de: "Module anpassen und sortieren. Wird lokal gespeichert.", ru: "Включайте нужные модули и меняйте порядок. Сохраняется локально.", ar: "حدد الوحدات التي تريد متابعتها ورتبها. تُحفظ الإعدادات تلقائياً.", pt: "Escolha quais módulos ver e organize a ordem. Salvo no navegador." },
+  resetDefaults:  { zh: "恢复默认", "zh-Hant": "恢復預設", en: "Reset", es: "Restablecer", fr: "Réinitialiser", ja: "初期値に戻す", de: "Zurücksetzen", ru: "По умолчанию", ar: "استعادة الافتراضي", pt: "Restaurar Padrão" },
+  saveApply:      { zh: "保存并应用", "zh-Hant": "保存並套用", en: "Save & Apply", es: "Guardar y Aplicar", fr: "Enregistrer", ja: "保存して適用", de: "Speichern & Anwenden", ru: "Сохранить", ar: "حفظ وتطبيق", pt: "Salvar e Aplicar" },
 };
 
 function uiText(key) {
@@ -276,15 +281,30 @@ const langSel = document.getElementById("lang");
 const translateBtn = document.getElementById("translateBtn");
 const autoBtn = document.getElementById("autoBtn");
 const refreshBtn = document.getElementById("refreshBtn");
-const cityInput = document.getElementById("cityInput");
-const cityGo = document.getElementById("cityGo");
-const geoBtn = document.getElementById("geoBtn");
-const weatherBody = document.getElementById("weatherBody");
-const gamesBody = document.getElementById("gamesBody");
-const aiBody = document.getElementById("aiBody");
+const wxBtn = document.getElementById("wxBtn");
+const wxPop = document.getElementById("wxPop");
+const wxInput = document.getElementById("wxInput");
+const wxGo = document.getElementById("wxGo");
+const wxIp = document.getElementById("wxIp");
+const btnViewList = document.getElementById("btnViewList");
+const btnViewGrid = document.getElementById("btnViewGrid");
+const btnCustomize = document.getElementById("btnCustomize");
+const customizeModal = document.getElementById("customizeModal");
+const modalClose = document.getElementById("modalClose");
+const modalModuleList = document.getElementById("modalModuleList");
+const btnResetConfig = document.getElementById("btnResetConfig");
+const btnSaveConfig = document.getElementById("btnSaveConfig");
 const discoverInput = document.getElementById("discoverInput");
 const discoverResults = document.getElementById("discoverResults");
 const discoverWrap = document.getElementById("discoverWrap");
+
+// sticky 的 Tab 栏要紧贴顶栏下沿。顶栏高度随语言（按钮文案长短）和窗口宽度（换行）变化，
+// 写死 top 会出现缝隙或遮挡 —— 所以量真实高度写进 CSS 变量。
+const topbarEl = document.querySelector(".topbar");
+function syncTopbarH() {
+  if (topbarEl) document.documentElement.style.setProperty("--topbar-h", topbarEl.offsetHeight + "px");
+}
+if (topbarEl && "ResizeObserver" in window) new ResizeObserver(syncTopbarH).observe(topbarEl);
 
 // ---------- 状态 ----------
 let buffer = [];
@@ -309,10 +329,8 @@ const feedSeen = new Set();
 const feedKey = (it) =>
   [it && it.source, it && it.title, it && it.ts, it && it.url].join("\0");
 
-// 天气定位上下文。放在全局是因为 v2.4 的取数入口收敛成一个 /api/feed?tab=，
-// 天气部件和主信息流共用同一条链路，天气源需要知道城市/经纬度。
-// 空对象 = 用服务端默认城市。
-const weatherCtx = { city: "", lat: null, lon: null };
+// 天气已改为顶栏小组件（见「顶栏天气」一节），浏览器直连 Open-Meteo，
+// 不再把 city/lat/lon 带进 /api/feed —— 那会让 CDN 缓存键按用户碎片化。
 
 // 当前选中的 tab。v2.4 起，「筛选维度」由 tab 承担，不再有 chips 多选那套逻辑 ——
 // tab 本身就声明了用哪些源，多选组合会让「tab→源」的映射在前端失真。
@@ -527,6 +545,10 @@ function applyLang(code) {
     const k = el.getAttribute("data-i18n-ph");
     if (dict[k]) el.placeholder = dict[k];
   });
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    const k = el.getAttribute("data-i18n-title");
+    if (dict[k]) el.title = dict[k];
+  });
   // 品牌名 + 页面标题（跟随语言切换）
   const bn = brandName(code);
   const bMain = document.querySelector('[data-brand="main"]');
@@ -565,7 +587,7 @@ function applyLang(code) {
   if (bannerKind) showBanner(bannerKind);
   buildTabs();
   renderEntries();
-  reloadWidgets();
+  renderWeather();
   resetFeed();
 }
 
@@ -620,8 +642,11 @@ function buildTabs() {
   };
 }
 
-// ---------- 主站入口卡片（portal 模式独有） ----------
-// 子站不渲染：入口卡片是「从主站跳去子站」的导航，子站自己不需要。
+// ---------- 主站专题站导航（portal 模式独有） ----------
+// 从「四张大卡片」压成一行导航链接：入口是导航，不是内容，
+// 不该占掉首屏一整块。描述放进 title 悬停提示。
+// 链接仍用 .entry-card 类名 —— webtest.mjs 靠它数入口个数。
+const ENTRY_ICON = { ai: "🤖", news: "🌐", game: "🎮", hot: "🔥" };
 function renderEntries() {
   const box = document.getElementById("entries");
   if (!box) return;
@@ -630,18 +655,13 @@ function renderEntries() {
   if (box.hidden) { box.innerHTML = ""; return; }
   const en = currentLang === "en";
   box.innerHTML =
-    `<h2 class="section-title">${uiText("hubTitle")}</h2>` +
-    `<div class="entry-grid">` +
+    `<span class="entries-label">${escapeHtml(uiText("hubTitle"))}</span>` +
     list.map((e) => {
-      const name = (en && e.fallbackEn) || e.fallback || uiText(e.i18n);
+      const name = (en && e.fallbackEn) || uiText(e.i18n) || e.fallback;
       const desc = uiText((e.i18n || "") + "Desc");
-      return `<a class="entry-card" href="https://${escapeHtml(e.host)}/">
-        <span class="entry-name">${escapeHtml(name)}</span>
-        <span class="entry-desc">${escapeHtml(desc)}</span>
-        <span class="entry-go">${uiText("entryGo")} →</span>
-      </a>`;
-    }).join("") +
-    `</div>`;
+      return `<a class="entry-card" href="https://${escapeHtml(e.host)}/" title="${escapeHtml(desc)}">` +
+        `${ENTRY_ICON[e.key] || "↗"} ${escapeHtml(name)}</a>`;
+    }).join("");
 }
 
 // ---------- 卡片 ----------
@@ -655,28 +675,34 @@ function getCardAccent(it) {
   return "#e8743b";
 }
 
-function makeCard(it) {
-  const el = document.createElement("article");
-  el.className = "card";
+function makeCard(it, rank) {
+  const el = document.createElement("a");
+  el.className = "card rank-item";
+  el.href = it.url || "#";
+  el.target = "_blank";
+  el.rel = "noopener";
+  const sec = getCardSection(it);
+  el.dataset.sec = sec;
   el.style.setProperty("--accent", getCardAccent(it));
-  const thumb = it.img ? `<div class="thumb" style="background-image:url('${escapeHtml(it.img)}')"></div>` : "";
-  const desc = it.desc ? `<p class="desc">${escapeHtml(it.desc)}</p>` : "";
-  // badge 有值就按当前语言重排（Epic），没有才用服务端拼好的 meta 兜底。
-  // meta 里带的价格/截止日也是服务端那一版中文，两者都缺时才退到相对时间。
-  // 徽章在 .meta 里被 -webkit-line-clamp 截到 2 行，所以下面渲染时同时挂 title，
-  // 被截掉的部分还能靠悬停读全——否则「最多两行」这条 CSS 就等于静默丢信息。
-  const metaText = gameBadgeMeta(it.badge) || it.meta || agoText(it.ts);
+
+  const metaText = gameBadgeMeta(it.badge) || it.meta || (it.ts ? agoText(it.ts) : "");
+  const tagText = catName(it.category);
+  const srcText = it.source || "";
+  const r = rank || 1;
+  const rankClass = r === 1 ? "rank-1" : r === 2 ? "rank-2" : r === 3 ? "rank-3" : "rank-other";
+
   el.innerHTML = `
-    ${thumb}
-    <div class="bar"></div>
-    <div class="body">
-      <span class="tag">${escapeHtml(catName(it.category))}</span>
-      <a class="title" href="${escapeHtml(it.url || "#")}" target="_blank" rel="noopener">${escapeHtml(it.title || "")}</a>
-      ${desc}
-      <div class="meta"><span>${escapeHtml(it.source || "")}</span><span title="${escapeHtml(metaText)}">${escapeHtml(metaText)}</span></div>
-    </div>`;
+    <span class="rank-num ${rankClass}">#${r}</span>
+    <span class="rank-title" title="${escapeHtml(it.title || "")}">${escapeHtml(it.title || "")}</span>
+    <div class="rank-tail">
+      ${srcText ? `<span class="source-badge">${escapeHtml(srcText)}</span>` : ""}
+      ${metaText ? `<span class="meta-badge" title="${escapeHtml(metaText)}">${escapeHtml(metaText)}</span>` : ""}
+      <span class="card-arrow" aria-hidden="true">↗</span>
+    </div>
+  `;
+
   // 按用户语言翻译标题
-  const titleEl = el.querySelector(".title");
+  const titleEl = el.querySelector(".rank-title");
   if (translateOn() && it.lang && it.lang !== currentLang) {
     const from = srcCode(it.lang); const to = langCode(currentLang);
     translateText(it.title, from, to).then((t) => { if (t && t !== it.title) titleEl.textContent = t; });
@@ -719,9 +745,18 @@ function loadDemoBatch(n) {
   const pool = DEMO_ALL;
   if (!pool.length) return;
   const batch = [];
-  for (let i = 0; i < n; i++) batch.push(pool[(feedCursor + i) % pool.length]);
+  for (let i = 0; i < n; i++) {
+    const it = pool[(feedCursor + i) % pool.length];
+    batch.push(it);
+    const k = feedKey(it);
+    if (!feedSeen.has(k)) {
+      feedSeen.add(k);
+      feedPool.push(it);
+    }
+  }
   feedCursor = (feedCursor + n) % pool.length;
   buffer = buffer.concat(batch);
+  renderStructuredFeed();
 }
 
 // ---------- 启动：立即打底一屏 ----------
@@ -809,9 +844,6 @@ async function loadFeed(force) {
     q.set("tab", tab.id);
     // lang 是界面语言，news 站用它决定拉哪个语种的源；srcLang 不传 = 全语种
     q.set("lang", currentLang);
-    if (weatherCtx.city) q.set("city", weatherCtx.city);
-    if (weatherCtx.lat != null) q.set("lat", String(weatherCtx.lat));
-    if (weatherCtx.lon != null) q.set("lon", String(weatherCtx.lon));
     const data = await fetchFeed(q, force);
     // 后端实时源全部超时时，会回退到 24h 内的旧快照并标 stale=true。
     // 「有内容但不是最新的」必须说清楚 —— 不提示的话用户会把旧快照当成实时流，
@@ -821,7 +853,8 @@ async function loadFeed(force) {
     // 拿到整批后先按当前 tab 的口径收窄，再交给去重。顺序不能反 ——
     // 「本周免费」tab 若先把即将/长期也写进 feedSeen，切到「即将开放」时
     // 它们会被当成「已经见过了」而被丢掉，两个 tab 互相把对方的数据吃掉。
-    const items = Array.isArray(data.items) ? data.items : [];
+    // 天气只在顶栏展示：服务端已不再下发，这里再兜一道（边缘旧缓存 / stale 快照里可能还有）。
+    const items = (Array.isArray(data.items) ? data.items : []).filter((it) => it && it.category !== "天气");
     const scoped = filterByTabState(items, activeTabDef().id);
     if (scoped.length) {
       // 丢掉已经画过的条目（见 feedSeen 注释）。
@@ -831,6 +864,7 @@ async function loadFeed(force) {
         feedSeen.add(k);
         return true;
       });
+      for (const it of fresh) feedPool.push(it);
       // 按时间倒序：新→旧。服务端已经按源分组返回了，直接全局排序会让
       // 「国际要闻」和「AI 快讯」的时间线交错 —— 这正是简报想要的效果。
       // ts=0 的排最后，不能当成 1970 年。
@@ -838,8 +872,6 @@ async function loadFeed(force) {
         fresh.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0)),
       );
       // 整个 tab 都已经见过了 → 这个 tab 暂时没新东西。标记到底，别再空转请求。
-      // 不这么做的话：renderMore 见 buffer<8 就再拉一次，拉回来的全是重复项，
-      // 去重后为空 → 又触发下一轮，形成永不停止的刷新循环。
       if (!fresh.length) feedExhausted = true;
     } else {
       feedExhausted = true;
@@ -853,22 +885,223 @@ async function loadFeed(force) {
     }
   } finally {
     loading = false;
-    // 数据到货但页面还是空的 → 主动画出来。
-    if (buffer.length && (feed.querySelectorAll(".card").length === 0 || nearBottom())) {
-      renderMore(pumpNeed());
-      return;                       // renderMore 内部会 setStatus
-    }
-    setStatus(loading ? "loading" : buffer.length > 0 ? "more" : "end");
+    renderStructuredFeed();
+    setStatus(loading ? "loading" : feedPool.length > 0 ? "more" : "end");
   }
 }
 
-// ---------- 综合简报：板块定义与分类 ----------
-const SECTION_DEFS = [
-  { id: "hot", i18n: "secHot", icon: "🔥", link: "https://hot.myinfostream.com/", linkText: "entryHot" },
-  { id: "world", i18n: "secWorld", icon: "🌐", link: "https://news.myinfostream.com/", linkText: "entryNews" },
-  { id: "ai", i18n: "secAi", icon: "🤖", link: "https://ai.myinfostream.com/", linkText: "entryAi" },
-  { id: "life", i18n: "secLife", icon: "☕", link: "https://game.myinfostream.com/", linkText: "entryGame" },
+// ---------- 视图布局模式（形态1 列表流 vs 形态4 规整网格） ----------
+const VIEW_STORAGE_KEY = "infostream_view";
+function getSavedView() {
+  try {
+    const v = localStorage.getItem(VIEW_STORAGE_KEY);
+    if (v === "grid" || v === "list") return v;
+  } catch {}
+  return "list"; // 默认形态 1：高密度列表流
+}
+
+let currentView = getSavedView();
+
+function applyViewMode(view) {
+  currentView = view;
+  try { localStorage.setItem(VIEW_STORAGE_KEY, view); } catch {}
+  if (feed) {
+    feed.classList.remove("view-list", "view-grid");
+    feed.classList.add("view-" + view);
+  }
+  if (btnViewList && btnViewGrid) {
+    btnViewList.classList.toggle("active", view === "list");
+    btnViewGrid.classList.toggle("active", view === "grid");
+  }
+}
+
+// =========================================================================
+// 综合简报：四大分类板块与模块配置体系
+// =========================================================================
+const CUSTOM_CONFIG_KEY = "infostream_custom_config";
+
+const DEFAULT_SECTIONS = [
+  {
+    id: "sec_hot",
+    i18nTitle: "secHot",
+    title: "🔥 全网热榜",
+    desc: "微博 · 百度 · 抖音 · 实时热搜",
+    link: "https://hot.myinfostream.com/",
+    linkText: "热搜站 ↗",
+    modules: [
+      { id: "mod_weibo", name: "微博热搜", icon: "🔴", match: (it) => it.source === "微博" || (it.category === "境内热搜" && it.source?.includes("微博")) },
+      { id: "mod_baidu", name: "百度热搜", icon: "🔵", match: (it) => it.source === "百度" || (it.category === "境内热搜" && it.source?.includes("百度")) },
+      { id: "mod_douyin", name: "抖音与娱乐", icon: "🎵", match: (it) => it.source === "抖音" || it.source === "B站热搜" || it.category === "娱乐" },
+      { id: "mod_hot_other", name: "综合热点", icon: "⚡", match: (it) => it.bucket === "cn" || it.category === "境内热搜" || it.category === "热搜" },
+    ]
+  },
+  {
+    id: "sec_tech",
+    i18nTitle: "secAi",
+    title: "🤖 科技前沿 & 开发者",
+    desc: "AI 动态 · 开发者社区 · 论文精选",
+    link: "https://ai.myinfostream.com/",
+    linkText: "AI 站 ↗",
+    modules: [
+      { id: "mod_ai", name: "AI 动态与商业", icon: "🧠", match: (it) => it.category?.startsWith("AI") || it.bucket === "ai" },
+      { id: "mod_hn", name: "Hacker News", icon: "🧡", match: (it) => it.source === "Hacker News" || it.category === "技术社区" },
+      { id: "mod_papers", name: "论文前沿", icon: "📄", match: (it) => it.source === "HuggingFace" || it.source === "arXiv" || it.category === "AI 论文" },
+    ]
+  },
+  {
+    id: "sec_world",
+    i18nTitle: "secWorld",
+    title: "🌐 环球视野与要闻",
+    desc: "Reuters · BBC · 国际主流通讯社",
+    link: "https://news.myinfostream.com/",
+    linkText: "新闻站 ↗",
+    modules: [
+      { id: "mod_world_news", name: "国际要闻精选", icon: "🌍", match: (it) => it.category === "国际要闻" || it.category === "国际" || (it.region === "global" && it.bucket !== "life") },
+      { id: "mod_biz", name: "商业财经", icon: "💼", match: (it) => it.category === "商业" || it.category === "财经" },
+    ]
+  },
+  {
+    id: "sec_life",
+    i18nTitle: "secLife",
+    title: "☕ 生活与游戏福利",
+    desc: "Epic 喜加一限免 · 金融汇率与行情",
+    link: "https://game.myinfostream.com/",
+    linkText: "游戏站 ↗",
+    modules: [
+      { id: "mod_epic", name: "Epic 喜加一", icon: "🎮", match: (it) => it.category?.startsWith("游戏") || it.source === "Epic" },
+      { id: "mod_market", name: "市场与汇率", icon: "📈", match: (it) => it.category === "市场" || it.source === "Exchangerate" || it.sourceType === "market" },
+    ]
+  }
 ];
+
+function getDefaultConfig() {
+  const sections = DEFAULT_SECTIONS.map((s) => ({ id: s.id, enabled: true }));
+  const modules = {};
+  for (const s of DEFAULT_SECTIONS) {
+    for (const m of s.modules) modules[m.id] = true;
+  }
+  return { sections, modules };
+}
+
+function getCustomConfig() {
+  const def = getDefaultConfig();
+  try {
+    const saved = localStorage.getItem(CUSTOM_CONFIG_KEY);
+    if (!saved) return def;
+    const parsed = JSON.parse(saved);
+    if (!parsed || !Array.isArray(parsed.sections)) return def;
+    const secIds = new Set(parsed.sections.map((s) => s.id));
+    for (const s of def.sections) {
+      if (!secIds.has(s.id)) parsed.sections.push(s);
+    }
+    parsed.modules = Object.assign({}, def.modules, parsed.modules || {});
+    return parsed;
+  } catch {
+    return def;
+  }
+}
+
+function saveCustomConfig(cfg) {
+  try {
+    localStorage.setItem(CUSTOM_CONFIG_KEY, JSON.stringify(cfg));
+  } catch {}
+}
+
+function openCustomizeModal() {
+  if (!customizeModal) return;
+  renderModalModuleList();
+  customizeModal.removeAttribute("hidden");
+}
+
+function closeCustomizeModal() {
+  if (!customizeModal) return;
+  customizeModal.setAttribute("hidden", "");
+}
+
+function renderModalModuleList() {
+  if (!modalModuleList) return;
+  const cfg = getCustomConfig();
+  modalModuleList.innerHTML = "";
+
+  cfg.sections.forEach((secCfg, idx) => {
+    const def = DEFAULT_SECTIONS.find((s) => s.id === secCfg.id);
+    if (!def) return;
+
+    const box = document.createElement("div");
+    box.className = "modal-sec-box";
+
+    const titleText = uiText(def.i18nTitle) || def.title;
+    box.innerHTML = `
+      <div class="modal-sec-head">
+        <label class="modal-sec-left">
+          <input type="checkbox" class="sec-toggle" data-sec-id="${def.id}" ${secCfg.enabled ? "checked" : ""}>
+          <span>${escapeHtml(titleText)}</span>
+        </label>
+        <div class="modal-sec-tools">
+          <button type="button" class="modal-order-btn btn-up" data-idx="${idx}" ${idx === 0 ? "disabled" : ""}>↑</button>
+          <button type="button" class="modal-order-btn btn-down" data-idx="${idx}" ${idx === cfg.sections.length - 1 ? "disabled" : ""}>↓</button>
+        </div>
+      </div>
+      <div class="modal-mod-grid">
+        ${def.modules.map((m) => {
+          const isModOn = cfg.modules[m.id] !== false;
+          return `
+            <label class="modal-mod-item">
+              <input type="checkbox" class="mod-toggle" data-mod-id="${m.id}" ${isModOn ? "checked" : ""}>
+              <span>${m.icon || ""} ${escapeHtml(m.name)}</span>
+            </label>
+          `;
+        }).join("")}
+      </div>
+    `;
+
+    modalModuleList.appendChild(box);
+  });
+
+  modalModuleList.querySelectorAll(".btn-up").forEach((b) => {
+    b.addEventListener("click", () => {
+      const idx = Number(b.dataset.idx);
+      if (idx > 0) {
+        const tmp = cfg.sections[idx];
+        cfg.sections[idx] = cfg.sections[idx - 1];
+        cfg.sections[idx - 1] = tmp;
+        saveCustomConfig(cfg);
+        renderModalModuleList();
+      }
+    });
+  });
+  modalModuleList.querySelectorAll(".btn-down").forEach((b) => {
+    b.addEventListener("click", () => {
+      const idx = Number(b.dataset.idx);
+      if (idx < cfg.sections.length - 1) {
+        const tmp = cfg.sections[idx];
+        cfg.sections[idx] = cfg.sections[idx + 1];
+        cfg.sections[idx + 1] = tmp;
+        saveCustomConfig(cfg);
+        renderModalModuleList();
+      }
+    });
+  });
+
+  modalModuleList.querySelectorAll(".sec-toggle").forEach((ck) => {
+    ck.addEventListener("change", () => {
+      const secId = ck.dataset.secId;
+      const target = cfg.sections.find((s) => s.id === secId);
+      if (target) {
+        target.enabled = ck.checked;
+        saveCustomConfig(cfg);
+      }
+    });
+  });
+
+  modalModuleList.querySelectorAll(".mod-toggle").forEach((ck) => {
+    ck.addEventListener("change", () => {
+      const modId = ck.dataset.modId;
+      cfg.modules[modId] = ck.checked;
+      saveCustomConfig(cfg);
+    });
+  });
+}
 
 function getCardSection(it) {
   if (!it) return "hot";
@@ -881,233 +1114,322 @@ function getCardSection(it) {
   return "hot";
 }
 
-function loadEnabledSections() {
-  try {
-    const saved = localStorage.getItem("infostream_sections");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch {}
-  return ["hot", "world", "ai", "life"];
-}
+let feedPool = [];
 
-let enabledSections = loadEnabledSections();
+function createModuleBoard(mod, items) {
+  const board = document.createElement("div");
+  board.className = "mod-board";
+  board.dataset.mod = mod.id;
 
-function saveEnabledSections(list) {
-  enabledSections = list;
-  try {
-    localStorage.setItem("infostream_sections", JSON.stringify(list));
-  } catch {}
-}
+  const topItems = items.slice(0, 8);
+  const overflowItems = items.slice(8);
 
-function ensureBriefContainers() {
-  let selector = document.getElementById("secSelector");
-  if (!selector) {
-    selector = document.createElement("div");
-    selector.id = "secSelector";
-    selector.className = "sec-selector-wrap";
-    selector.innerHTML = `
-      <span class="sec-selector-label">${escapeHtml(uiText("secFilterLabel"))}</span>
-      <div class="sec-chips">
-        ${SECTION_DEFS.map((s) => {
-          const on = enabledSections.includes(s.id);
-          return `<button type="button" class="sec-chip${on ? " active" : ""}" data-sec="${s.id}">${s.icon} ${escapeHtml(uiText(s.i18n))}</button>`;
-        }).join("")}
-      </div>
-    `;
-    feed.appendChild(selector);
-    selector.addEventListener("click", (e) => {
-      const btn = e.target.closest(".sec-chip");
-      if (!btn) return;
-      const secId = btn.dataset.sec;
-      if (enabledSections.includes(secId)) {
-        if (enabledSections.length <= 1) return; // 至少保留一个板块
-        enabledSections = enabledSections.filter((x) => x !== secId);
-        btn.classList.remove("active");
-      } else {
-        enabledSections.push(secId);
-        btn.classList.add("active");
-      }
-      saveEnabledSections(enabledSections);
-      updateSectionVisibility();
+  const head = document.createElement("div");
+  head.className = "mod-head";
+  head.innerHTML = `
+    <span class="mod-head-title">${mod.icon ? `<span class="mod-icon">${mod.icon}</span>` : ""} ${escapeHtml(mod.name)}</span>
+    <span class="mod-head-badge">${items.length > 8 ? `Top 8 / 共 ${items.length} 条` : `${items.length} 条`}</span>
+  `;
+  board.appendChild(head);
+
+  const list = document.createElement("div");
+  list.className = "mod-list";
+
+  topItems.forEach((it, idx) => {
+    list.appendChild(makeCard(it, idx + 1));
+  });
+
+  if (overflowItems.length > 0) {
+    const overflow = document.createElement("div");
+    overflow.className = "rank-overflow";
+    overflowItems.forEach((it, idx) => {
+      overflow.appendChild(makeCard(it, idx + 9));
     });
+    list.appendChild(overflow);
+
+    const expandBtn = document.createElement("button");
+    expandBtn.type = "button";
+    expandBtn.className = "rank-expand-btn";
+    expandBtn.textContent = `展开余下 ${overflowItems.length} 条 ↓`;
+    expandBtn.addEventListener("click", () => {
+      const isOpen = overflow.classList.toggle("is-open");
+      expandBtn.textContent = isOpen ? `收起 ↑` : `展开余下 ${overflowItems.length} 条 ↓`;
+    });
+    list.appendChild(expandBtn);
   }
 
-  for (const s of SECTION_DEFS) {
-    let secBox = document.getElementById("sec-" + s.id);
-    if (!secBox) {
-      secBox = document.createElement("section");
-      secBox.id = "sec-" + s.id;
-      secBox.dataset.sec = s.id;
-      secBox.className = "brief-section" + (enabledSections.includes(s.id) ? "" : " is-hidden");
-      secBox.innerHTML = `
-        <div class="brief-sec-header">
-          <div class="brief-sec-title">
-            <span class="brief-sec-icon">${s.icon}</span>
-            <span class="brief-sec-name">${escapeHtml(uiText(s.i18n))}</span>
-            <span class="brief-sec-count" id="count-${s.id}">0</span>
-          </div>
-          <a class="brief-sec-link" href="${s.link}" target="_blank" rel="noopener">${escapeHtml(uiText(s.linkText))} →</a>
-        </div>
-        <div class="brief-sec-grid feed" id="grid-${s.id}"></div>
-      `;
-      feed.appendChild(secBox);
-    }
-  }
+  board.appendChild(list);
+  return board;
 }
 
-function updateSectionVisibility() {
-  for (const s of SECTION_DEFS) {
-    const box = document.getElementById("sec-" + s.id);
-    if (box) {
-      if (enabledSections.includes(s.id)) box.classList.remove("is-hidden");
-      else box.classList.add("is-hidden");
+function renderStructuredFeed() {
+  if (!feed) return;
+  feed.innerHTML = "";
+  if (!feedPool.length) return;
+
+  const isBrief = IS_MAIN && activeTab === "brief";
+
+  if (isBrief) {
+    const cfg = getCustomConfig();
+    const usedKeys = new Set();
+
+    for (const secCfg of cfg.sections) {
+      if (!secCfg.enabled) continue;
+      const def = DEFAULT_SECTIONS.find((s) => s.id === secCfg.id);
+      if (!def) continue;
+
+      const moduleBoards = [];
+
+      for (const mod of def.modules) {
+        if (cfg.modules[mod.id] === false) continue;
+        const matched = [];
+        for (const it of feedPool) {
+          const k = feedKey(it);
+          if (usedKeys.has(k)) continue;
+          if (mod.match(it)) {
+            matched.push(it);
+            usedKeys.add(k);
+          }
+        }
+        if (matched.length) {
+          moduleBoards.push({ mod, items: matched });
+        }
+      }
+
+      if (moduleBoards.length) {
+        const secEl = document.createElement("section");
+        secEl.className = "feed-section";
+        secEl.dataset.sec = def.id;
+
+        const secHead = document.createElement("div");
+        secHead.className = "feed-sec-header";
+        const titleText = uiText(def.i18nTitle) || def.title;
+        secHead.innerHTML = `
+          <div class="feed-sec-title-wrap">
+            <h2 class="feed-sec-title">${escapeHtml(titleText)}</h2>
+            <span class="feed-sec-desc">${escapeHtml(def.desc)}</span>
+          </div>
+          ${def.link ? `<a class="feed-sec-link" href="${escapeHtml(def.link)}" target="_blank" rel="noopener">${escapeHtml(def.linkText)}</a>` : ""}
+        `;
+        secEl.appendChild(secHead);
+
+        const secBody = document.createElement("div");
+        secBody.className = "feed-sec-body";
+
+        for (const { mod, items } of moduleBoards) {
+          const boardEl = createModuleBoard(mod, items);
+          secBody.appendChild(boardEl);
+        }
+
+        secEl.appendChild(secBody);
+        feed.appendChild(secEl);
+      }
     }
+
+    // 兜底剩余未归入特定模块的条目（如果有）
+    const leftovers = feedPool.filter((it) => !usedKeys.has(feedKey(it)));
+    if (leftovers.length) {
+      const leftoverSec = document.createElement("section");
+      leftoverSec.className = "feed-section";
+      leftoverSec.innerHTML = `
+        <div class="feed-sec-header">
+          <div class="feed-sec-title-wrap">
+            <h2 class="feed-sec-title">⚡ 更多综合资讯</h2>
+          </div>
+        </div>
+      `;
+      const leftoverBody = document.createElement("div");
+      leftoverBody.className = "feed-sec-body";
+      const board = createModuleBoard({ id: "leftovers", name: "综合快讯", icon: "📌" }, leftovers);
+      leftoverBody.appendChild(board);
+      leftoverSec.appendChild(leftoverBody);
+      feed.appendChild(leftoverSec);
+    }
+  } else {
+    // 非 brief 的单主题或子站（如 hot / ai / game / world）：
+    const groups = new Map();
+    for (const it of feedPool) {
+      const groupKey = it.source || it.category || "综合";
+      if (!groups.has(groupKey)) groups.set(groupKey, []);
+      groups.get(groupKey).push(it);
+    }
+
+    const secEl = document.createElement("section");
+    secEl.className = "feed-section";
+    const secBody = document.createElement("div");
+    secBody.className = "feed-sec-body";
+
+    for (const [groupName, items] of groups.entries()) {
+      const icon = ENTRY_ICON[activeTab] || "📌";
+      const board = createModuleBoard({ id: groupName, name: groupName, icon }, items);
+      secBody.appendChild(board);
+    }
+
+    secEl.appendChild(secBody);
+    feed.appendChild(secEl);
   }
 }
 
 // ---------- 渲染更多 + 节流 + 演示池自补 ----------
 function renderMore(n) {
-  // buffer 空了就补
-  if (buffer.length === 0) {
-    if (useDemo) loadDemoBatch(20);                              // 演示永远有
-    else if (!feedExhausted) loadFeed();                          // 真实模式按需 fetch
+  if (feedPool.length === 0) {
+    if (useDemo) loadDemoBatch(20);
+    else if (!feedExhausted) loadFeed();
     else { setStatus("end"); return; }
-  }
-
-  const isBrief = IS_MAIN && activeTab === "brief";
-  if (isBrief) ensureBriefContainers();
-
-  const want = n > 0 ? n : Infinity;
-  let drew = 0;
-
-  if (isBrief) {
-    for (let i = 0; i < want && buffer.length > 0; i++) {
-      const it = buffer.shift();
-      const cardEl = makeCard(it);
-      const secId = getCardSection(it);
-      const grid = document.getElementById("grid-" + secId) || feed;
-      grid.appendChild(cardEl);
-      const countEl = document.getElementById("count-" + secId);
-      if (countEl) countEl.textContent = String(grid.children.length);
-      drew++;
-    }
   } else {
-    const frag = document.createDocumentFragment();
-    for (let i = 0; i < want && buffer.length > 0; i++) {
-      frag.appendChild(makeCard(buffer.shift()));
-      drew++;
-    }
-    if (frag.childNodes.length) feed.appendChild(frag);
+    renderStructuredFeed();
   }
-
-  // 演示模式：永远别让 buffer 见底
-  if (useDemo && buffer.length < 12) loadDemoBatch(20);
-  // 真实模式：buffer 少了就再 fetch
-  if (!useDemo && buffer.length < 8 && !feedExhausted && !loading) loadFeed();
-
-  setStatus(loading ? "loading" : buffer.length > 0 ? "more" : "end");
+  setStatus(loading ? "loading" : feedPool.length > 0 ? "more" : "end");
 }
 
 function resetFeed() {
+  feedPool = [];
   buffer = [];
   feedCursor = 0;
   feedExhausted = false;
-  // 去重表必须跟着一起清：换 tab 后同名同时间的条目要能重新出现，
-  // 否则新 tab 的首屏会被上一站的 key 误判成「见过」而整批丢掉。
   feedSeen.clear();
   feed.innerHTML = "";
+  applyViewMode(currentView);
   bootstrapFeed();
 }
 
-// ---------- 固定部件 ----------
-// v2.4：旧的 ?cat=天气 端点没有了，部件改为「拉当前 tab 的数据，再按 category 挑」。
-// 这样部件和主信息流共用同一条链路，也就不会出现部件还停留在旧类目体系的问题。
-const WIDGET_SRC_TAB = { 天气: "brief", 游戏: "brief", AI: "ai" };
-const WIDGET_CATS = { 天气: ["天气"], 游戏: ["游戏"], AI: ["AI", "AI 快讯", "AI 产品", "AI 商业", "大模型", "AI 论文"] };
+// ---------- 顶栏天气 ----------
+// 原「常驻看板」（天气 / 游戏 / AI 三框）已移除：
+//   · 游戏 / AI 与简报四大板块、专题站内容重复；
+//   · 游戏框在 brief 里没拉到「游戏」类目时会回落显示整批简报 ——
+//     这就是「游戏」框里出现地震、星巴克新闻的原因。
+// 天气改成顶栏语言选择器前的一枚小胶囊，全部浏览器直连（Open-Meteo / ipwho.is 都开了 CORS），
+// 不经过 Pages Functions，不占 10 万次/天额度，也不再让 /api/feed 的缓存键带上城市参数。
+//
+// 定位优先级：用户手选城市（localStorage 持久）> IP 定位（缓存 6h）> 北京兜底。
+const WX_CITY_KEY = "infostream_city";     // 用户手选：{ name, lat, lon }
+const WX_IP_KEY = "infostream_ipgeo";      // IP 定位缓存：{ name, lat, lon, t }
+const WX_DATA_KEY = "infostream_wx";       // 天气缓存：{ k, t, d }
+const WX_IP_TTL = 6 * 3600 * 1000;
+const WX_DATA_TTL = 30 * 60 * 1000;
+const WX_FALLBACK = { name: "Beijing", lat: 39.9042, lon: 116.4074 };
+// WMO 天气代码 → 图标。只给图标不给文字：图标天然跨语言，省掉 19 语种文案。
+const WX_ICON = (c) =>
+  c === 0 ? "☀️" : c <= 2 ? "🌤️" : c === 3 ? "☁️" : c <= 48 ? "🌫️" :
+  c <= 57 ? "🌦️" : c <= 67 ? "🌧️" : c <= 77 ? "🌨️" : c <= 82 ? "🌦️" : "⛈️";
 
-async function loadWidget(cat, opts, force) {
-  const body = cat === "天气" ? weatherBody : cat === "游戏" ? gamesBody : aiBody;
-  if (!body) return;
-  body.innerHTML = `<div class="w-loading">…</div>`;
-  if (opts && opts.city !== undefined) setWeatherCtx(opts);
-  const want = WIDGET_CATS[cat] || [];
-  if (isLocal()) {
-    renderWidget(body, DEMO_ALL.filter((it) => want.includes(it.category)).slice(0, 6));
-    return;
-  }
+let wxPlace = null;   // 当前地点 { name, lat, lon, manual? }
+let wxData = null;    // Open-Meteo 返回的 { current, daily }
+
+const lsGet = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
+const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+async function wxFetchJSON(url, ms = 5000) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), ms);
   try {
-    const q = new URLSearchParams();
-    q.set("tab", WIDGET_SRC_TAB[cat] || activeTab);
-    q.set("lang", currentLang);
-    if (weatherCtx.city) q.set("city", weatherCtx.city);
-    if (weatherCtx.lat != null) q.set("lat", String(weatherCtx.lat));
-    if (weatherCtx.lon != null) q.set("lon", String(weatherCtx.lon));
-    const data = await fetchFeed(q, force);
-    const items = (data.items || []).filter((x) => want.includes(x.category));
-    // tab 里没有这个类目（比如 brief tab 恰好没拉到天气）时退回 tab 全量，
-    // 宁可显示别的内容，也不要给用户一个永远转圈的框。
-    renderWidget(body, items.length ? items : (data.items || []).slice(0, 6));
-  } catch (e) {
-    if (isLocal()) renderWidget(body, DEMO_ALL.filter((it) => want.includes(it.category)).slice(0, 6));
-    else body.innerHTML = `<div class="w-loading">⚠️</div>`;
-  }
-}
-function setWeatherCtx(opts) {
-  if (!opts) return;
-  if (opts.city !== undefined) weatherCtx.city = opts.city || "";
-  if (opts.lat != null) weatherCtx.lat = opts.lat;
-  if (opts.lon != null) weatherCtx.lon = opts.lon;
-}
-function renderWidget(body, items) {
-  if (!items || !items.length) { body.innerHTML = `<div class="w-loading">-</div>`; return; }
-  const rows = items.slice(0, 6);
-  body.innerHTML = rows.map((it) => widgetItem(it, true)).join("");
-  // 部件内标题翻译（异步回填）
-  if (translateOn()) {
-    const nodes = body.querySelectorAll(".w-item a, .w-item span");
-    rows.forEach((it, i) => {
-      if (it.lang && it.lang !== currentLang) {
-        translateText(it.title, srcCode(it.lang), langCode(currentLang)).then((t) => {
-          const node = nodes[i]; if (node && t && t !== it.title) node.textContent = t;
-        });
-      }
-    });
-  }
-}
-// 只有主站有常驻看板：ai / news 站的内容本身就是这些主题，
-// 再挂一块「游戏」看板只会稀释站点定位。
-// 不只是不发请求 —— 整段（含标题）必须 hidden，否则子站页面上会留一个
-// 空标题和三个空框，比不显示更像出故障。
-function reloadWidgets() {
-  const wrap = document.getElementById("widgetsWrap");
-  if (wrap) wrap.hidden = !IS_MAIN;
-  if (!IS_MAIN) return;
-  loadWidget("天气");
-  loadWidget("游戏");
-  loadWidget("AI");
+    const r = await fetch(url, { signal: ctl.signal });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
 }
 
-// 天气：城市搜索（浏览器直连 Open-Meteo 地理编码，已开启 CORS）
-// 定位结果写进 weatherCtx 而不是只传给一次请求 —— v2.4 的取数入口是 /api/feed?tab=，
-// 主信息流和天气部件共用这条链路，两边都要拿到城市。
+// IP 定位：两家免费、免密钥、开 CORS 的服务，先 ipwho.is，失败再 ipapi.co。
+async function ipLocate() {
+  const cached = lsGet(WX_IP_KEY);
+  if (cached && Date.now() - cached.t < WX_IP_TTL) return cached;
+  const tries = [
+    async () => { const d = await wxFetchJSON("https://ipwho.is/?fields=success,city,latitude,longitude");
+      return d && d.success !== false && d.latitude != null ? { name: d.city, lat: d.latitude, lon: d.longitude } : null; },
+    async () => { const d = await wxFetchJSON("https://ipapi.co/json/");
+      return d && d.latitude != null ? { name: d.city, lat: d.latitude, lon: d.longitude } : null; },
+  ];
+  for (const f of tries) {
+    try { const p = await f(); if (p) { const v = { ...p, t: Date.now() }; lsSet(WX_IP_KEY, v); return v; } } catch {}
+  }
+  return null;
+}
+
+// 城市名本地化：IP 服务返回英文名（Beijing），中文界面希望看到「北京」。
+// 用 Open-Meteo 地理编码按当前语言再查一次，结果随地点一起缓存，不重复请求。
+async function geocode(name) {
+  const lang = (currentLang || "en").split("-")[0];
+  const d = await wxFetchJSON(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=${lang}`);
+  const r = d && d.results && d.results[0];
+  return r ? { name: r.name, lat: r.latitude, lon: r.longitude } : null;
+}
+
+async function loadWeatherData(place, force) {
+  const k = `${place.lat.toFixed(2)},${place.lon.toFixed(2)}`;
+  const c = lsGet(WX_DATA_KEY);
+  if (!force && c && c.k === k && Date.now() - c.t < WX_DATA_TTL) return c.d;
+  const d = await wxFetchJSON(`https://api.open-meteo.com/v1/forecast?latitude=${place.lat}&longitude=${place.lon}` +
+    "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m" +
+    "&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto");
+  lsSet(WX_DATA_KEY, { k, t: Date.now(), d });
+  return d;
+}
+
+function renderWeather() {
+  const icon = document.getElementById("wxIcon");
+  const temp = document.getElementById("wxTemp");
+  const city = document.getElementById("wxCity");
+  const detail = document.getElementById("wxDetail");
+  if (!icon || !temp) return;
+  const cur = wxData && wxData.current;
+  if (!cur) { icon.textContent = "🌡️"; temp.textContent = "--°"; if (city) city.textContent = wxPlace ? wxPlace.name : ""; return; }
+  icon.textContent = WX_ICON(cur.weather_code);
+  temp.textContent = Math.round(cur.temperature_2m) + "°";
+  if (city) city.textContent = wxPlace ? wxPlace.name : "";
+  if (detail) {
+    const dl = wxData.daily || {};
+    const hi = dl.temperature_2m_max ? Math.round(dl.temperature_2m_max[0]) : null;
+    const lo = dl.temperature_2m_min ? Math.round(dl.temperature_2m_min[0]) : null;
+    detail.innerHTML =
+      `<div class="wx-d-main">${WX_ICON(cur.weather_code)} <b>${Math.round(cur.temperature_2m)}°C</b> ` +
+      `<span>${escapeHtml(wxPlace ? wxPlace.name : "")}${wxPlace && wxPlace.manual ? "" : " · IP"}</span></div>` +
+      `<div class="wx-d-sub">${hi != null ? `↑${hi}° ↓${lo}° · ` : ""}💧${cur.relative_humidity_2m}% · 🌬️${cur.wind_speed_10m}km/h</div>`;
+  }
+}
+
+async function showWeather(place, force) {
+  wxPlace = place;
+  renderWeather();
+  try { wxData = await loadWeatherData(place, force); } catch { wxData = null; }
+  renderWeather();
+}
+
+async function initWeather() {
+  const manual = lsGet(WX_CITY_KEY);
+  if (manual && manual.lat != null) return showWeather({ ...manual, manual: true });
+  await weatherByIp(false);
+}
+
+// IP 定位（也是「📍 定位」按钮的行为）：清掉手选城市，回到自动定位。
+async function weatherByIp(clearManual = true) {
+  if (clearManual === true || (clearManual && clearManual.type)) lsSet(WX_CITY_KEY, null);
+  let p = await ipLocate();
+  if (p && p.name && !p.local) {
+    try { const g = await geocode(p.name); if (g) { p = { ...p, name: g.name, local: true }; lsSet(WX_IP_KEY, { ...p, t: p.t || Date.now() }); } } catch {}
+  }
+  await showWeather(p ? { name: p.name || "", lat: p.lat, lon: p.lon } : WX_FALLBACK);
+  toggleWxPop(false);
+}
+
+// 手动切换城市：地理编码成功才落盘，避免把错字记成「我的城市」。
 async function weatherByCity(name) {
   if (!name) return;
   try {
-    const g = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1`, { cache: "no-store" });
-    const d = await g.json();
-    const r = d.results && d.results[0];
-    if (r) loadWidget("天气", { city: r.name, lat: r.latitude, lon: r.longitude });
-    else loadWidget("天气", { city: name });
-  } catch (e) { loadWidget("天气", { city: name }); }
+    const g = await geocode(name);
+    if (!g) { if (wxInput) wxInput.select(); return; }
+    lsSet(WX_CITY_KEY, g);
+    if (wxInput) wxInput.value = "";
+    await showWeather({ ...g, manual: true });
+    toggleWxPop(false);
+  } catch { /* 网络失败：保留输入，用户可重试 */ }
 }
-function weatherByGeo() {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(
-    (pos) => loadWidget("天气", { city: "本地", lat: pos.coords.latitude, lon: pos.coords.longitude }),
-    () => loadWidget("天气")
-  );
+
+function toggleWxPop(force) {
+  if (!wxPop || !wxBtn) return;
+  const open = typeof force === "boolean" ? force : wxPop.hidden;
+  wxPop.hidden = !open;
+  wxBtn.setAttribute("aria-expanded", String(open));
+  if (open && wxInput) setTimeout(() => wxInput.focus(), 0);
 }
 
 // ---------- 接口发现（仅开发者模式） ----------
@@ -1225,23 +1547,45 @@ if (autoBtn) autoBtn.addEventListener("click", () => {
   autoBtn.textContent = autoScroll ? (I18N[currentLang] || I18N.zh).autoPause : (I18N[currentLang] || I18N.zh).autoStart;
 });
 if (refreshBtn) refreshBtn.addEventListener("click", () => {
-  resetFeed(); reloadWidgets();
+  resetFeed();
   if (DEV_MODE && discoverInput) loadDiscover(discoverInput.value);
 });
 if (translateBtn) translateBtn.addEventListener("click", () => {
   translateEnabled = !translateEnabled;
   translateBtn.classList.toggle("on", translateEnabled);
   // 重新渲染以应用/取消翻译
-  resetFeed(); reloadWidgets();
+  resetFeed();
 });
-if (cityGo) cityGo.addEventListener("click", () => weatherByCity(cityInput.value.trim()));
-if (cityInput) cityInput.addEventListener("keydown", (e) => { if (e.key === "Enter") weatherByCity(cityInput.value.trim()); });
-if (geoBtn) geoBtn.addEventListener("click", weatherByGeo);
-// force=true 是必须的：用户明确点了刷新，就该真的打一次网络，
-// 不能被上面 fetchFeed 的 15 秒复用挡掉，否则按钮看着像坏了。
-document.querySelectorAll(".w-refresh").forEach((b) =>
-  b.addEventListener("click", () => loadWidget(b.dataset.widget || "AI", undefined, true))
-);
+if (wxBtn) wxBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleWxPop(); });
+if (wxPop) wxPop.addEventListener("click", (e) => e.stopPropagation());
+document.addEventListener("click", () => toggleWxPop(false));
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleWxPop(false); });
+if (wxGo) wxGo.addEventListener("click", () => weatherByCity(wxInput.value.trim()));
+if (wxInput) wxInput.addEventListener("keydown", (e) => { if (e.key === "Enter") weatherByCity(wxInput.value.trim()); });
+if (wxIp) wxIp.addEventListener("click", weatherByIp);
+if (btnViewList) btnViewList.addEventListener("click", () => applyViewMode("list"));
+if (btnViewGrid) btnViewGrid.addEventListener("click", () => applyViewMode("grid"));
+if (btnCustomize) btnCustomize.addEventListener("click", openCustomizeModal);
+if (modalClose) modalClose.addEventListener("click", closeCustomizeModal);
+if (customizeModal) {
+  customizeModal.addEventListener("click", (e) => {
+    if (e.target === customizeModal) closeCustomizeModal();
+  });
+}
+if (btnResetConfig) {
+  btnResetConfig.addEventListener("click", () => {
+    const def = getDefaultConfig();
+    saveCustomConfig(def);
+    renderModalModuleList();
+    renderStructuredFeed();
+  });
+}
+if (btnSaveConfig) {
+  btnSaveConfig.addEventListener("click", () => {
+    closeCustomizeModal();
+    renderStructuredFeed();
+  });
+}
 if (discoverInput) discoverInput.addEventListener("input", () => { clearTimeout(discoverInput._t); discoverInput._t = setTimeout(() => loadDiscover(discoverInput.value.trim()), 300); });
 if (feed) {
   feed.addEventListener("mouseenter", () => (hovering = true));
@@ -1283,8 +1627,10 @@ function detectLang() {
 activeTab = resolveTabFromUrl().id;
 currentLang = detectLang();
 buildLangSelect();
-// applyLang 末尾已经串好 buildTabs → renderEntries → reloadWidgets → resetFeed，
+// applyLang 末尾已经串好 buildTabs → renderEntries → renderWeather → resetFeed，
 // 这里不要再来一遍 —— 重复调会让首屏打两次 /api/feed，浪费一次上游抓取。
 applyLang(currentLang);
+applyViewMode(currentView);
+initWeather();
 if (DEV_MODE) loadDiscover("");
 requestAnimationFrame(tick);
