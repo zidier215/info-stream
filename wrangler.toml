@@ -2,9 +2,6 @@ name = "info-stream"
 compatibility_date = "2024-09-23"
 pages_build_output_dir = "public"
 
-[build]
-command = "node build.mjs"
-
 # 三个域名绑定后，https://<name>.pages.dev 会 301 到自定义域。
 # canonical 由 functions/index.js 按 Host 动态注入，三站各自独立。
 
