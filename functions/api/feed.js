@@ -81,6 +81,8 @@ function edgeKey(request, host, tabId, opts) {
   // 用完整的查询串做 key：城市经纬度 / 语种 / limit 都会改变结果。
   // 注意 host 要单独带上：三个子域名共用同一个 Pages 项目，
   // 不同 host 下同名 tab（ai 站的 all 和主站的 ai）源组合完全不同。
+  // 这里的 host 一律传**裸域**（conf.host）：www 与裸域是同一个站，
+  // 传原始 host 会让同一份数据在边缘存两份，白白多抓一次上游。
   const u = new URL(request.url);
   const q = u.search;
   return `https://${host}/__edge${tabId}${q}`;
@@ -162,7 +164,9 @@ export async function onRequest(context) {
     120,
   );
 
-  const cacheKey = [host, tab.id, opts.srcLang, opts.city, opts.lat, opts.lon].join("|");
+  // 缓存 key 一律用 conf.host（裸域）而不是请求里的原始 host：
+  // www 与裸域是同一个站、共用同一份数据，分开算 key 等于多抓一次上游。
+  const cacheKey = [conf.host, tab.id, opts.srcLang, opts.city, opts.lat, opts.lon].join("|");
   const hit = cache.get(cacheKey);
   let items;
   let stale = false;   // 本次响应是否来自「陈旧兜底」——前端会据此提示用户
@@ -181,7 +185,7 @@ export async function onRequest(context) {
     cacheHit = true;
   } else {
     // L2：跨 isolate 的边缘缓存。冷 isolate 上这是唯一能避免重抓上游的一层。
-    const { fresh, stale: staleKey } = edgeKeys(request, host, tab.id);
+    const { fresh, stale: staleKey } = edgeKeys(request, conf.host, tab.id);
     const cached = !force ? await edgeGet(fresh) : null;
     if (cached) {
       items = cached;

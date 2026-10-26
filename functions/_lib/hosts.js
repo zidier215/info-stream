@@ -194,9 +194,16 @@ export function hostOf(request) {
  */
 export function resolveHost(request) {
   const host = hostOf(request);
-  const cfg = HOSTS[host] || null;
+  // www. 前缀归一化 —— www.myinfostream.com 与 myinfostream.com 是同一个站，
+  // HOSTS 表只登记裸域。少了这一步，www 查表落空 → cfg=null → 被判成
+  // 「未知 host = 预览域名」→ 首页挂 noindex、Cache-Control 变 no-store，
+  // 等于把 www 版主站整个从搜索引擎里摘掉。归一化后 www 走裸域配置，
+  // canonical 仍指向裸域（https://myinfostream.com/），这是标准做法。
+  const bare = host.startsWith("www.") ? host.slice(4) : host;
+  const cfg = HOSTS[bare] || null;
   return {
     host,
+    bare,
     cfg,
     isKnown: !!cfg,
     // 预览域名（pages.dev / localhost）不参与索引

@@ -135,6 +135,30 @@ check(!pvHtml.includes('rel="sitemap"'), "预览域不出 sitemap 链接");
 const pvSitemap = await (await sitemapFn({ request: req("hao-feed.pages.dev", "/sitemap.xml"), env })).text();
 check(pvSitemap.includes("<urlset") && !pvSitemap.includes("<url>"), "预览域 sitemap 为空");
 
+// ---- www 域必须等同裸域 ----
+// 2026-10-26 线上事故：www.myinfostream.com 不在 HOSTS 表里 → cfg=null
+// → resolveHost 判成「未知 host = 预览域名」→ 首页挂 noindex、
+// Cache-Control 变 no-store，等于把 www 版主站整个从搜索引擎里摘掉。
+// 这条断言把 www 归一化钉死，防止以后往 HOSTS 里加表项时又漏掉 www。
+console.log(`\n===== www.myinfostream.com（www 归一化） =====`);
+const wwwRes = await indexFn({ request: req("www.myinfostream.com"), env });
+const wwwHtml = await wwwRes.text();
+check(wwwRes.headers.get("X-InfoStream-Site") === "main", "www 归入主站",
+  wwwRes.headers.get("X-InfoStream-Site") || "");
+check(!wwwRes.headers.get("Cache-Control").includes("no-store"), "www 不 no-store（走边缘缓存）",
+  wwwRes.headers.get("Cache-Control") || "");
+const wwwRobots = (wwwHtml.match(/<meta name="robots" content="([^"]*)"/i) || [])[1] || "";
+check(wwwRobots.includes("index") && !wwwRobots.includes("noindex"), "www robots=index", wwwRobots);
+const wwwCanon = (wwwHtml.match(/<link rel="canonical" href="([^"]+)"/i) || [])[1] || "";
+check(wwwCanon === "https://myinfostream.com/", "www canonical 指向裸域", wwwCanon);
+const wwwCfgM = wwwHtml.match(/window\.__HOST_CONFIG__ = ([\s\S]*?);<\/script>/);
+check(!!wwwCfgM && JSON.parse(wwwCfgM[1]).host === "myinfostream.com", "www 注入的 cfg.host 是裸域");
+const wwwRb = await (await robotsFn({ request: req("www.myinfostream.com", "/robots.txt"), env })).text();
+check(wwwRb.includes("Sitemap: https://myinfostream.com/sitemap.xml"), "www robots.txt 指向裸域 sitemap");
+// 注意要按整行判断：正式域本来就有 "Disallow: /api/"，用子串匹配会误判成整站屏蔽
+const wwwRbLines = wwwRb.split("\n").map((l) => l.trim());
+check(!wwwRbLines.includes("Disallow: /"), "www robots.txt 不整站屏蔽");
+
 // ---- 静态资源应透传 ----
 console.log(`\n===== 静态资源透传 =====`);
 const asset = await indexFn({ request: req("myinfostream.com", "/assets/app.js"), env });
