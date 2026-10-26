@@ -107,10 +107,125 @@
   </main>
 
   <footer class="foot">
-    <span data-i18n="foot1">数据源：微博/百度/抖音热搜 · Hacker News · Open-Meteo · Epic · Exchangerate/Binance · OpenLigaDB ·
-      HuggingFace</span>
-    <span data-i18n="foot2">部署于 Cloudflare Pages · 服务端聚合 · 公共接口已限流并校验来源，私有接口需密钥</span>
+    <div class="foot-links">
+      <a href="#about" class="policy-trigger" data-tab="about">关于本站</a>
+      <span class="sep">·</span>
+      <a href="#privacy" class="policy-trigger" data-tab="privacy">隐私政策</a>
+      <span class="sep">·</span>
+      <a href="#terms" class="policy-trigger" data-tab="terms">服务条款</a>
+      <span class="sep">·</span>
+      <a href="#contact" class="policy-trigger" data-tab="contact">联系我们</a>
+    </div>
+    <div class="foot-copy">
+      <span data-i18n="foot1">数据源：微博/百度/抖音热搜 · B站 · TechCrunch · GitHub · Epic · Hacker News · 气象/外汇/加密</span>
+      <span data-i18n="foot2">部署于 Cloudflare Pages · 服务端聚合 · 遵循 Google AdSense 合规指引</span>
+    </div>
   </footer>
+
+  <!-- Cookie 授权声明 (Cookie Consent Banner) -->
+  <aside id="cookieConsent" class="cookie-banner" role="region" aria-label="Cookie 声明" hidden>
+    <div class="cookie-inner">
+      <div class="cookie-text">
+        <span class="cookie-icon">🍪</span>
+        <span>
+          本站使用 Cookies 以优化浏览体验、进行访问统计并支持 Google 投放广告。继续浏览即表示您知悉并同意本站的
+          <a href="#privacy" class="policy-trigger" data-tab="privacy">《隐私政策》</a>。
+        </span>
+      </div>
+      <div class="cookie-btns">
+        <button id="cookieAcceptBtn" class="cookie-btn cookie-btn-accept">同意并接受</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 合规四件套弹窗 (About / Privacy / Terms / Contact) -->
+  <div id="policyModal" class="policy-modal" hidden role="dialog" aria-modal="true" aria-labelledby="policyModalTitle">
+    <div class="policy-backdrop"></div>
+    <div class="policy-wrap">
+      <div class="policy-box">
+        <div class="policy-head">
+          <div class="policy-tabs" role="tablist">
+            <button class="policy-tab is-active" data-tab="privacy" role="tab">隐私政策</button>
+            <button class="policy-tab" data-tab="terms" role="tab">服务条款</button>
+            <button class="policy-tab" data-tab="about" role="tab">关于本站</button>
+            <button class="policy-tab" data-tab="contact" role="tab">联系我们</button>
+          </div>
+          <button id="policyCloseBtn" class="policy-close" aria-label="关闭">&times;</button>
+        </div>
+        <div class="policy-content">
+          <!-- 隐私政策 (含 Google AdSense 强制要求的第三方 Cookie 与广告公示) -->
+          <section id="policyTab-privacy" class="policy-pane is-active">
+            <h3 id="policyModalTitle">隐私权政策 (Privacy Policy)</h3>
+            <p class="policy-date">更新日期：2026年10月26日 · 生效日期：2026年10月26日</p>
+            <p>信息河（InfoStream，以下简称“本站”）高度重视用户的隐私保护。本隐私政策旨在向您说明我们如何收集、使用、存储及保护您的信息，以及第三方合作伙伴（包括 Google）在本站的服务规范。</p>
+            
+            <h4>1. Google AdSense 与第三方 Cookie 说明（核心合规条款）</h4>
+            <div class="policy-callout">
+              <p>• <strong>第三方广告商</strong>：Google 作为第三方供应商，使用 Cookie 在本网站上投放广告。</p>
+              <p>• <strong>个性化广告 Cookie</strong>：Google 对广告 Cookie（包括 DoubleClick Cookie）的使用，使其及其合作伙伴能够根据您对本网站和/或互联网上其他网站的访问记录向您投放个性化广告。</p>
+              <p>• <strong>如何停用个性化广告</strong>：您可以通过访问 <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google 广告设置 (Google Ads Settings)</a> 自由管理或停用个性化广告投放。此外，您也可以访问 <a href="https://www.aboutads.info/" target="_blank" rel="noopener">aboutads.info</a> 停用第三方供应商为投放个性化广告而使用的 Cookie。</p>
+            </div>
+
+            <h4>2. 本站收集的信息与本地存储</h4>
+            <p>本站定位为公开信息流聚合服务，<strong>无需用户注册或登录</strong>，我们不会主动索取或存储您的姓名、身份证号、银行卡等敏感个人信息。我们使用浏览器的 <code>localStorage</code> 仅用于保存您的客户端使用偏好（例如您手动选择的界面语言、天气查询城市、以及 Cookie 授权状态），这些数据均保存在您的本地设备上。</p>
+
+            <h4>3. 日志与流量统计</h4>
+            <p>当您访问本站时，我们的服务器和基础网络提供商（Cloudflare）可能会自动记录标准网络请求日志（如匿名 IP 地址、浏览器类型、引用页面、访问时间等），仅用于防御恶意刷量攻击、统计站点负载和保障网络服务稳定性。</p>
+
+            <h4>4. 数据安全</h4>
+            <p>本站全程采用 HTTPS 加密传输，严格隔离未授权访问，绝不会向任何未经授权的第三方出售、出租或交易用户数据。</p>
+          </section>
+
+          <!-- 服务条款与免责声明 -->
+          <section id="policyTab-terms" class="policy-pane" hidden>
+            <h3>服务条款与免责声明 (Terms of Service)</h3>
+            <p class="policy-date">生效日期：2026年10月26日</p>
+            <h4>1. 服务定位</h4>
+            <p>信息河（InfoStream）是由独立开发者搭建的信息聚合与浏览平台，通过公开可用的 RSS、网络开放接口及合规渠道汇聚境内外新闻要闻、科技动态、热搜榜单、气象及开源项目信息，旨在为用户提供高效、清洁、不作信息过载的信息参考。</p>
+
+            <h4>2. 知识产权与版权声明 (DMCA)</h4>
+            <p>本站所聚合展示的新闻标题、摘要、图片、视频等内容，其知识产权均归属于原始发布机构或原作者所有。本站严格遵循互联网开放协议，均在卡片中清晰标明原作者/原媒体来源，并附带直达原始网页的链接。</p>
+            <p>如任何版权所有者认为本站索引的内容存在侵权或不当引用，请随时通过本条款底部或「联系我们」页面的邮箱提出通知，我们将在核实后 48 小时内协助切断链接或移除展示。</p>
+
+            <h4>3. 免责声明</h4>
+            <p>聚合信息仅代表原作者或原媒体立场，本站不对第三方内容的准确性、完整性、时效性做明示或暗示的保证。用户依据本站所展示信息进行的任何决策或投资风险由用户自行承担。</p>
+          </section>
+
+          <!-- 关于本站 -->
+          <section id="policyTab-about" class="policy-pane" hidden>
+            <h3>关于信息河 (About InfoStream)</h3>
+            <p><strong>信息河 · InfoStream</strong> 是一条部署在 Cloudflare 全球边缘网络上的多域名信息流平台。我们摒弃了传统导航网站的拥挤与繁杂广告，致力于打造一条“永远往下流、滚动不息”的清洁信息之河。</p>
+            <h4>平台特色</h4>
+            <ul>
+              <li><strong>多站点垂直聚焦</strong>：主站聚合全景简报，子站点专注 AI 动态、严肃国际新闻、免费游戏与实时热搜。</li>
+              <li><strong>全球多语言支持</strong>：支持全球 19 种主流语言与特色语种，让来自不同地区的用户都能亲切阅读。</li>
+              <li><strong>极速与低碳</strong>：纯原生前端技术构建，无沉重商业追踪脚本，毫秒级响应，节能高效。</li>
+            </ul>
+          </section>
+
+          <!-- 联系我们 -->
+          <section id="policyTab-contact" class="policy-pane" hidden>
+            <h3>联系我们 (Contact Us)</h3>
+            <p>我们非常重视用户的意见反馈、版权通知与商业合作洽谈。如果您在使用过程中遇到任何问题或建议，欢迎随时与我们取得联系：</p>
+            <div class="contact-card">
+              <div class="contact-row">
+                <span class="contact-label">📧 站务与联系邮箱：</span>
+                <a href="mailto:shitou215@hotmail.com" class="contact-value">shitou215@hotmail.com</a>
+              </div>
+              <div class="contact-row">
+                <span class="contact-label">⏱️ 响应时效：</span>
+                <span class="contact-value">通常在 24–48 小时内回复处理</span>
+              </div>
+              <div class="contact-row">
+                <span class="contact-label">⚖️ 版权/DMCA：</span>
+                <span class="contact-value">请在来信中注明涉及内容的 URL 及权属证明，我们将快速核查处理</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="assets/app.js"></script>
 </body>

@@ -291,6 +291,7 @@ let translateEnabled = true;
 let feedCursor = 0;            // 演示池子游标（环形，模拟无限）
 let feedExhausted = false;     // 真实模式下真没数据了
 let ioThrottle = 0;            // IO 节流时间戳
+let cardsSinceLastAd = 0;      // 广告插槽间隔计数器（规范化预留 AdSense 位）
 
 // 真实模式见过的条目。/api/feed 没有分页参数，每次请求都返回整个 tab，
 // 所以「buffer 见底 → 再拉一次」拿到的是同一批内容。v2.5 之前这里直接
@@ -668,6 +669,26 @@ function makeCard(it) {
   return el;
 }
 
+// 规范化广告卡片：严格遵守 AdSense 政策，明确标注「赞助商广告」，避免与内容混淆
+function makeAdCard() {
+  const el = document.createElement("article");
+  el.className = "card card-ad";
+  el.innerHTML = `
+    <div class="ad-label-bar">
+      <span class="ad-badge">赞助商内容 · Ad</span>
+    </div>
+    <div class="ad-container">
+      <ins class="adsbygoogle"
+           style="display:block;min-height:200px"
+           data-ad-format="fluid"
+           data-ad-layout-key="-fb+5w+4e-db+86"
+           data-ad-client="ca-pub-1130777358854864"
+           data-ad-slot="default"></ins>
+    </div>`;
+  try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+  return el;
+}
+
 function widgetItem(it, withLink) {
   const a = it.url && it.url !== "#"
     ? `<a href="${escapeHtml(it.url)}" target="_blank" rel="noopener">${escapeHtml(it.title)}</a>`
@@ -937,6 +958,12 @@ function renderMore(n) {
   for (let i = 0; i < want && buffer.length > 0; i++) {
     frag.appendChild(makeCard(buffer.shift()));
     drew++;
+    cardsSinceLastAd++;
+    // 每展示 9 张内容卡片后插入一个规范的 AdSense 广告位插槽
+    if (cardsSinceLastAd >= 9 && buffer.length > 0) {
+      frag.appendChild(makeAdCard());
+      cardsSinceLastAd = 0;
+    }
   }
   if (frag.childNodes.length) feed.appendChild(frag);
 
@@ -951,6 +978,7 @@ function renderMore(n) {
 function resetFeed(force) {
   buffer = [];
   feedCursor = 0;
+  cardsSinceLastAd = 0;
   feedExhausted = false;
   // 去重表必须跟着一起清：换 tab 后同名同时间的条目要能重新出现，
   // 否则新 tab 的首屏会被上一站的 key 误判成「见过」而整批丢掉。
@@ -1226,3 +1254,90 @@ buildLangSelect();
 applyLang(currentLang);
 if (DEV_MODE) loadDiscover("");
 requestAnimationFrame(tick);
+
+// ---------- Cookie 合规提示条控制器 (Cookie Consent) ----------
+const cookieBanner = document.getElementById("cookieConsent");
+const cookieAcceptBtn = document.getElementById("cookieAcceptBtn");
+if (cookieBanner) {
+  try {
+    if (!localStorage.getItem("infostream_cookie_consent")) {
+      setTimeout(() => { cookieBanner.hidden = false; }, 600);
+    }
+  } catch {}
+  if (cookieAcceptBtn) {
+    cookieAcceptBtn.addEventListener("click", () => {
+      try { localStorage.setItem("infostream_cookie_consent", "1"); } catch {}
+      cookieBanner.hidden = true;
+    });
+  }
+}
+
+// ---------- 合规四件套模态窗控制器 (Privacy, Terms, About, Contact) ----------
+const policyModal = document.getElementById("policyModal");
+const policyCloseBtn = document.getElementById("policyCloseBtn");
+const policyTabs = document.querySelectorAll(".policy-tab");
+const policyPanes = document.querySelectorAll(".policy-pane");
+
+function switchPolicyTab(tabName) {
+  if (!policyTabs.length || !policyPanes.length) return;
+  policyTabs.forEach((tab) => {
+    const active = tab.dataset.tab === tabName;
+    tab.classList.toggle("is-active", active);
+    tab.setAttribute("aria-selected", String(active));
+  });
+  policyPanes.forEach((pane) => {
+    const active = pane.id === `policyTab-${tabName}`;
+    pane.hidden = !active;
+    pane.classList.toggle("is-active", active);
+  });
+}
+
+function openPolicyModal(tabName = "privacy") {
+  if (!policyModal) return;
+  switchPolicyTab(tabName);
+  policyModal.hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
+function closePolicyModal() {
+  if (!policyModal) return;
+  policyModal.hidden = true;
+  document.body.style.overflow = "";
+  if (["#privacy", "#terms", "#about", "#contact"].includes(location.hash)) {
+    try { history.replaceState(null, "", location.pathname + location.search); } catch {}
+  }
+}
+
+if (policyCloseBtn) policyCloseBtn.addEventListener("click", closePolicyModal);
+if (policyModal) {
+  const backdrop = policyModal.querySelector(".policy-backdrop");
+  if (backdrop) backdrop.addEventListener("click", closePolicyModal);
+}
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && policyModal && !policyModal.hidden) closePolicyModal();
+});
+
+policyTabs.forEach((btn) => {
+  btn.addEventListener("click", () => switchPolicyTab(btn.dataset.tab));
+});
+
+// 委托监听所有 policy-trigger 链接点击（页脚与 Cookie 提示条）
+document.addEventListener("click", (e) => {
+  const trigger = e.target.closest(".policy-trigger");
+  if (trigger) {
+    e.preventDefault();
+    const tab = trigger.dataset.tab || "privacy";
+    try { location.hash = tab; } catch {}
+    openPolicyModal(tab);
+  }
+});
+
+// URL 深度链接检测（便于 AdSense 审核团队或用户直达 /#privacy, /#terms, /#about, /#contact）
+function checkPolicyHash() {
+  const hash = (location.hash || "").replace(/^#/, "");
+  if (["privacy", "terms", "about", "contact"].includes(hash)) {
+    openPolicyModal(hash);
+  }
+}
+window.addEventListener("hashchange", checkPolicyHash);
+checkPolicyHash();
