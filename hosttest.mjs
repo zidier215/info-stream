@@ -92,9 +92,13 @@ for (const [host, key, expectName] of HOSTS) {
 
   // ---- 前端 DOM 契约：app.js 按这些 id/属性找元素，对不上就是白屏 ----
   check(/id="tabs"/.test(html), "有 <nav id=tabs>");
-  check(/id="entries"/.test(html), "有 id=entries 专题站导航");
-  check(/id="wx"/.test(html), "有 id=wx 顶栏天气小组件");
-  check(/id="wxBtn"/.test(html), "有 id=wxBtn 顶栏天气按钮");
+  check(/id="entries"/.test(html), "有 <section id=entries>");
+  check(/id="widgetsWrap"/.test(html), "有 widgetsWrap（子站要整段 hidden）");
+  // app.js 读的是 data-widget；写成 data-cat 会让刷新按钮读出 undefined
+  const wRefresh = [...html.matchAll(/class="mini-btn w-refresh" data-(\w+)="([^"]+)"/g)];
+  check(wRefresh.length === 2, "2 个 w-refresh 按钮", String(wRefresh.length));
+  check(wRefresh.every((m) => m[1] === "widget"), "w-refresh 用 data-widget 而非 data-cat",
+    wRefresh.map((m) => `${m[1]}=${m[2]}`).join(" "));
   // 旧的 id="chips" 必须消失，否则 app.js 的 tabsEl 为 null，一行 buildTabs 就崩
   check(!/id="chips"/.test(html), "旧 id=chips 已移除");
 

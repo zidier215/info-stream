@@ -1,14 +1,14 @@
 // assets/app.js
 // 前端逻辑：多语言(i18n) + 站点形态切换(portal / topic) + 顶部 Tab 信息流
-//           + 顶栏天气(IP 定位) + 全球免费接口发现 + 内容翻译 + 本地演示降级。
+//           + 固定部件(天气/游戏/AI) + 全球免费接口发现 + 内容翻译 + 本地演示降级。
 //
 // v2.4 关键改动：这份代码同时服务三个域名，站点差异全部来自服务端注入的
 // window.__HOST_CONFIG__（见 functions/_lib/page.js），前端不再硬编码任何站点信息：
-//   myinfostream.com       mode=portal  顶部 Tab（简报/国际/AI/娱乐）+ 专题站导航行
+//   myinfostream.com       mode=portal  顶部 Tab（简报/国际/AI/娱乐）+ 子站入口卡片 + 常驻看板
 //   ai.myinfostream.com    mode=topic   顶部 Tab（全部/大模型/芯片/商业/论文）
 //   news.myinfostream.com  mode=topic   顶部 Tab（头条/商业/科技/地区）
-// portal 与 topic 的差异守门在 renderEntries()（只在 IS_MAIN 渲染专题站导航）
-// 与简报板块分流（renderMore 里的 isBrief）。其余代码路径两边共用。
+// portal 与 topic 的差异全在两个守门：renderEntries() 只在 IS_MAIN 渲染入口卡片，
+// reloadWidgets() 只在 IS_MAIN 拉看板。其余代码路径两边共用。
 // 取数统一走 /api/feed?tab=<id>，tab 与源组合由 functions/_lib/hosts.js 声明，
 // 前端不关心「这个 tab 该拉哪些源」。本地 file:// 打开时没有注入，回落到 FALLBACK_HOST。
 
@@ -115,71 +115,59 @@ const IS_MAIN = MODE === "portal";    // 主站才显示入口卡片与常驻看
 // 而 I18N 是 19 语言 × 30 键的巨型对象，单独放更易读也更容易补语言。
 // 缺失语言自动回落到 en，再回落到 key 本身（不会出现空白 Tab）。
 const UI_I18N = {
-  brief:      { zh: "简报",   "zh-Hant": "簡報",   en: "Brief",  es: "Resumen", fr: "Brief",  ja: "ブリーフ", de: "Überblick", ru: "Обзор",  ar: "موجز",  pt: "Resumo" },
-  world:      { zh: "国际",   "zh-Hant": "國際",   en: "World",  es: "Mundo",  fr: "Monde",  ja: "世界",   de: "Welt",   ru: "Мир",    ar: "العالم", pt: "Mundo" },
-  ai:         { zh: "AI",    "zh-Hant": "AI",    en: "AI",     es: "IA",    fr: "IA",    ja: "AI",    de: "KI",    ru: "ИИ",    ar: "ذكاء اصطناعي", pt: "IA" },
-  fun:        { zh: "娱乐",   "zh-Hant": "娛樂",   en: "Culture", es: "Cultura", fr: "Culture", ja: "エンタメ", de: "Kultur", ru: "Культура", ar: "ترفيه", pt: "Cultura" },
-  all:        { zh: "全部",   "zh-Hant": "全部",   en: "All",    es: "Todos", fr: "Tout",  ja: "すべて", de: "Alle",   ru: "Все",    ar: "الكل",   pt: "Todos" },
-  tabModels:  { zh: "大模型", "zh-Hant": "大型模型", en: "Models", es: "Modelos", fr: "Modèles", ja: "モデル", de: "Modelle", ru: "Модели", ar: "النماذج", pt: "Modelos" },
-  tabChips:   { zh: "芯片算力", "zh-Hant": "晶片算力", en: "Chips", es: "Chips", fr: "Puces", ja: "半導体", de: "Chips", ru: "Чипы",  ar: "الشرائح", pt: "Chips" },
-  tabBiz:     { zh: "商业",   "zh-Hant": "商業",   en: "Business", es: "Negocios", fr: "Business", ja: "ビジネス", de: "Business", ru: "Бизнес", ar: "الأعمال", pt: "Negócios" },
-  tabPapers:  { zh: "论文",   "zh-Hant": "論文",   en: "Papers", es: "Papers", fr: "Papiers", ja: "論文",  de: "Papiere", ru: "Статьи", ar: "الأوراق", pt: "Artigos" },
-  tabTop:     { zh: "头条",   "zh-Hant": "頭條",   en: "Top",    es: "Top",   fr: "À la une", ja: "トップ", de: "Top",  ru: "Главное", ar: "الأبرز", pt: "Topo" },
-  tabBizNews: { zh: "财经",   "zh-Hant": "財經",   en: "Business", es: "Negocios", fr: "Économie", ja: "経済", de: "Wirtschaft", ru: "Экономика", ar: "اقتصاد", pt: "Negócios" },
-  tabTechNews:{ zh: "科技",   "zh-Hant": "科技",   en: "Tech",   es: "Tecnología", fr: "Tech", ja: "テック", de: "Technik", ru: "Технологии", ar: "تقنية", pt: "Tecnologia" },
-  tabRegion:  { zh: "地区",   "zh-Hant": "地區",   en: "Regions", es: "Regiones", fr: "Régions", ja: "地域", de: "Regionen", ru: "Регионы", ar: "المناطق", pt: "Regiões" },
+  brief: { zh: "简报", "zh-Hant": "簡報", en: "Brief", es: "Resumen", fr: "Brief", ja: "ブリーフ", de: "Überblick", ru: "Обзор", ar: "موجز", pt: "Resumo" },
+  world: { zh: "国际", "zh-Hant": "國際", en: "World", es: "Mundo", fr: "Monde", ja: "世界", de: "Welt", ru: "Мир", ar: "العالم", pt: "Mundo" },
+  ai: { zh: "AI", "zh-Hant": "AI", en: "AI", es: "IA", fr: "IA", ja: "AI", de: "KI", ru: "ИИ", ar: "ذكاء اصطناعي", pt: "IA" },
+  fun: { zh: "娱乐", "zh-Hant": "娛樂", en: "Culture", es: "Cultura", fr: "Culture", ja: "エンタメ", de: "Kultur", ru: "Культура", ar: "ترفيه", pt: "Cultura" },
+  all: { zh: "全部", "zh-Hant": "全部", en: "All", es: "Todos", fr: "Tout", ja: "すべて", de: "Alle", ru: "Все", ar: "الكل", pt: "Todos" },
+  tabModels: { zh: "大模型", "zh-Hant": "大型模型", en: "Models", es: "Modelos", fr: "Modèles", ja: "モデル", de: "Modelle", ru: "Модели", ar: "النماذج", pt: "Modelos" },
+  tabChips: { zh: "芯片算力", "zh-Hant": "晶片算力", en: "Chips", es: "Chips", fr: "Puces", ja: "半導体", de: "Chips", ru: "Чипы", ar: "الشرائح", pt: "Chips" },
+  tabBiz: { zh: "商业", "zh-Hant": "商業", en: "Business", es: "Negocios", fr: "Business", ja: "ビジネス", de: "Business", ru: "Бизнес", ar: "الأعمال", pt: "Negócios" },
+  tabPapers: { zh: "论文", "zh-Hant": "論文", en: "Papers", es: "Papers", fr: "Papiers", ja: "論文", de: "Papiere", ru: "Статьи", ar: "الأوراق", pt: "Artigos" },
+  tabTop: { zh: "头条", "zh-Hant": "頭條", en: "Top", es: "Top", fr: "À la une", ja: "トップ", de: "Top", ru: "Главное", ar: "الأبرز", pt: "Topo" },
+  tabBizNews: { zh: "财经", "zh-Hant": "財經", en: "Business", es: "Negocios", fr: "Économie", ja: "経済", de: "Wirtschaft", ru: "Экономика", ar: "اقتصاد", pt: "Negócios" },
+  tabTechNews: { zh: "科技", "zh-Hant": "科技", en: "Tech", es: "Tecnología", fr: "Tech", ja: "テック", de: "Technik", ru: "Технологии", ar: "تقنية", pt: "Tecnologia" },
+  tabRegion: { zh: "地区", "zh-Hant": "地區", en: "Regions", es: "Regiones", fr: "Régions", ja: "地域", de: "Regionen", ru: "Регионы", ar: "المناطق", pt: "Regiões" },
   // game 站：三态 tab 的命名跟着「用户此刻要做什么」走 —— 现在能领 / 还没开 / 永久入库。
   // 不叫「状态一/二/三」，也不叫 live/soon/perma 的直译。
-  tabGameLive: { zh: "本周免费", "zh-Hant": "本週免費", en: "Live",    es: "Ahora",     fr: "En cours",  ja: "今週",     de: "Jetzt",    ru: "Сейчас",   ar: "الآن",      pt: "Agora" },
-  tabGameSoon: { zh: "即将开放", "zh-Hant": "即將開放", en: "Upcoming", es: "Próximos",  fr: "À venir",   ja: "近日",     de: "Demnächst", ru: "Скоро",   ar: "قريبًا",   pt: "Em breve" },
-  tabGamePerma:{ zh: "长期免费", "zh-Hant": "長期免費", en: "Kept Free",es: "Gratuitos", fr: "Gratuits",  ja: "常設無料",  de: "Dauerhaft", ru: "Навсегда", ar: "مجاني دائمًا", pt: "Gratuitos" },
+  tabGameLive: { zh: "本周免费", "zh-Hant": "本週免費", en: "Live", es: "Ahora", fr: "En cours", ja: "今週", de: "Jetzt", ru: "Сейчас", ar: "الآن", pt: "Agora" },
+  tabGameSoon: { zh: "即将开放", "zh-Hant": "即將開放", en: "Upcoming", es: "Próximos", fr: "À venir", ja: "近日", de: "Demnächst", ru: "Скоро", ar: "قريبًا", pt: "Em breve" },
+  tabGamePerma: { zh: "长期免费", "zh-Hant": "長期免費", en: "Kept Free", es: "Gratuitos", fr: "Gratuits", ja: "常設無料", de: "Dauerhaft", ru: "Навсегда", ar: "مجاني دائمًا", pt: "Gratuitos" },
   // hot 站：三个 tab 就是三个平台的品牌名，用平台自己的叫法而不是「微博热搜」这类后缀 ——
   // 榜单本身就是那个平台的东西，加「热搜」反而在暗示这是本站的热搜。
-  tabHotWeibo: { zh: "微博",   "zh-Hant": "微博",   en: "Weibo",   es: "Weibo",  fr: "Weibo",  ja: "微博", de: "Weibo", ru: "Weibo", ar: "ويبو",  pt: "Weibo" },
-  tabHotBaidu: { zh: "百度",   "zh-Hant": "百度",   en: "Baidu",   es: "Baidu",  fr: "Baidu",  ja: "百度", de: "Baidu", ru: "Baidu", ar: "بايدو", pt: "Baidu" },
-  tabHotDouyin:{ zh: "抖音",   "zh-Hant": "抖音",   en: "Douyin",  es: "Douyin", fr: "Douyin", ja: "抖音", de: "Douyin",ru: "Douyin",ar: "دوين",  pt: "Douyin" },
-  entryAi:    { zh: "AI 情报站",   "zh-Hant": "AI 情報站",   en: "AI Intelligence", es: "Inteligencia IA", fr: "Veille IA", ja: "AI インテリジェンス", de: "KI-Intelligence", ru: "ИИ-разведка", ar: "استخبارات الذكاء الاصطناعي", pt: "Inteligência de IA" },
-  entryNews:  { zh: "国际新闻站", "zh-Hant": "國際新聞站", en: "World News", es: "Noticias Mundiales", fr: "Actualités Internationales", ja: "国際ニュース", de: "Weltnachrichten", ru: "Мировые новости", ar: "أخبار العالم", pt: "Notícias Mundiais" },
-  entryGame:  { zh: "游戏站",   "zh-Hant": "遊戲站",   en: "Free Games", es: "Juegos Gratis", fr: "Jeux Gratuits", ja: "ゲーム無料", de: "Gratis-Spiele", ru: "Бесплатные игры", ar: "ألعاب مجانية", pt: "Jogos Gratuitos" },
-  entryHot:   { zh: "热搜站",   "zh-Hant": "熱搜站",   en: "Trending", es: "Tendencias", fr: "Tendances", ja: "トレンド", de: "Trends", ru: "Тренды", ar: "الأكثر رواجًا", pt: "Tendências" },
-  entryAiDesc:    { zh: "大模型发布 · 芯片算力 · 融资 · 每日论文", "zh-Hant": "大型模型發布 · 晶片算力 · 融資 · 每日論文", en: "Model releases · chips · funding · daily papers", es: "Modelos · chips · financiación · papers diarios", fr: "Modèles · puces · financement · papers", ja: "モデル · 半導体 · 資金調達 · 論文", de: "Modelle · Chips · Finanzierung · Papiere", ru: "Модели · чипы · финансирование · статьи", ar: "نماذج · شرائح · تمويل · أوراق", pt: "Modelos · chips · financiamento · artigos" },
-  entryNewsDesc:  { zh: "英 · 西 · 法 · 阿 · 俄 五语种严肃媒体", "zh-Hant": "英 · 西 · 法 · 阿 · 俄 五語種嚴肅媒體", en: "Serious media in five languages", es: "Medios serios en cinco idiomas", fr: "Médias sérieux en cinq langues", ja: "5言語の信頼できるメディア", de: "Seriöse Medien in fünf Sprachen", ru: "Серьёзные СМИ на пяти языках", ar: "إعلام جاد خمس لغات", pt: "Mídia séria em cinco idiomas" },
+  tabHotWeibo: { zh: "微博", "zh-Hant": "微博", en: "Weibo", es: "Weibo", fr: "Weibo", ja: "微博", de: "Weibo", ru: "Weibo", ar: "ويبو", pt: "Weibo" },
+  tabHotBaidu: { zh: "百度", "zh-Hant": "百度", en: "Baidu", es: "Baidu", fr: "Baidu", ja: "百度", de: "Baidu", ru: "Baidu", ar: "بايدو", pt: "Baidu" },
+  tabHotDouyin: { zh: "抖音", "zh-Hant": "抖音", en: "Douyin", es: "Douyin", fr: "Douyin", ja: "抖音", de: "Douyin", ru: "Douyin", ar: "دوين", pt: "Douyin" },
+  entryAi: { zh: "AI 情报站", "zh-Hant": "AI 情報站", en: "AI Intelligence", es: "Inteligencia IA", fr: "Veille IA", ja: "AI インテリジェンス", de: "KI-Intelligence", ru: "ИИ-разведка", ar: "استخبارات الذكاء الاصطناعي", pt: "Inteligência de IA" },
+  entryNews: { zh: "国际新闻站", "zh-Hant": "國際新聞站", en: "World News", es: "Noticias Mundiales", fr: "Actualités Internationales", ja: "国際ニュース", de: "Weltnachrichten", ru: "Мировые новости", ar: "أخبار العالم", pt: "Notícias Mundiais" },
+  entryGame: { zh: "游戏站", "zh-Hant": "遊戲站", en: "Free Games", es: "Juegos Gratis", fr: "Jeux Gratuits", ja: "ゲーム無料", de: "Gratis-Spiele", ru: "Бесплатные игры", ar: "ألعاب مجانية", pt: "Jogos Gratuitos" },
+  entryHot: { zh: "热搜站", "zh-Hant": "熱搜站", en: "Trending", es: "Tendencias", fr: "Tendances", ja: "トレンド", de: "Trends", ru: "Тренды", ar: "الأكثر رواجًا", pt: "Tendências" },
+  entryAiDesc: { zh: "大模型发布 · 芯片算力 · 融资 · 每日论文", "zh-Hant": "大型模型發布 · 晶片算力 · 融資 · 每日論文", en: "Model releases · chips · funding · daily papers", es: "Modelos · chips · financiación · papers diarios", fr: "Modèles · puces · financement · papers", ja: "モデル · 半導体 · 資金調達 · 論文", de: "Modelle · Chips · Finanzierung · Papiere", ru: "Модели · чипы · финансирование · статьи", ar: "نماذج · شرائح · تمويل · أوراق", pt: "Modelos · chips · financiamento · artigos" },
+  entryNewsDesc: { zh: "英 · 西 · 法 · 阿 · 俄 五语种严肃媒体", "zh-Hant": "英 · 西 · 法 · 阿 · 俄 五語種嚴肅媒體", en: "Serious media in five languages", es: "Medios serios en cinco idiomas", fr: "Médias sérieux en cinq langues", ja: "5言語の信頼できるメディア", de: "Seriöse Medien in fünf Sprachen", ru: "Серьёзные СМИ на пяти языках", ar: "إعلام جاد خمس لغات", pt: "Mídia séria em cinco idiomas" },
   entryGameDesc: { zh: "Epic 每周免费 · 附价格与截止日", "zh-Hant": "Epic 每週免費 · 附價格與截止日", en: "Free Epic games with price and deadline", es: "Juegos gratis de Epic con precio y fecha", fr: "Jeux Epic gratuits avec prix et date limite", ja: "Epic 無料ゲーム・価格と期限付き", de: "Gratis-Epic-Spiele mit Preis und Frist", ru: "Бесплатные Epic с ценой и дедлайном", ar: "ألعاب Epic مجانية مع السعر والموعد", pt: "Jogos Epic grátis com preço e prazo" },
-  entryHotDesc:  { zh: "微博 · 百度 · 抖音 三榜实时对照", "zh-Hant": "微博 · 百度 · 抖音 三榜即時對照", en: "Weibo, Baidu and Douyin side by side", es: "Weibo, Baidu y Douyin en paralelo", fr: "Weibo, Baidu et Douyin côte à côte", ja: "Weibo・Baidu・Douyin を横並びで", de: "Weibo, Baidu und Douyin nebeneinander", ru: "Weibo, Baidu и Douyin рядом", ar: "ويبو وبايدو ودوين جنبًا إلى جنب", pt: "Weibo, Baidu e Douyin lado a lado" },
-  entryGo:    { zh: "进入",   "zh-Hant": "進入",   en: "Enter",  es: "Entrar", fr: "Entrer", ja: "開く",  de: "Öffnen", ru: "Открыть", ar: "ادخل",  pt: "Entrar" },
-  hubTitle:   { zh: "专题站", "zh-Hant": "專題站", en: "Topics", es: "Temas", fr: "Thèmes", ja: "トピック", de: "Themen", ru: "Разделы", ar: "أقسام", pt: "Temas" },
+  entryHotDesc: { zh: "微博 · 百度 · 抖音 三榜实时对照", "zh-Hant": "微博 · 百度 · 抖音 三榜即時對照", en: "Weibo, Baidu and Douyin side by side", es: "Weibo, Baidu y Douyin en paralelo", fr: "Weibo, Baidu et Douyin côte à côte", ja: "Weibo・Baidu・Douyin を横並びで", de: "Weibo, Baidu und Douyin nebeneinander", ru: "Weibo, Baidu и Douyin рядом", ar: "ويبو وبايدو ودوين جنبًا إلى جنب", pt: "Weibo, Baidu e Douyin lado a lado" },
+  entryGo: { zh: "进入", "zh-Hant": "進入", en: "Enter", es: "Entrar", fr: "Entrer", ja: "開く", de: "Öffnen", ru: "Открыть", ar: "ادخل", pt: "Entrar" },
+  hubTitle: { zh: "专题站", "zh-Hant": "專題站", en: "Topics", es: "Temas", fr: "Thèmes", ja: "トピック", de: "Themen", ru: "Разделы", ar: "أقسام", pt: "Temas" },
 
   // ---------- Epic 免费游戏 ----------
   // 类目拆成三态不是为了好看，是因为三种东西对用户的行动指令完全不同：
   // 本周免费=不领就没；即将免费=先收藏；长期免费=慢慢玩。
   // 服务端只吐结构化 badge（k/price/date/left/bundle），文案在这里按当前语言拼。
-  catThisWeek:{ zh: "本周免费", "zh-Hant": "本週免費", en: "Free this week", es: "Gratis esta semana", fr: "Gratuit cette semaine", ja: "今週無料", de: "Diese Woche gratis", ru: "Бесплатно на неделе", ar: "مجاني هذا الأسبوع", pt: "Grátis esta semana" },
-  catUpcoming:{ zh: "即将免费", "zh-Hant": "即將免費", en: "Free soon",  es: "Gratis pronto",  fr: "Bientôt gratuit",  ja: "近日無料", de: "Bald gratis", ru: "Скоро бесплатно", ar: "مجاني قريباً", pt: "Grátis em breve" },
-  catForever:  { zh: "长期免费", "zh-Hant": "長期免費", en: "Free to keep", es: "Gratis para siempre", fr: "Gratuit à jamais", ja: "ずっと無料", de: "Dauerhaft gratis", ru: "Навсегда бесплатно", ar: "مجاني دائمًا", pt: "Grátis para sempre" },
+  catThisWeek: { zh: "本周免费", "zh-Hant": "本週免費", en: "Free this week", es: "Gratis esta semana", fr: "Gratuit cette semaine", ja: "今週無料", de: "Diese Woche gratis", ru: "Бесплатно на неделе", ar: "مجاني هذا الأسبوع", pt: "Grátis esta semana" },
+  catUpcoming: { zh: "即将免费", "zh-Hant": "即將免費", en: "Free soon", es: "Gratis pronto", fr: "Bientôt gratuit", ja: "近日無料", de: "Bald gratis", ru: "Скоро бесплатно", ar: "مجاني قريباً", pt: "Grátis em breve" },
+  catForever: { zh: "长期免费", "zh-Hant": "長期免費", en: "Free to keep", es: "Gratis para siempre", fr: "Gratuit à jamais", ja: "ずっと無料", de: "Dauerhaft gratis", ru: "Навсегда бесплатно", ar: "مجاني دائمًا", pt: "Grátis para sempre" },
 
   // 徽章模板。竖线分段：某段只要有一个占位符是空值，整段丢掉。
   // 这样价格缺失时不会出现「💰  · 至 11/2」这种空洞，也不会掉出半句「价值」。
-  gmLive:  { zh: "💰 {p}|至 {d}（剩 {n} 天）", "zh-Hant": "💰 {p}|至 {d}（剩 {n} 天）", en: "💰 {p}|free until {d} ({n}d left)", es: "💰 {p}|gratis hasta el {d} (quedan {n} d)", fr: "💰 {p}|gratuit jusqu'au {d} ({n} j restants)", ja: "💰 {p}|{d} まで無料（残り {n} 日）", de: "💰 {p}|gratis bis {d} (noch {n} Tage)", ru: "💰 {p}|бесплатно до {d} (осталось {n} дн.)", ar: "💰 {p}|مجاني حتى {d} (بقي {n} يوم)", pt: "💰 {p}|grátis até {d} (faltam {n} d)" },
-  gmSoon:  { zh: "🔔 {d} 起免费|价值 {p}", "zh-Hant": "🔔 {d} 起免費|價值 {p}", en: "🔔 free from {d}|worth {p}", es: "🔔 gratis desde el {d}|vale {p}", fr: "🔔 gratuit à partir du {d}|valeur {p}", ja: "🔔 {d} より無料|価格 {p}", de: "🔔 gratis ab {d}|Wert {p}", ru: "🔔 бесплатно с {d}|цена {p}", ar: "🔔 مجاني اعتباراً من {d}|بقيمة {p}", pt: "🔔 grátis a partir de {d}|vale {p}" },
+  gmLive: { zh: "💰 {p}|至 {d}（剩 {n} 天）", "zh-Hant": "💰 {p}|至 {d}（剩 {n} 天）", en: "💰 {p}|free until {d} ({n}d left)", es: "💰 {p}|gratis hasta el {d} (quedan {n} d)", fr: "💰 {p}|gratuit jusqu'au {d} ({n} j restants)", ja: "💰 {p}|{d} まで無料（残り {n} 日）", de: "💰 {p}|gratis bis {d} (noch {n} Tage)", ru: "💰 {p}|бесплатно до {d} (осталось {n} дн.)", ar: "💰 {p}|مجاني حتى {d} (بقي {n} يوم)", pt: "💰 {p}|grátis até {d} (faltam {n} d)" },
+  gmSoon: { zh: "🔔 {d} 起免费|价值 {p}", "zh-Hant": "🔔 {d} 起免費|價值 {p}", en: "🔔 free from {d}|worth {p}", es: "🔔 gratis desde el {d}|vale {p}", fr: "🔔 gratuit à partir du {d}|valeur {p}", ja: "🔔 {d} より無料|価格 {p}", de: "🔔 gratis ab {d}|Wert {p}", ru: "🔔 бесплатно с {d}|цена {p}", ar: "🔔 مجاني اعتباراً من {d}|بقيمة {p}", pt: "🔔 grátis a partir de {d}|vale {p}" },
   gmPerma: { zh: "♾ 长期免费|原价 {p}", "zh-Hant": "♾ 長期免費|原價 {p}", en: "♾ free to keep|normally {p}", es: "♾ gratis para siempre|normalmente {p}", fr: "♾ gratuit à jamais|normalement {p}", ja: "♾ ずっと無料|通常 {p}", de: "♾ dauerhaft gratis|normalerweise {p}", ru: "♾ навсегда бесплатно|обычно {p}", ar: "♾ مجاني دائمًا|عادةً {p}", pt: "♾ grátis para sempre|normalmente {p}" },
 
   bdAllDlc: { zh: "含全部 DLC", "zh-Hant": "含全部 DLC", en: "All DLCs included", es: "Todos los DLC incluidos", fr: "Tous les DLC inclus", ja: "全DLC同梱", de: "Alle DLC enthalten", ru: "Все DLC включены", ar: "جميع DLC مضمّنة", pt: "Todos os DLC incluídos" },
-  bdDlcN:   { zh: "含 {n} 个 DLC", "zh-Hant": "含 {n} 個 DLC", en: "{n} DLCs included", es: "{n} DLC incluidos", fr: "{n} DLC inclus", ja: "DLC {n} 個同梱", de: "{n} DLC enthalten", ru: "{n} DLC включено", ar: "{n} DLC مضمّنة", pt: "{n} DLC incluídos" },
-  bdEdition:{ zh: "完全版", "zh-Hant": "完全版", en: "Complete Edition", es: "Edición Completa", fr: "Édition Complète", ja: "コンプリート版", de: "Vollständige Edition", ru: "Полное издание", ar: "الإصدار الكامل", pt: "Edição Completa" },
+  bdDlcN: { zh: "含 {n} 个 DLC", "zh-Hant": "含 {n} 個 DLC", en: "{n} DLCs included", es: "{n} DLC incluidos", fr: "{n} DLC inclus", ja: "DLC {n} 個同梱", de: "{n} DLC enthalten", ru: "{n} DLC включено", ar: "{n} DLC مضمّنة", pt: "{n} DLC incluídos" },
+  bdEdition: { zh: "完全版", "zh-Hant": "完全版", en: "Complete Edition", es: "Edición Completa", fr: "Édition Complète", ja: "コンプリート版", de: "Vollständige Edition", ru: "Полное издание", ar: "الإصدار الكامل", pt: "Edição Completa" },
   bdDeluxe: { zh: "豪华版", "zh-Hant": "豪華版", en: "Deluxe Edition", es: "Edición Deluxe", fr: "Édition Deluxe", ja: "デラックス版", de: "Deluxe-Edition", ru: "Издание Deluxe", ar: "إصدار ديلوكس", pt: "Edição Deluxe" },
   bdBundle: { zh: "捆绑包", "zh-Hant": "捆綁包", en: "Bundle", es: "Paquete", fr: "Pack", ja: "バンドル", de: "Bundle", ru: "Набор", ar: "حزمة", pt: "Pacote" },
-
-  // ---------- 综合简报：四大分类板块与模块定制 ----------
-  secFilterLabel: { zh: "模块定制：", "zh-Hant": "模組自訂：", en: "Sections: ", es: "Módulos: ", fr: "Modules : ", ja: "表示設定：", de: "Module: ", ru: "Модули: ", ar: "تخصيص: ", pt: "Módulos: " },
-  secHot:         { zh: "全网热榜", "zh-Hant": "全網熱榜", en: "Top Trending", es: "Tendencias Hoy", fr: "Tendances du Jour", ja: "今日のトレンド", de: "Top-Trends", ru: "Главные тренды", ar: "الأكثر رواجاً اليوم", pt: "Tendências de Hoje" },
-  secWorld:       { zh: "环球视野与要闻", "zh-Hant": "環球視野與要聞", en: "World Headlines", es: "Titulares Mundiales", fr: "À la Une Mondiale", ja: "世界のヘッドライン", de: "Weltnachrichten", ru: "Мировые новости", ar: "أبرز أخبار العالم", pt: "Manchetes Globais" },
-  secAi:          { zh: "科技前沿 & AI", "zh-Hant": "科技前沿 & AI", en: "Frontier Tech & AI", es: "Tecnología de Vanguardia e IA", fr: "High-Tech & IA", ja: "先端テック＆AI", de: "Spitzentechnologie & KI", ru: "Передовые технологии и ИИ", ar: "التقنية المتقدمة والذكاء", pt: "Tecnologia de Ponta e IA" },
-  secLife:        { zh: "生活与游戏福利", "zh-Hant": "生活與遊戲福利", en: "Life & Benefits", es: "Vida y Beneficios", fr: "Vie & Bons Plans", ja: "生活・ゲーム特典", de: "Leben & Vorteile", ru: "Жизнь и бонусы", ar: "الحياة والمزايا", pt: "Vida e Benefícios" },
-  customize:      { zh: "定制", "zh-Hant": "自訂", en: "Customize", es: "Personalizar", fr: "Personnaliser", ja: "カスタマイズ", de: "Anpassen", ru: "Настроить", ar: "تخصيص", pt: "Personalizar" },
-  customizeTitle: { zh: "定制板块与数据源", "zh-Hant": "自訂板塊與資料來源", en: "Customize Sections & Sources", es: "Personalizar Secciones y Fuentes", fr: "Personnaliser Sections & Sources", ja: "セクションとソースのカスタマイズ", de: "Bereiche und Quellen anpassen", ru: "Настройка разделов и источников", ar: "تخصيص الأقسام والمصادر", pt: "Personalizar Seções e Fontes" },
-  customizeSub:   { zh: "自由勾选需要关注的板块，调整显示顺序，设置自动保存在本地浏览器。", "zh-Hant": "自由勾選需要關注的板塊，調整顯示順序，設定自動保存在本地瀏覽器。", en: "Toggle modules and adjust order. Saved automatically in browser.", es: "Elige qué módulos ver y su orden. Se guarda en el navegador.", fr: "Activez les modules et réorganisez-les. Enregistré localement.", ja: "表示するモジュールを選択・並び替え。ブラウザに自動保存されます。", de: "Module anpassen und sortieren. Wird lokal gespeichert.", ru: "Включайте нужные модули и меняйте порядок. Сохраняется локально.", ar: "حدد الوحدات التي تريد متابعتها ورتبها. تُحفظ الإعدادات تلقائياً.", pt: "Escolha quais módulos ver e organize a ordem. Salvo no navegador." },
-  resetDefaults:  { zh: "恢复默认", "zh-Hant": "恢復預設", en: "Reset", es: "Restablecer", fr: "Réinitialiser", ja: "初期値に戻す", de: "Zurücksetzen", ru: "По умолчанию", ar: "استعادة الافتراضي", pt: "Restaurar Padrão" },
-  saveApply:      { zh: "保存并应用", "zh-Hant": "保存並套用", en: "Save & Apply", es: "Guardar y Aplicar", fr: "Enregistrer", ja: "保存して適用", de: "Speichern & Anwenden", ru: "Сохранить", ar: "حفظ وتطبيق", pt: "Salvar e Aplicar" },
 };
 
 function uiText(key) {
@@ -216,7 +204,7 @@ const I18N = {
 // category 标签决定。这里只做「显示名」映射，未收录的类目直接显示服务端给的原文
 // —— 宁可显示英文原名，也不要显示一个错的翻译。
 const CAT_KEY = {
-  "热搜": "hot", "境内热搜": "hot", "B站热搜": "hot", "国际要闻": "worldNews", "头条": "topNews", "地区": "region",
+  "热搜": "hot", "境内热搜": "hot", "国际要闻": "worldNews", "头条": "topNews", "地区": "region",
   "娱乐": "fun", "市场": "market", "足球": "football", "天气": "weather", "游戏": "games",
   "AI": "ai", "AI 快讯": "ai", "AI 商业": "ai", "AI 产品": "ai", "AI 论文": "aiPapers",
   "大模型": "aiModels", "芯片算力": "aiChips", "技术社区": "tech",
@@ -225,7 +213,7 @@ const CAT_KEY = {
 
 // 类目强调色。新增类目必须同时在这里登记颜色，否则卡片会退回默认橙。
 const CAT_COLOR = {
-  "热搜": "#e8553b", "境内热搜": "#e8553b", "B站热搜": "#f0902a",
+  "热搜": "#e8553b", "境内热搜": "#e8553b",
   "娱乐": "#f0902a",
   "天气": "#e0a83c",
   "游戏": "#c0659a",
@@ -241,7 +229,7 @@ const CAT_COLOR = {
 };
 
 // 内置演示数据（构建期由真实聚合函数抓取，覆盖全部类目）
-const DEMO_ALL = [{"category":"热搜","title":"易梦玲在巴黎行李被偷","url":"https://www.baidu.com/s?wd=%E6%98%93%E6%A2%A6%E7%8E%B2%E5%9C%A8%E5%B7%B4%E9%BB%8E%E8%A1%8C%E6%9D%8E%E8%A2%AB%E5%81%B7&sa=fyb_news&rsv_dl=fyb_news","desc":"10月20日，易梦玲在社媒分享了自己的巴黎时装周vlog，并配文：“万！万！没！想！到！登机箱和随身包在机场被偷了！在打印行李票的时候一转身发现没有了。所有相机设备都在登机箱里，我的旧护照里面还有签证，后续的工作也耽误了。”","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/807dba2c165a0bfc15b8e14873408280","meta":"🔥 542万","source":"百度","lang":"zh"},{"category":"娱乐","title":"早秋姐系穿搭法则","url":"https://www.douyin.com/search/%E6%97%A9%E7%A7%8B%E5%A7%90%E7%B3%BB%E7%A9%BF%E6%90%AD%E6%B3%95%E5%88%99","meta":"🔥 768万","source":"抖音","lang":"zh"},{"category":"热搜","title":"“局部打光了 也得打”","url":"https://www.baidu.com/s?wd=%E2%80%9C%E5%B1%80%E9%83%A8%E6%89%93%E5%85%89%E4%BA%86+%E4%B9%9F%E5%BE%97%E6%89%93%E2%80%9D&sa=fyb_news&rsv_dl=fyb_news","desc":"1936年春，红二、红六军团在乌蒙山回旋战中，以一万兵力牵制十几万敌军。面对10:1的兵力劣势，红军在乌蒙山辗转伏击成功突围。毛主席称赞“一万人走过来还是一万人，是个奇迹”。贺龙表示“局部打光了也得打”，揭示了顾全大局的长征胜利密码。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/7b1a4086661f7caef8f854b25a1e2167","meta":"🔥 598万","source":"百度","lang":"zh"},{"category":"热搜","title":"长征万里险 最忆夹金山","url":"https://www.baidu.com/s?wd=%E9%95%BF%E5%BE%81%E4%B8%87%E9%87%8C%E9%99%A9+%E6%9C%80%E5%BF%86%E5%A4%B9%E9%87%91%E5%B1%B1&sa=fyb_news&rsv_dl=fyb_news","desc":"长征万里险，最忆夹金山。此前，当地民谣称夹金山“鸟儿飞不过，凡人不敢攀”，当年红军用双脚丈量，用血肉铺就了风雪长征路。如今，长征精神如同不灭灯火，跨越万水千山，照亮我们的奋进之路。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/dc2d988e6d0163e9ac09942b44ce136a","meta":"🔥 312万","source":"百度","lang":"zh"},{"category":"热搜","title":"法国乱成一锅粥了还有人威胁中国","url":"https://s.weibo.com/weibo?q=法国乱成一锅粥了还有人威胁中国","meta":"🔥 92万","source":"微博","lang":"zh"},{"category":"娱乐","title":"KDA新歌神之八秒","url":"https://www.douyin.com/search/KDA%E6%96%B0%E6%AD%8C%E7%A5%9E%E4%B9%8B%E5%85%AB%E7%A7%92","meta":"🔥 781万","source":"抖音","lang":"zh"},{"category":"娱乐","title":"NBA活塞121:113逆转凯尔特人","url":"https://www.douyin.com/search/NBA%E6%B4%BB%E5%A1%9E121%3A113%E9%80%86%E8%BD%AC%E5%87%AF%E5%B0%94%E7%89%B9%E4%BA%BA","meta":"🔥 801万","source":"抖音","lang":"zh"},{"category":"娱乐","title":"一顶假发拿捏秋冬氛围感","url":"https://www.douyin.com/search/%E4%B8%80%E9%A1%B6%E5%81%87%E5%8F%91%E6%8B%BF%E6%8D%8F%E7%A7%8B%E5%86%AC%E6%B0%9B%E5%9B%B4%E6%84%9F","meta":"🔥 765万","source":"抖音","lang":"zh"},{"category":"娱乐","title":"秋冬的第一件情侣装","url":"https://www.douyin.com/search/%E7%A7%8B%E5%86%AC%E7%9A%84%E7%AC%AC%E4%B8%80%E4%BB%B6%E6%83%85%E4%BE%A3%E8%A3%85","meta":"🔥 771万","source":"抖音","lang":"zh"},{"category":"热搜","title":"又一地宣布：生物地理不计入中考总分","url":"https://www.baidu.com/s?wd=%E5%8F%88%E4%B8%80%E5%9C%B0%E5%AE%A3%E5%B8%83%EF%BC%9A%E7%94%9F%E7%89%A9%E5%9C%B0%E7%90%86%E4%B8%8D%E8%AE%A1%E5%85%A5%E4%B8%AD%E8%80%83%E6%80%BB%E5%88%86&sa=fyb_news&rsv_dl=fyb_news","desc":"10月20日，江苏省徐州市教育局宣布，地理、生物学科原始成绩不计入中考录取总分，成绩以等级形式呈现。该政策自2025年秋季入学的七年级学生起执行。此前，北京、吉林、陕西咸阳等多地也已明确将生物、地理调整为考查科目，以等级呈现。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/06c08333ac4253e8e20456044f94b72b","meta":"🔥 752万","source":"百度","lang":"zh"},{"category":"热搜","title":"唐禹哲获刑1年7个月缓刑3年","url":"https://s.weibo.com/weibo?q=唐禹哲获刑1年7个月缓刑3年","meta":"🔥 21万","source":"微博","lang":"zh"},{"category":"热搜","title":"Sixteen Years After Deepwater Horizon, Deep Sea Life Shows Few Signs of Recovery","url":"https://e360.yale.edu/digest/deepwater-horizon-deep-sea-recovery","desc":"▲ 204 · speckx","meta":"🔥 Hacker News","source":"Hacker News","lang":"en"},{"category":"热搜","title":"Good type against all odds","url":"https://unsung.aresluna.org/good-type-against-all-odds/","desc":"▲ 14 · firloop","meta":"🔥 Hacker News","source":"Hacker News","lang":"en"},{"category":"AI","title":"Any 3D Scene is Worth 1K Tokens: 3D-Grounded Representation for Scene Generation at Scale","desc":"Scene-level 3D generation has long been dominated by 2D multi-view or video diffusion models. Typically, these 2D-based approaches perform scene generation in a","url":"https://huggingface.co/papers/2604.11331","meta":"🤖 2026-10-19","source":"HuggingFace","lang":"en"},{"category":"热搜","title":"队旗缝进百褶裙夹层","url":"https://www.baidu.com/s?wd=%E9%98%9F%E6%97%97%E7%BC%9D%E8%BF%9B%E7%99%BE%E8%A4%B6%E8%A3%99%E5%A4%B9%E5%B1%82&sa=fyb_news&rsv_dl=fyb_news","desc":"1950年，四川凉山州冕宁县解放，彝族妇人倮伍伍加嫫将队旗献给解放军。1935年5月22日，刘伯承与彝族头人小叶丹歃血为盟并赠其队旗。1942年，小叶丹离世前叮嘱妻子保管队旗，等红军回来。为躲避国民党追究，其妻将队旗缝进百褶裙夹层。该队旗历经十五年的守护，现珍藏于中国人民革命军事博物馆。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/9930ddac228fec7cedf06a9fc68670ef","meta":"🔥 695万","source":"百度","lang":"zh"},{"category":"足球","title":"Borussia Mönchengladbach vs TSG Hoffenheim","desc":"0 : 1","meta":"德甲 · 6. Spieltag","source":"OpenLigaDB","lang":"en"},{"category":"热搜","title":"鼓浪屿冷清不复当年盛景","url":"https://s.weibo.com/weibo?q=鼓浪屿冷清不复当年盛景","meta":"🔥 21万","source":"微博","lang":"zh"},{"category":"热搜","title":"The Other Epidemic: Trying to get off benzodiazepines","url":"https://www.thebeliever.net/the-other-epidemic/","desc":"▲ 70 · gaplong","meta":"🔥 Hacker News","source":"Hacker News","lang":"en"},{"category":"AI","title":"Progress-Aware Distillation for Mitigating Stagnation in Small Language Model Agents","desc":"While LLM-based agent systems have demonstrated remarkable proficiency in reasoning and solving complex real-world tasks, they also come with substantial token ","url":"https://huggingface.co/papers/2610.19439","meta":"🤖 2026-10-17","source":"HuggingFace","lang":"en"},{"category":"热搜","title":"Apple broke an essential presentation feature of iPads","url":"https://teddysvoronos.com/2026-10-19-apple-broke-an-essential-presentation-feature-of-ipads/","desc":"▲ 500 · evanb","meta":"🔥 Hacker News","source":"Hacker News","lang":"en"},{"category":"娱乐","title":"小城良方弟弟怀疑自己不是亲生","url":"https://www.douyin.com/search/%E5%B0%8F%E5%9F%8E%E8%89%AF%E6%96%B9%E5%BC%9F%E5%BC%9F%E6%80%80%E7%96%91%E8%87%AA%E5%B7%B1%E4%B8%8D%E6%98%AF%E4%BA%B2%E7%94%9F","meta":"🔥 768万","source":"抖音","lang":"zh"},{"category":"娱乐","title":"刘晓艳郑马名场面渲染大赛","url":"https://www.douyin.com/search/%E5%88%98%E6%99%93%E8%89%B3%E9%83%91%E9%A9%AC%E5%90%8D%E5%9C%BA%E9%9D%A2%E6%B8%B2%E6%9F%93%E5%A4%A7%E8%B5%9B","meta":"🔥 776万","source":"抖音","lang":"zh"},{"category":"娱乐","title":"跟随魏娆体会成长型爽文人生","url":"https://www.douyin.com/search/%E8%B7%9F%E9%9A%8F%E9%AD%8F%E5%A8%86%E4%BD%93%E4%BC%9A%E6%88%90%E9%95%BF%E5%9E%8B%E7%88%BD%E6%96%87%E4%BA%BA%E7%94%9F","meta":"🔥 777万","source":"抖音","lang":"zh"},{"category":"娱乐","title":"南北吃蟹大不同","url":"https://www.douyin.com/search/%E5%8D%97%E5%8C%97%E5%90%83%E8%9F%B9%E5%A4%A7%E4%B8%8D%E5%90%8C","meta":"🔥 764万","source":"抖音","lang":"zh"},{"category":"游戏","title":"Luftrausers","desc":"The skies are aflame and the seas will overflow with wreckage in Vlambeer’s stylish arcade shooter LUFTRAUSERS! Take to the skies in customi","url":"https://store.epicgames.com/","meta":"🎮 免费领取 · Epic","source":"Epic","lang":"en"},{"category":"热搜","title":"巴黎圣日耳曼4比2巴萨","url":"https://s.weibo.com/weibo?q=巴黎圣日耳曼4比2巴萨","meta":"🔥 49万","source":"微博","lang":"zh"},{"category":"娱乐","title":"当东北人假装南方人","url":"https://www.douyin.com/search/%E5%BD%93%E4%B8%9C%E5%8C%97%E4%BA%BA%E5%81%87%E8%A3%85%E5%8D%97%E6%96%B9%E4%BA%BA","meta":"🔥 931万","source":"抖音","lang":"zh"},{"category":"热搜","title":"大冰掏心掏肺谈职场","url":"https://s.weibo.com/weibo?q=大冰掏心掏肺谈职场","meta":"🔥 16万","source":"微博","lang":"zh"},{"category":"足球","title":"FC Schalke 04 vs 1. FSV Mainz 05","desc":"0 : 1","meta":"德甲 · 6. Spieltag","source":"OpenLigaDB","lang":"en"},{"category":"热搜","title":"伟大远征 精神永续","url":"https://www.baidu.com/s?wd=%E4%BC%9F%E5%A4%A7%E8%BF%9C%E5%BE%81+%E7%B2%BE%E7%A5%9E%E6%B0%B8%E7%BB%AD&sa=fyb_news&rsv_dl=fyb_news","desc":"信仰不灭，征程永恒。今年是中国工农红军长征胜利90周年。《时政微观察》与你一起在致敬英雄中赓续伟大长征精神，在抚今追昔中坚定前行意志，走好新时代长征路。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/17db9b69dbaf2844081993a3bdb29e6e","meta":"🔥 790万","source":"百度","lang":"zh"},{"category":"热搜","title":"古人的东方审美藏在济南城","url":"https://s.weibo.com/weibo?q=古人的东方审美藏在济南城","meta":"🔥 48万","source":"微博","lang":"zh"},{"category":"游戏","title":"Monument Valley","desc":"Embark on a journey of forgiveness through impossible environments and illusionary puzzles. Experience this meditative and calming puzzle ga","url":"https://store.epicgames.com/","meta":"🎮 免费领取 · Epic","source":"Epic","lang":"en"},{"category":"市场","title":"美元 → 人民币","desc":"1 USD ≈ 6.6913 ¥","meta":"💱 汇率 · Exchangerate","source":"汇率","lang":"zh"},{"category":"热搜","title":"刘雯维密回归太权威了","url":"https://s.weibo.com/weibo?q=刘雯维密回归太权威了","meta":"🔥 23万","source":"微博","lang":"zh"},{"category":"热搜","title":"王凯说我全唱别人的歌开什么演唱会","url":"https://s.weibo.com/weibo?q=王凯说我全唱别人的歌开什么演唱会","meta":"🔥 16万","source":"微博","lang":"zh"},{"category":"娱乐","title":"不烧心可可妆","url":"https://www.douyin.com/search/%E4%B8%8D%E7%83%A7%E5%BF%83%E5%8F%AF%E5%8F%AF%E5%A6%86","meta":"🔥 764万","source":"抖音","lang":"zh"},{"category":"娱乐","title":"妲己配音大赛","url":"https://www.douyin.com/search/%E5%A6%B2%E5%B7%B1%E9%85%8D%E9%9F%B3%E5%A4%A7%E8%B5%9B","meta":"🔥 767万","source":"抖音","lang":"zh"},{"category":"热搜","title":"王一博是istp","url":"https://s.weibo.com/weibo?q=王一博是istp","meta":"🔥 28万","source":"微博","lang":"zh"},{"category":"热搜","title":"法国将部署军队反恐力量应对示威活动","url":"https://www.baidu.com/s?wd=%E6%B3%95%E5%9B%BD%E5%B0%86%E9%83%A8%E7%BD%B2%E5%86%9B%E9%98%9F%E5%8F%8D%E6%81%90%E5%8A%9B%E9%87%8F%E5%BA%94%E5%AF%B9%E7%A4%BA%E5%A8%81%E6%B4%BB%E5%8A%A8&sa=fyb_news&rsv_dl=fyb_news","desc":"法国内政部长努内兹20日说，为更好应对预计于24日举行的示威活动可能引发的暴力事件，法国政府将部署法军反恐力量“哨兵”行动的士兵增援警察和宪兵。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/7dc7175b28ced3ae66ae3b76b60b8f75","meta":"🔥 408万","source":"百度","lang":"zh"},{"category":"热搜","title":"DeepInfer: High-performance inference framework for DeepSeek models","url":"https://github.com/deepseek-ai/DeepInfer","desc":"▲ 2145 · ggcr","meta":"🔥 Hacker News","source":"Hacker News","lang":"en"},{"category":"热搜","title":"张柏芝自曝五点起床陪儿子一整天","url":"https://s.weibo.com/weibo?q=张柏芝自曝五点起床陪儿子一整天","meta":"🔥 11万","source":"微博","lang":"zh"},{"category":"娱乐","title":"同心同行长征路","url":"https://www.douyin.com/search/%E5%90%8C%E5%BF%83%E5%90%8C%E8%A1%8C%E9%95%BF%E5%BE%81%E8%B7%AF","meta":"🔥 1195万","source":"抖音","lang":"zh"},{"category":"热搜","title":"旭日旗事件涉事学生曾骂劝阻同学","url":"https://s.weibo.com/weibo?q=旭日旗事件涉事学生曾骂劝阻同学","meta":"🔥 11万","source":"微博","lang":"zh"},{"category":"AI","title":"SolarRenderer: Few-Step Generative Reference Rendering","desc":"Game engines and coding agents can specify the layout, motion, and camera of a scene, yet turning such coarse structure into realistic video requires a renderer","url":"https://huggingface.co/papers/2610.28630","meta":"🤖 2026-10-20","source":"HuggingFace","lang":"en"},{"category":"娱乐","title":"奚梦瑶12张图晒维密工作花絮","url":"https://www.douyin.com/search/%E5%A5%9A%E6%A2%A6%E7%91%B612%E5%BC%A0%E5%9B%BE%E6%99%92%E7%BB%B4%E5%AF%86%E5%B7%A5%E4%BD%9C%E8%8A%B1%E7%B5%AE","meta":"🔥 771万","source":"抖音","lang":"zh"},{"category":"热搜","title":"00后北漂患上“扔垃圾羞耻”","url":"https://www.baidu.com/s?wd=00%E5%90%8E%E5%8C%97%E6%BC%82%E6%82%A3%E4%B8%8A%E2%80%9C%E6%89%94%E5%9E%83%E5%9C%BE%E7%BE%9E%E8%80%BB%E2%80%9D&sa=fyb_news&rsv_dl=fyb_news","desc":"近期，北京部分小区频现“垃圾猎人”，邻居不问自取甚至疯抢纸箱，致北漂青年患上“扔垃圾羞耻”，被迫深夜扔垃圾。目前部分小区引入智能回收机试图缓解，但仍面临机器满载等困境。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/254e005b83332986fe6f700ef334ce05","meta":"🔥 656万","source":"百度","lang":"zh"},{"category":"热搜","title":"龚宝冬被追记一等功","url":"https://www.baidu.com/s?wd=%E9%BE%9A%E5%AE%9D%E5%86%AC%E8%A2%AB%E8%BF%BD%E8%AE%B0%E4%B8%80%E7%AD%89%E5%8A%9F&sa=fyb_news&rsv_dl=fyb_news","desc":"10月20日，应急管理部决定对在基层防灾避险工作中牺牲的龚宝冬追记一等功，对彭迪等11名同志给予记功、嘉奖奖励。此前7月17日，重庆市彭水苗族土家族自治县发生山体崩塌，网格员龚宝冬在转移群众时不幸遇难，彭迪被落石击伤，最终区内60多名居民被安全转移。7月30日，龚宝冬被重庆市政府评定为烈士。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/57926c2573d710eec78d83a85984d02d","meta":"🔥 666万","source":"百度","lang":"zh"},{"category":"热搜","title":"年轻人每月在养老院服务可减免房租","url":"https://www.baidu.com/s?wd=%E5%B9%B4%E8%BD%BB%E4%BA%BA%E6%AF%8F%E6%9C%88%E5%9C%A8%E5%85%BB%E8%80%81%E9%99%A2%E6%9C%8D%E5%8A%A1%E5%8F%AF%E5%87%8F%E5%85%8D%E6%88%BF%E7%A7%9F&sa=fyb_news&rsv_dl=fyb_news","desc":"近日，广西壮族自治区南宁市五象养老服务中心试行“代际共居”模式，青年每月完成不少于50小时助老服务可换取1000元房租减免。这种“代际共居”模式探索为年轻人减轻生活负担，同时为老年人带来富有青春气息的情感陪伴。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/ce17234850b8c2530dbf845c6e4cdd60","meta":"🔥 636万","source":"百度","lang":"zh"},{"category":"热搜","title":"NBA","url":"https://s.weibo.com/weibo?q=NBA","meta":"🔥 35万","source":"微博","lang":"zh"},{"category":"热搜","title":"天猫双11百大爆款清单发布","url":"https://s.weibo.com/weibo?q=天猫双11百大爆款清单发布","meta":"🔥 89万","source":"微博","lang":"zh"},{"category":"市场","title":"日元 → 人民币","desc":"1 JPY ≈ 4.229 ¥","meta":"💱 汇率 · Exchangerate","source":"汇率","lang":"zh"},{"category":"市场","title":"欧元 → 人民币","desc":"1 EUR ≈ 7.5120 ¥","meta":"💱 汇率 · Exchangerate","source":"汇率","lang":"zh"},{"category":"热搜","title":"崔秀彬公司未回应","url":"https://s.weibo.com/weibo?q=崔秀彬公司未回应","meta":"🔥 16万","source":"微博","lang":"zh"},{"category":"热搜","title":"中使馆预警 泰方：普通游客不会遭绑架","url":"https://www.baidu.com/s?wd=%E4%B8%AD%E4%BD%BF%E9%A6%86%E9%A2%84%E8%AD%A6+%E6%B3%B0%E6%96%B9%EF%BC%9A%E6%99%AE%E9%80%9A%E6%B8%B8%E5%AE%A2%E4%B8%8D%E4%BC%9A%E9%81%AD%E7%BB%91%E6%9E%B6&sa=fyb_news&rsv_dl=fyb_news","desc":"近期，中国驻泰国大使馆发布旅游安全预警。据外媒报道，泰国旅游与体育部长素拉沙10月20日对此回应称，泰国政府高度重视游客安全，并澄清“普通游客不会在泰国被强行塞入车辆或押送至边境”，涉事者多是在出境前已被骗。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/7dc7175b28ced3ae66ae3b76b60b8f75","meta":"🔥 609万","source":"百度","lang":"zh"},{"category":"娱乐","title":"长今你在工作里加了什么啊","url":"https://www.douyin.com/search/%E9%95%BF%E4%BB%8A%E4%BD%A0%E5%9C%A8%E5%B7%A5%E4%BD%9C%E9%87%8C%E5%8A%A0%E4%BA%86%E4%BB%80%E4%B9%88%E5%95%8A","meta":"🔥 778万","source":"抖音","lang":"zh"},{"category":"热搜","title":"蔡天凤前公公买绞肉机监控曝光","url":"https://s.weibo.com/weibo?q=蔡天凤前公公买绞肉机监控曝光","meta":"🔥 46万","source":"微博","lang":"zh"},{"category":"娱乐","title":"宝青坊主cos","url":"https://www.douyin.com/search/%E5%AE%9D%E9%9D%92%E5%9D%8A%E4%B8%BBcos","meta":"🔥 765万","source":"抖音","lang":"zh"},{"category":"游戏","title":"Lost Castle: The Old Ones Awaken","desc":"The Old Ones Awaken adds new levels to explore, new enemies to defeat, and new bosses to face along with a host exciting new weapons and equ","url":"https://store.epicgames.com/","meta":"🎮 免费领取 · Epic","source":"Epic","lang":"en"},{"category":"热搜","title":"西太平洋战鼓隆隆 中美日排兵布阵","url":"https://www.baidu.com/s?wd=%E8%A5%BF%E5%A4%AA%E5%B9%B3%E6%B4%8B%E6%88%98%E9%BC%93%E9%9A%86%E9%9A%86+%E4%B8%AD%E7%BE%8E%E6%97%A5%E6%8E%92%E5%85%B5%E5%B8%83%E9%98%B5&sa=fyb_news&rsv_dl=fyb_news","desc":"近日，西太平洋战鼓隆隆。美日计划于10月19日至29日举行大规模联合军事演习，演习部署至距离台湾仅110公里的与那国岛。对此，解放军这边则提前启动了反制，从10月8日起，大连、秦皇岛、盐城等地陆续发布了航行警告，强势对冲，直接威慑了美日的军演。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/3b5127110753533d778ea9025f5dd678","meta":"🔥 647万","source":"百度","lang":"zh"},{"category":"热搜","title":"Voxtral 3","url":"https://mistral.ai/news/voxtral-3/","desc":"▲ 535 · ilreb","meta":"🔥 Hacker News","source":"Hacker News","lang":"en"},{"category":"天气","title":"武汉 ☀️","desc":"晴 18°C · 湿度62% · 风速17.2km/h","meta":"武汉 · Open-Meteo","source":"Open-Meteo","lang":"zh"},{"category":"天气","title":"重庆 ☁️","desc":"阴 19°C · 湿度93% · 风速4.1km/h","meta":"重庆 · Open-Meteo","source":"Open-Meteo","lang":"zh"},{"category":"热搜","title":"特斯拉“能飞” 我们就被甩开了？","url":"https://www.baidu.com/s?wd=%E7%89%B9%E6%96%AF%E6%8B%89%E2%80%9C%E8%83%BD%E9%A3%9E%E2%80%9D+%E6%88%91%E4%BB%AC%E5%B0%B1%E8%A2%AB%E7%94%A9%E5%BC%80%E4%BA%86%EF%BC%9F&sa=fyb_news&rsv_dl=fyb_news","desc":"最近特斯拉发布“会飞的汽车”引发热议，有人惊呼“我们被甩开了”。对此，媒体指出不必妄自菲薄。特斯拉此次“飞行”更像概念秀，而中国汽车在速度、充电、智驾及飞行领域均有系统性硬功夫与多维突破，中国汽车产业不惧同台比拼。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/8dc894c9379dbe1839ad97839302e0f4","meta":"🔥 732万","source":"百度","lang":"zh"},{"category":"热搜","title":"活塞22分逆转凯尔特人","url":"https://s.weibo.com/weibo?q=活塞22分逆转凯尔特人","meta":"🔥 13万","source":"微博","lang":"zh"},{"category":"热搜","title":"美舰首次在仙宾礁挑衅 背后有何算计","url":"https://www.baidu.com/s?wd=%E7%BE%8E%E8%88%B0%E9%A6%96%E6%AC%A1%E5%9C%A8%E4%BB%99%E5%AE%BE%E7%A4%81%E6%8C%91%E8%A1%85+%E8%83%8C%E5%90%8E%E6%9C%89%E4%BD%95%E7%AE%97%E8%AE%A1&sa=fyb_news&rsv_dl=fyb_news","desc":"20日，解放军南部战区通报，当日凌晨美“查尔斯顿”号濒海战斗舰未经允许冲闯中国南沙群岛仙宾礁附近海域，中方组织兵力跟踪监视。专家解读，这是美舰首次在仙宾礁挑衅，意在试探中方立场并为近期频繁挑衅的菲律宾提供军事背书，以低成本搅局南海。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/e36288d07f33cb7de7ad8814cd9490c2","meta":"🔥 330万","source":"百度","lang":"zh"},{"category":"AI","title":"Harness-Delta Attribution: Dissecting Gains From Harness Evolution","desc":"Harness evolution automatically optimizes the prompts, skills, tools, and orchestration code around a fixed-weight model, offering a way to improve agentic syst","url":"https://huggingface.co/papers/2610.22466","meta":"🤖 2026-10-15","source":"HuggingFace","lang":"en"},{"category":"热搜","title":"2岁幼童坠亡后母亲暴瘦11斤","url":"https://s.weibo.com/weibo?q=2岁幼童坠亡后母亲暴瘦11斤","meta":"🔥 15万","source":"微博","lang":"zh"},{"category":"热搜","title":"中年男子骑车载白发老人看哭网友","url":"https://www.baidu.com/s?wd=%E4%B8%AD%E5%B9%B4%E7%94%B7%E5%AD%90%E9%AA%91%E8%BD%A6%E8%BD%BD%E7%99%BD%E5%8F%91%E8%80%81%E4%BA%BA%E7%9C%8B%E5%93%AD%E7%BD%91%E5%8F%8B&sa=fyb_news&rsv_dl=fyb_news","desc":"近日，一拍摄者看到中年男子骑车载白发老人，觉得画面中的父子很幸福。此前其父亲于去年过世，拍摄者联想到自己无法再载父亲，既感动又心酸，坦言留下了很多遗憾。","img":"https://fyb-2.cdn.bcebos.com/hotboard_image/033d5d9b6f3b9bbea06231e61267304e","meta":"🔥 628万","source":"百度","lang":"zh"},{"category":"天气","title":"深圳 ☀️","desc":"晴 32°C · 湿度50% · 风速9.4km/h","meta":"深圳 · Open-Meteo","source":"Open-Meteo","lang":"zh"},{"category":"娱乐","title":"NBA揭幕战76人vs尼克斯","url":"https://www.douyin.com/search/NBA%E6%8F%AD%E5%B9%95%E6%88%9876%E4%BA%BAvs%E5%B0%BC%E5%85%8B%E6%96%AF","meta":"🔥 888万","source":"抖音","lang":"zh"}];
+const DEMO_ALL = [{ "category": "热搜", "title": "易梦玲在巴黎行李被偷", "url": "https://www.baidu.com/s?wd=%E6%98%93%E6%A2%A6%E7%8E%B2%E5%9C%A8%E5%B7%B4%E9%BB%8E%E8%A1%8C%E6%9D%8E%E8%A2%AB%E5%81%B7&sa=fyb_news&rsv_dl=fyb_news", "desc": "10月20日，易梦玲在社媒分享了自己的巴黎时装周vlog，并配文：“万！万！没！想！到！登机箱和随身包在机场被偷了！在打印行李票的时候一转身发现没有了。所有相机设备都在登机箱里，我的旧护照里面还有签证，后续的工作也耽误了。”", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/807dba2c165a0bfc15b8e14873408280", "meta": "🔥 542万", "source": "百度", "lang": "zh" }, { "category": "娱乐", "title": "早秋姐系穿搭法则", "url": "https://www.douyin.com/search/%E6%97%A9%E7%A7%8B%E5%A7%90%E7%B3%BB%E7%A9%BF%E6%90%AD%E6%B3%95%E5%88%99", "meta": "🔥 768万", "source": "抖音", "lang": "zh" }, { "category": "热搜", "title": "“局部打光了 也得打”", "url": "https://www.baidu.com/s?wd=%E2%80%9C%E5%B1%80%E9%83%A8%E6%89%93%E5%85%89%E4%BA%86+%E4%B9%9F%E5%BE%97%E6%89%93%E2%80%9D&sa=fyb_news&rsv_dl=fyb_news", "desc": "1936年春，红二、红六军团在乌蒙山回旋战中，以一万兵力牵制十几万敌军。面对10:1的兵力劣势，红军在乌蒙山辗转伏击成功突围。毛主席称赞“一万人走过来还是一万人，是个奇迹”。贺龙表示“局部打光了也得打”，揭示了顾全大局的长征胜利密码。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/7b1a4086661f7caef8f854b25a1e2167", "meta": "🔥 598万", "source": "百度", "lang": "zh" }, { "category": "热搜", "title": "长征万里险 最忆夹金山", "url": "https://www.baidu.com/s?wd=%E9%95%BF%E5%BE%81%E4%B8%87%E9%87%8C%E9%99%A9+%E6%9C%80%E5%BF%86%E5%A4%B9%E9%87%91%E5%B1%B1&sa=fyb_news&rsv_dl=fyb_news", "desc": "长征万里险，最忆夹金山。此前，当地民谣称夹金山“鸟儿飞不过，凡人不敢攀”，当年红军用双脚丈量，用血肉铺就了风雪长征路。如今，长征精神如同不灭灯火，跨越万水千山，照亮我们的奋进之路。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/dc2d988e6d0163e9ac09942b44ce136a", "meta": "🔥 312万", "source": "百度", "lang": "zh" }, { "category": "热搜", "title": "法国乱成一锅粥了还有人威胁中国", "url": "https://s.weibo.com/weibo?q=法国乱成一锅粥了还有人威胁中国", "meta": "🔥 92万", "source": "微博", "lang": "zh" }, { "category": "娱乐", "title": "KDA新歌神之八秒", "url": "https://www.douyin.com/search/KDA%E6%96%B0%E6%AD%8C%E7%A5%9E%E4%B9%8B%E5%85%AB%E7%A7%92", "meta": "🔥 781万", "source": "抖音", "lang": "zh" }, { "category": "娱乐", "title": "NBA活塞121:113逆转凯尔特人", "url": "https://www.douyin.com/search/NBA%E6%B4%BB%E5%A1%9E121%3A113%E9%80%86%E8%BD%AC%E5%87%AF%E5%B0%94%E7%89%B9%E4%BA%BA", "meta": "🔥 801万", "source": "抖音", "lang": "zh" }, { "category": "娱乐", "title": "一顶假发拿捏秋冬氛围感", "url": "https://www.douyin.com/search/%E4%B8%80%E9%A1%B6%E5%81%87%E5%8F%91%E6%8B%BF%E6%8D%8F%E7%A7%8B%E5%86%AC%E6%B0%9B%E5%9B%B4%E6%84%9F", "meta": "🔥 765万", "source": "抖音", "lang": "zh" }, { "category": "娱乐", "title": "秋冬的第一件情侣装", "url": "https://www.douyin.com/search/%E7%A7%8B%E5%86%AC%E7%9A%84%E7%AC%AC%E4%B8%80%E4%BB%B6%E6%83%85%E4%BE%A3%E8%A3%85", "meta": "🔥 771万", "source": "抖音", "lang": "zh" }, { "category": "热搜", "title": "又一地宣布：生物地理不计入中考总分", "url": "https://www.baidu.com/s?wd=%E5%8F%88%E4%B8%80%E5%9C%B0%E5%AE%A3%E5%B8%83%EF%BC%9A%E7%94%9F%E7%89%A9%E5%9C%B0%E7%90%86%E4%B8%8D%E8%AE%A1%E5%85%A5%E4%B8%AD%E8%80%83%E6%80%BB%E5%88%86&sa=fyb_news&rsv_dl=fyb_news", "desc": "10月20日，江苏省徐州市教育局宣布，地理、生物学科原始成绩不计入中考录取总分，成绩以等级形式呈现。该政策自2025年秋季入学的七年级学生起执行。此前，北京、吉林、陕西咸阳等多地也已明确将生物、地理调整为考查科目，以等级呈现。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/06c08333ac4253e8e20456044f94b72b", "meta": "🔥 752万", "source": "百度", "lang": "zh" }, { "category": "热搜", "title": "唐禹哲获刑1年7个月缓刑3年", "url": "https://s.weibo.com/weibo?q=唐禹哲获刑1年7个月缓刑3年", "meta": "🔥 21万", "source": "微博", "lang": "zh" }, { "category": "热搜", "title": "Sixteen Years After Deepwater Horizon, Deep Sea Life Shows Few Signs of Recovery", "url": "https://e360.yale.edu/digest/deepwater-horizon-deep-sea-recovery", "desc": "▲ 204 · speckx", "meta": "🔥 Hacker News", "source": "Hacker News", "lang": "en" }, { "category": "热搜", "title": "Good type against all odds", "url": "https://unsung.aresluna.org/good-type-against-all-odds/", "desc": "▲ 14 · firloop", "meta": "🔥 Hacker News", "source": "Hacker News", "lang": "en" }, { "category": "AI", "title": "Any 3D Scene is Worth 1K Tokens: 3D-Grounded Representation for Scene Generation at Scale", "desc": "Scene-level 3D generation has long been dominated by 2D multi-view or video diffusion models. Typically, these 2D-based approaches perform scene generation in a", "url": "https://huggingface.co/papers/2604.11331", "meta": "🤖 2026-10-19", "source": "HuggingFace", "lang": "en" }, { "category": "热搜", "title": "队旗缝进百褶裙夹层", "url": "https://www.baidu.com/s?wd=%E9%98%9F%E6%97%97%E7%BC%9D%E8%BF%9B%E7%99%BE%E8%A4%B6%E8%A3%99%E5%A4%B9%E5%B1%82&sa=fyb_news&rsv_dl=fyb_news", "desc": "1950年，四川凉山州冕宁县解放，彝族妇人倮伍伍加嫫将队旗献给解放军。1935年5月22日，刘伯承与彝族头人小叶丹歃血为盟并赠其队旗。1942年，小叶丹离世前叮嘱妻子保管队旗，等红军回来。为躲避国民党追究，其妻将队旗缝进百褶裙夹层。该队旗历经十五年的守护，现珍藏于中国人民革命军事博物馆。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/9930ddac228fec7cedf06a9fc68670ef", "meta": "🔥 695万", "source": "百度", "lang": "zh" }, { "category": "足球", "title": "Borussia Mönchengladbach vs TSG Hoffenheim", "desc": "0 : 1", "meta": "德甲 · 6. Spieltag", "source": "OpenLigaDB", "lang": "en" }, { "category": "热搜", "title": "鼓浪屿冷清不复当年盛景", "url": "https://s.weibo.com/weibo?q=鼓浪屿冷清不复当年盛景", "meta": "🔥 21万", "source": "微博", "lang": "zh" }, { "category": "热搜", "title": "The Other Epidemic: Trying to get off benzodiazepines", "url": "https://www.thebeliever.net/the-other-epidemic/", "desc": "▲ 70 · gaplong", "meta": "🔥 Hacker News", "source": "Hacker News", "lang": "en" }, { "category": "AI", "title": "Progress-Aware Distillation for Mitigating Stagnation in Small Language Model Agents", "desc": "While LLM-based agent systems have demonstrated remarkable proficiency in reasoning and solving complex real-world tasks, they also come with substantial token ", "url": "https://huggingface.co/papers/2610.19439", "meta": "🤖 2026-10-17", "source": "HuggingFace", "lang": "en" }, { "category": "热搜", "title": "Apple broke an essential presentation feature of iPads", "url": "https://teddysvoronos.com/2026-10-19-apple-broke-an-essential-presentation-feature-of-ipads/", "desc": "▲ 500 · evanb", "meta": "🔥 Hacker News", "source": "Hacker News", "lang": "en" }, { "category": "娱乐", "title": "小城良方弟弟怀疑自己不是亲生", "url": "https://www.douyin.com/search/%E5%B0%8F%E5%9F%8E%E8%89%AF%E6%96%B9%E5%BC%9F%E5%BC%9F%E6%80%80%E7%96%91%E8%87%AA%E5%B7%B1%E4%B8%8D%E6%98%AF%E4%BA%B2%E7%94%9F", "meta": "🔥 768万", "source": "抖音", "lang": "zh" }, { "category": "娱乐", "title": "刘晓艳郑马名场面渲染大赛", "url": "https://www.douyin.com/search/%E5%88%98%E6%99%93%E8%89%B3%E9%83%91%E9%A9%AC%E5%90%8D%E5%9C%BA%E9%9D%A2%E6%B8%B2%E6%9F%93%E5%A4%A7%E8%B5%9B", "meta": "🔥 776万", "source": "抖音", "lang": "zh" }, { "category": "娱乐", "title": "跟随魏娆体会成长型爽文人生", "url": "https://www.douyin.com/search/%E8%B7%9F%E9%9A%8F%E9%AD%8F%E5%A8%86%E4%BD%93%E4%BC%9A%E6%88%90%E9%95%BF%E5%9E%8B%E7%88%BD%E6%96%87%E4%BA%BA%E7%94%9F", "meta": "🔥 777万", "source": "抖音", "lang": "zh" }, { "category": "娱乐", "title": "南北吃蟹大不同", "url": "https://www.douyin.com/search/%E5%8D%97%E5%8C%97%E5%90%83%E8%9F%B9%E5%A4%A7%E4%B8%8D%E5%90%8C", "meta": "🔥 764万", "source": "抖音", "lang": "zh" }, { "category": "游戏", "title": "Luftrausers", "desc": "The skies are aflame and the seas will overflow with wreckage in Vlambeer’s stylish arcade shooter LUFTRAUSERS! Take to the skies in customi", "url": "https://store.epicgames.com/", "meta": "🎮 免费领取 · Epic", "source": "Epic", "lang": "en" }, { "category": "热搜", "title": "巴黎圣日耳曼4比2巴萨", "url": "https://s.weibo.com/weibo?q=巴黎圣日耳曼4比2巴萨", "meta": "🔥 49万", "source": "微博", "lang": "zh" }, { "category": "娱乐", "title": "当东北人假装南方人", "url": "https://www.douyin.com/search/%E5%BD%93%E4%B8%9C%E5%8C%97%E4%BA%BA%E5%81%87%E8%A3%85%E5%8D%97%E6%96%B9%E4%BA%BA", "meta": "🔥 931万", "source": "抖音", "lang": "zh" }, { "category": "热搜", "title": "大冰掏心掏肺谈职场", "url": "https://s.weibo.com/weibo?q=大冰掏心掏肺谈职场", "meta": "🔥 16万", "source": "微博", "lang": "zh" }, { "category": "足球", "title": "FC Schalke 04 vs 1. FSV Mainz 05", "desc": "0 : 1", "meta": "德甲 · 6. Spieltag", "source": "OpenLigaDB", "lang": "en" }, { "category": "热搜", "title": "伟大远征 精神永续", "url": "https://www.baidu.com/s?wd=%E4%BC%9F%E5%A4%A7%E8%BF%9C%E5%BE%81+%E7%B2%BE%E7%A5%9E%E6%B0%B8%E7%BB%AD&sa=fyb_news&rsv_dl=fyb_news", "desc": "信仰不灭，征程永恒。今年是中国工农红军长征胜利90周年。《时政微观察》与你一起在致敬英雄中赓续伟大长征精神，在抚今追昔中坚定前行意志，走好新时代长征路。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/17db9b69dbaf2844081993a3bdb29e6e", "meta": "🔥 790万", "source": "百度", "lang": "zh" }, { "category": "热搜", "title": "古人的东方审美藏在济南城", "url": "https://s.weibo.com/weibo?q=古人的东方审美藏在济南城", "meta": "🔥 48万", "source": "微博", "lang": "zh" }, { "category": "游戏", "title": "Monument Valley", "desc": "Embark on a journey of forgiveness through impossible environments and illusionary puzzles. Experience this meditative and calming puzzle ga", "url": "https://store.epicgames.com/", "meta": "🎮 免费领取 · Epic", "source": "Epic", "lang": "en" }, { "category": "市场", "title": "美元 → 人民币", "desc": "1 USD ≈ 6.6913 ¥", "meta": "💱 汇率 · Exchangerate", "source": "汇率", "lang": "zh" }, { "category": "热搜", "title": "刘雯维密回归太权威了", "url": "https://s.weibo.com/weibo?q=刘雯维密回归太权威了", "meta": "🔥 23万", "source": "微博", "lang": "zh" }, { "category": "热搜", "title": "王凯说我全唱别人的歌开什么演唱会", "url": "https://s.weibo.com/weibo?q=王凯说我全唱别人的歌开什么演唱会", "meta": "🔥 16万", "source": "微博", "lang": "zh" }, { "category": "娱乐", "title": "不烧心可可妆", "url": "https://www.douyin.com/search/%E4%B8%8D%E7%83%A7%E5%BF%83%E5%8F%AF%E5%8F%AF%E5%A6%86", "meta": "🔥 764万", "source": "抖音", "lang": "zh" }, { "category": "娱乐", "title": "妲己配音大赛", "url": "https://www.douyin.com/search/%E5%A6%B2%E5%B7%B1%E9%85%8D%E9%9F%B3%E5%A4%A7%E8%B5%9B", "meta": "🔥 767万", "source": "抖音", "lang": "zh" }, { "category": "热搜", "title": "王一博是istp", "url": "https://s.weibo.com/weibo?q=王一博是istp", "meta": "🔥 28万", "source": "微博", "lang": "zh" }, { "category": "热搜", "title": "法国将部署军队反恐力量应对示威活动", "url": "https://www.baidu.com/s?wd=%E6%B3%95%E5%9B%BD%E5%B0%86%E9%83%A8%E7%BD%B2%E5%86%9B%E9%98%9F%E5%8F%8D%E6%81%90%E5%8A%9B%E9%87%8F%E5%BA%94%E5%AF%B9%E7%A4%BA%E5%A8%81%E6%B4%BB%E5%8A%A8&sa=fyb_news&rsv_dl=fyb_news", "desc": "法国内政部长努内兹20日说，为更好应对预计于24日举行的示威活动可能引发的暴力事件，法国政府将部署法军反恐力量“哨兵”行动的士兵增援警察和宪兵。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/7dc7175b28ced3ae66ae3b76b60b8f75", "meta": "🔥 408万", "source": "百度", "lang": "zh" }, { "category": "热搜", "title": "DeepInfer: High-performance inference framework for DeepSeek models", "url": "https://github.com/deepseek-ai/DeepInfer", "desc": "▲ 2145 · ggcr", "meta": "🔥 Hacker News", "source": "Hacker News", "lang": "en" }, { "category": "热搜", "title": "张柏芝自曝五点起床陪儿子一整天", "url": "https://s.weibo.com/weibo?q=张柏芝自曝五点起床陪儿子一整天", "meta": "🔥 11万", "source": "微博", "lang": "zh" }, { "category": "娱乐", "title": "同心同行长征路", "url": "https://www.douyin.com/search/%E5%90%8C%E5%BF%83%E5%90%8C%E8%A1%8C%E9%95%BF%E5%BE%81%E8%B7%AF", "meta": "🔥 1195万", "source": "抖音", "lang": "zh" }, { "category": "热搜", "title": "旭日旗事件涉事学生曾骂劝阻同学", "url": "https://s.weibo.com/weibo?q=旭日旗事件涉事学生曾骂劝阻同学", "meta": "🔥 11万", "source": "微博", "lang": "zh" }, { "category": "AI", "title": "SolarRenderer: Few-Step Generative Reference Rendering", "desc": "Game engines and coding agents can specify the layout, motion, and camera of a scene, yet turning such coarse structure into realistic video requires a renderer", "url": "https://huggingface.co/papers/2610.28630", "meta": "🤖 2026-10-20", "source": "HuggingFace", "lang": "en" }, { "category": "娱乐", "title": "奚梦瑶12张图晒维密工作花絮", "url": "https://www.douyin.com/search/%E5%A5%9A%E6%A2%A6%E7%91%B612%E5%BC%A0%E5%9B%BE%E6%99%92%E7%BB%B4%E5%AF%86%E5%B7%A5%E4%BD%9C%E8%8A%B1%E7%B5%AE", "meta": "🔥 771万", "source": "抖音", "lang": "zh" }, { "category": "热搜", "title": "00后北漂患上“扔垃圾羞耻”", "url": "https://www.baidu.com/s?wd=00%E5%90%8E%E5%8C%97%E6%BC%82%E6%82%A3%E4%B8%8A%E2%80%9C%E6%89%94%E5%9E%83%E5%9C%BE%E7%BE%9E%E8%80%BB%E2%80%9D&sa=fyb_news&rsv_dl=fyb_news", "desc": "近期，北京部分小区频现“垃圾猎人”，邻居不问自取甚至疯抢纸箱，致北漂青年患上“扔垃圾羞耻”，被迫深夜扔垃圾。目前部分小区引入智能回收机试图缓解，但仍面临机器满载等困境。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/254e005b83332986fe6f700ef334ce05", "meta": "🔥 656万", "source": "百度", "lang": "zh" }, { "category": "热搜", "title": "龚宝冬被追记一等功", "url": "https://www.baidu.com/s?wd=%E9%BE%9A%E5%AE%9D%E5%86%AC%E8%A2%AB%E8%BF%BD%E8%AE%B0%E4%B8%80%E7%AD%89%E5%8A%9F&sa=fyb_news&rsv_dl=fyb_news", "desc": "10月20日，应急管理部决定对在基层防灾避险工作中牺牲的龚宝冬追记一等功，对彭迪等11名同志给予记功、嘉奖奖励。此前7月17日，重庆市彭水苗族土家族自治县发生山体崩塌，网格员龚宝冬在转移群众时不幸遇难，彭迪被落石击伤，最终区内60多名居民被安全转移。7月30日，龚宝冬被重庆市政府评定为烈士。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/57926c2573d710eec78d83a85984d02d", "meta": "🔥 666万", "source": "百度", "lang": "zh" }, { "category": "热搜", "title": "年轻人每月在养老院服务可减免房租", "url": "https://www.baidu.com/s?wd=%E5%B9%B4%E8%BD%BB%E4%BA%BA%E6%AF%8F%E6%9C%88%E5%9C%A8%E5%85%BB%E8%80%81%E9%99%A2%E6%9C%8D%E5%8A%A1%E5%8F%AF%E5%87%8F%E5%85%8D%E6%88%BF%E7%A7%9F&sa=fyb_news&rsv_dl=fyb_news", "desc": "近日，广西壮族自治区南宁市五象养老服务中心试行“代际共居”模式，青年每月完成不少于50小时助老服务可换取1000元房租减免。这种“代际共居”模式探索为年轻人减轻生活负担，同时为老年人带来富有青春气息的情感陪伴。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/ce17234850b8c2530dbf845c6e4cdd60", "meta": "🔥 636万", "source": "百度", "lang": "zh" }, { "category": "热搜", "title": "NBA", "url": "https://s.weibo.com/weibo?q=NBA", "meta": "🔥 35万", "source": "微博", "lang": "zh" }, { "category": "热搜", "title": "天猫双11百大爆款清单发布", "url": "https://s.weibo.com/weibo?q=天猫双11百大爆款清单发布", "meta": "🔥 89万", "source": "微博", "lang": "zh" }, { "category": "市场", "title": "日元 → 人民币", "desc": "1 JPY ≈ 4.229 ¥", "meta": "💱 汇率 · Exchangerate", "source": "汇率", "lang": "zh" }, { "category": "市场", "title": "欧元 → 人民币", "desc": "1 EUR ≈ 7.5120 ¥", "meta": "💱 汇率 · Exchangerate", "source": "汇率", "lang": "zh" }, { "category": "热搜", "title": "崔秀彬公司未回应", "url": "https://s.weibo.com/weibo?q=崔秀彬公司未回应", "meta": "🔥 16万", "source": "微博", "lang": "zh" }, { "category": "热搜", "title": "中使馆预警 泰方：普通游客不会遭绑架", "url": "https://www.baidu.com/s?wd=%E4%B8%AD%E4%BD%BF%E9%A6%86%E9%A2%84%E8%AD%A6+%E6%B3%B0%E6%96%B9%EF%BC%9A%E6%99%AE%E9%80%9A%E6%B8%B8%E5%AE%A2%E4%B8%8D%E4%BC%9A%E9%81%AD%E7%BB%91%E6%9E%B6&sa=fyb_news&rsv_dl=fyb_news", "desc": "近期，中国驻泰国大使馆发布旅游安全预警。据外媒报道，泰国旅游与体育部长素拉沙10月20日对此回应称，泰国政府高度重视游客安全，并澄清“普通游客不会在泰国被强行塞入车辆或押送至边境”，涉事者多是在出境前已被骗。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/7dc7175b28ced3ae66ae3b76b60b8f75", "meta": "🔥 609万", "source": "百度", "lang": "zh" }, { "category": "娱乐", "title": "长今你在工作里加了什么啊", "url": "https://www.douyin.com/search/%E9%95%BF%E4%BB%8A%E4%BD%A0%E5%9C%A8%E5%B7%A5%E4%BD%9C%E9%87%8C%E5%8A%A0%E4%BA%86%E4%BB%80%E4%B9%88%E5%95%8A", "meta": "🔥 778万", "source": "抖音", "lang": "zh" }, { "category": "热搜", "title": "蔡天凤前公公买绞肉机监控曝光", "url": "https://s.weibo.com/weibo?q=蔡天凤前公公买绞肉机监控曝光", "meta": "🔥 46万", "source": "微博", "lang": "zh" }, { "category": "娱乐", "title": "宝青坊主cos", "url": "https://www.douyin.com/search/%E5%AE%9D%E9%9D%92%E5%9D%8A%E4%B8%BBcos", "meta": "🔥 765万", "source": "抖音", "lang": "zh" }, { "category": "游戏", "title": "Lost Castle: The Old Ones Awaken", "desc": "The Old Ones Awaken adds new levels to explore, new enemies to defeat, and new bosses to face along with a host exciting new weapons and equ", "url": "https://store.epicgames.com/", "meta": "🎮 免费领取 · Epic", "source": "Epic", "lang": "en" }, { "category": "热搜", "title": "西太平洋战鼓隆隆 中美日排兵布阵", "url": "https://www.baidu.com/s?wd=%E8%A5%BF%E5%A4%AA%E5%B9%B3%E6%B4%8B%E6%88%98%E9%BC%93%E9%9A%86%E9%9A%86+%E4%B8%AD%E7%BE%8E%E6%97%A5%E6%8E%92%E5%85%B5%E5%B8%83%E9%98%B5&sa=fyb_news&rsv_dl=fyb_news", "desc": "近日，西太平洋战鼓隆隆。美日计划于10月19日至29日举行大规模联合军事演习，演习部署至距离台湾仅110公里的与那国岛。对此，解放军这边则提前启动了反制，从10月8日起，大连、秦皇岛、盐城等地陆续发布了航行警告，强势对冲，直接威慑了美日的军演。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/3b5127110753533d778ea9025f5dd678", "meta": "🔥 647万", "source": "百度", "lang": "zh" }, { "category": "热搜", "title": "Voxtral 3", "url": "https://mistral.ai/news/voxtral-3/", "desc": "▲ 535 · ilreb", "meta": "🔥 Hacker News", "source": "Hacker News", "lang": "en" }, { "category": "天气", "title": "武汉 ☀️", "desc": "晴 18°C · 湿度62% · 风速17.2km/h", "meta": "武汉 · Open-Meteo", "source": "Open-Meteo", "lang": "zh" }, { "category": "天气", "title": "重庆 ☁️", "desc": "阴 19°C · 湿度93% · 风速4.1km/h", "meta": "重庆 · Open-Meteo", "source": "Open-Meteo", "lang": "zh" }, { "category": "热搜", "title": "特斯拉“能飞” 我们就被甩开了？", "url": "https://www.baidu.com/s?wd=%E7%89%B9%E6%96%AF%E6%8B%89%E2%80%9C%E8%83%BD%E9%A3%9E%E2%80%9D+%E6%88%91%E4%BB%AC%E5%B0%B1%E8%A2%AB%E7%94%A9%E5%BC%80%E4%BA%86%EF%BC%9F&sa=fyb_news&rsv_dl=fyb_news", "desc": "最近特斯拉发布“会飞的汽车”引发热议，有人惊呼“我们被甩开了”。对此，媒体指出不必妄自菲薄。特斯拉此次“飞行”更像概念秀，而中国汽车在速度、充电、智驾及飞行领域均有系统性硬功夫与多维突破，中国汽车产业不惧同台比拼。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/8dc894c9379dbe1839ad97839302e0f4", "meta": "🔥 732万", "source": "百度", "lang": "zh" }, { "category": "热搜", "title": "活塞22分逆转凯尔特人", "url": "https://s.weibo.com/weibo?q=活塞22分逆转凯尔特人", "meta": "🔥 13万", "source": "微博", "lang": "zh" }, { "category": "热搜", "title": "美舰首次在仙宾礁挑衅 背后有何算计", "url": "https://www.baidu.com/s?wd=%E7%BE%8E%E8%88%B0%E9%A6%96%E6%AC%A1%E5%9C%A8%E4%BB%99%E5%AE%BE%E7%A4%81%E6%8C%91%E8%A1%85+%E8%83%8C%E5%90%8E%E6%9C%89%E4%BD%95%E7%AE%97%E8%AE%A1&sa=fyb_news&rsv_dl=fyb_news", "desc": "20日，解放军南部战区通报，当日凌晨美“查尔斯顿”号濒海战斗舰未经允许冲闯中国南沙群岛仙宾礁附近海域，中方组织兵力跟踪监视。专家解读，这是美舰首次在仙宾礁挑衅，意在试探中方立场并为近期频繁挑衅的菲律宾提供军事背书，以低成本搅局南海。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/e36288d07f33cb7de7ad8814cd9490c2", "meta": "🔥 330万", "source": "百度", "lang": "zh" }, { "category": "AI", "title": "Harness-Delta Attribution: Dissecting Gains From Harness Evolution", "desc": "Harness evolution automatically optimizes the prompts, skills, tools, and orchestration code around a fixed-weight model, offering a way to improve agentic syst", "url": "https://huggingface.co/papers/2610.22466", "meta": "🤖 2026-10-15", "source": "HuggingFace", "lang": "en" }, { "category": "热搜", "title": "2岁幼童坠亡后母亲暴瘦11斤", "url": "https://s.weibo.com/weibo?q=2岁幼童坠亡后母亲暴瘦11斤", "meta": "🔥 15万", "source": "微博", "lang": "zh" }, { "category": "热搜", "title": "中年男子骑车载白发老人看哭网友", "url": "https://www.baidu.com/s?wd=%E4%B8%AD%E5%B9%B4%E7%94%B7%E5%AD%90%E9%AA%91%E8%BD%A6%E8%BD%BD%E7%99%BD%E5%8F%91%E8%80%81%E4%BA%BA%E7%9C%8B%E5%93%AD%E7%BD%91%E5%8F%8B&sa=fyb_news&rsv_dl=fyb_news", "desc": "近日，一拍摄者看到中年男子骑车载白发老人，觉得画面中的父子很幸福。此前其父亲于去年过世，拍摄者联想到自己无法再载父亲，既感动又心酸，坦言留下了很多遗憾。", "img": "https://fyb-2.cdn.bcebos.com/hotboard_image/033d5d9b6f3b9bbea06231e61267304e", "meta": "🔥 628万", "source": "百度", "lang": "zh" }, { "category": "天气", "title": "深圳 ☀️", "desc": "晴 32°C · 湿度50% · 风速9.4km/h", "meta": "深圳 · Open-Meteo", "source": "Open-Meteo", "lang": "zh" }, { "category": "娱乐", "title": "NBA揭幕战76人vs尼克斯", "url": "https://www.douyin.com/search/NBA%E6%8F%AD%E5%B9%95%E6%88%9876%E4%BA%BAvs%E5%B0%BC%E5%85%8B%E6%96%AF", "meta": "🔥 888万", "source": "抖音", "lang": "zh" }];
 // 内置接口发现清单（演示/离线时使用）
 // 本地 file:// 预览用的离线清单。字段与 functions/api/discover.js 的 CURATED 保持一致，
 // 含 en 英文别名，否则本地演示模式下英文检索会搜不到东西。
@@ -281,31 +269,15 @@ const langSel = document.getElementById("lang");
 const translateBtn = document.getElementById("translateBtn");
 const autoBtn = document.getElementById("autoBtn");
 const refreshBtn = document.getElementById("refreshBtn");
-const wxBtn = document.getElementById("wxBtn");
-const wxPop = document.getElementById("wxPop");
-const wxInput = document.getElementById("wxInput");
-const wxGo = document.getElementById("wxGo");
-const wxIp = document.getElementById("wxIp");
-const btnViewList = document.getElementById("btnViewList");
-const btnViewGrid = document.getElementById("btnViewGrid");
-const colSelect = document.getElementById("colSelect");
-const btnCustomize = document.getElementById("btnCustomize");
-const customizeModal = document.getElementById("customizeModal");
-const modalClose = document.getElementById("modalClose");
-const modalModuleList = document.getElementById("modalModuleList");
-const btnResetConfig = document.getElementById("btnResetConfig");
-const btnSaveConfig = document.getElementById("btnSaveConfig");
+const cityInput = document.getElementById("cityInput");
+const cityGo = document.getElementById("cityGo");
+const geoBtn = document.getElementById("geoBtn");
+const weatherBody = document.getElementById("weatherBody");
+const gamesBody = document.getElementById("gamesBody");
+const aiBody = document.getElementById("aiBody");
 const discoverInput = document.getElementById("discoverInput");
 const discoverResults = document.getElementById("discoverResults");
 const discoverWrap = document.getElementById("discoverWrap");
-
-// sticky 的 Tab 栏要紧贴顶栏下沿。顶栏高度随语言（按钮文案长短）和窗口宽度（换行）变化，
-// 写死 top 会出现缝隙或遮挡 —— 所以量真实高度写进 CSS 变量。
-const topbarEl = document.querySelector(".topbar");
-function syncTopbarH() {
-  if (topbarEl) document.documentElement.style.setProperty("--topbar-h", topbarEl.offsetHeight + "px");
-}
-if (topbarEl && "ResizeObserver" in window) new ResizeObserver(syncTopbarH).observe(topbarEl);
 
 // ---------- 状态 ----------
 let buffer = [];
@@ -330,8 +302,10 @@ const feedSeen = new Set();
 const feedKey = (it) =>
   [it && it.source, it && it.title, it && it.ts, it && it.url].join("\0");
 
-// 天气已改为顶栏小组件（见「顶栏天气」一节），浏览器直连 Open-Meteo，
-// 不再把 city/lat/lon 带进 /api/feed —— 那会让 CDN 缓存键按用户碎片化。
+// 天气定位上下文。放在全局是因为 v2.4 的取数入口收敛成一个 /api/feed?tab=，
+// 天气部件和主信息流共用同一条链路，天气源需要知道城市/经纬度。
+// 空对象 = 用服务端默认城市。
+const weatherCtx = { city: "", lat: null, lon: null };
 
 // 当前选中的 tab。v2.4 起，「筛选维度」由 tab 承担，不再有 chips 多选那套逻辑 ——
 // tab 本身就声明了用哪些源，多选组合会让「tab→源」的映射在前端失真。
@@ -546,10 +520,6 @@ function applyLang(code) {
     const k = el.getAttribute("data-i18n-ph");
     if (dict[k]) el.placeholder = dict[k];
   });
-  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
-    const k = el.getAttribute("data-i18n-title");
-    if (dict[k]) el.title = dict[k];
-  });
   // 品牌名 + 页面标题（跟随语言切换）
   const bn = brandName(code);
   const bMain = document.querySelector('[data-brand="main"]');
@@ -588,7 +558,7 @@ function applyLang(code) {
   if (bannerKind) showBanner(bannerKind);
   buildTabs();
   renderEntries();
-  renderWeather();
+  reloadWidgets();
   resetFeed();
 }
 
@@ -643,11 +613,8 @@ function buildTabs() {
   };
 }
 
-// ---------- 主站专题站导航（portal 模式独有） ----------
-// 从「四张大卡片」压成一行导航链接：入口是导航，不是内容，
-// 不该占掉首屏一整块。描述放进 title 悬停提示。
-// 链接仍用 .entry-card 类名 —— webtest.mjs 靠它数入口个数。
-const ENTRY_ICON = { ai: "🤖", news: "🌐", game: "🎮", hot: "🔥" };
+// ---------- 主站入口卡片（portal 模式独有） ----------
+// 子站不渲染：入口卡片是「从主站跳去子站」的导航，子站自己不需要。
 function renderEntries() {
   const box = document.getElementById("entries");
   if (!box) return;
@@ -656,54 +623,43 @@ function renderEntries() {
   if (box.hidden) { box.innerHTML = ""; return; }
   const en = currentLang === "en";
   box.innerHTML =
-    `<span class="entries-label">${escapeHtml(uiText("hubTitle"))}</span>` +
+    `<h2 class="section-title">${uiText("hubTitle")}</h2>` +
+    `<div class="entry-grid">` +
     list.map((e) => {
-      const name = (en && e.fallbackEn) || uiText(e.i18n) || e.fallback;
+      const name = (en && e.fallbackEn) || e.fallback || uiText(e.i18n);
       const desc = uiText((e.i18n || "") + "Desc");
-      return `<a class="entry-card" href="https://${escapeHtml(e.host)}/" title="${escapeHtml(desc)}">` +
-        `${ENTRY_ICON[e.key] || "↗"} ${escapeHtml(name)}</a>`;
-    }).join("");
+      return `<a class="entry-card" href="https://${escapeHtml(e.host)}/">
+        <span class="entry-name">${escapeHtml(name)}</span>
+        <span class="entry-desc">${escapeHtml(desc)}</span>
+        <span class="entry-go">${uiText("entryGo")} →</span>
+      </a>`;
+    }).join("") +
+    `</div>`;
 }
 
 // ---------- 卡片 ----------
-function getCardAccent(it) {
-  if (it && it.category && CAT_COLOR[it.category]) return CAT_COLOR[it.category];
-  const sec = getCardSection(it);
-  if (sec === "hot") return "#e8553b";
-  if (sec === "world") return "#357abb";
-  if (sec === "ai") return "#7a52aa";
-  if (sec === "life") return "#d27329";
-  return "#e8743b";
-}
-
-function makeCard(it, rank) {
-  const el = document.createElement("a");
-  el.className = "card rank-item";
-  el.href = it.url || "#";
-  el.target = "_blank";
-  el.rel = "noopener";
-  const sec = getCardSection(it);
-  el.dataset.sec = sec;
-  el.style.setProperty("--accent", getCardAccent(it));
-
-  const metaText = gameBadgeMeta(it.badge) || it.meta || (it.ts ? agoText(it.ts) : "");
-  const tagText = catName(it.category);
-  const srcText = it.source || "";
-  const r = rank || 1;
-  const rankClass = r === 1 ? "rank-1" : r === 2 ? "rank-2" : r === 3 ? "rank-3" : "rank-other";
-
+function makeCard(it) {
+  const el = document.createElement("article");
+  el.className = "card";
+  el.style.setProperty("--accent", CAT_COLOR[it.category] || "#e8743b");
+  const thumb = it.img ? `<div class="thumb" style="background-image:url('${escapeHtml(it.img)}')"></div>` : "";
+  const desc = it.desc ? `<p class="desc">${escapeHtml(it.desc)}</p>` : "";
+  // badge 有值就按当前语言重排（Epic），没有才用服务端拼好的 meta 兜底。
+  // meta 里带的价格/截止日也是服务端那一版中文，两者都缺时才退到相对时间。
+  // 徽章在 .meta 里被 -webkit-line-clamp 截到 2 行，所以下面渲染时同时挂 title，
+  // 被截掉的部分还能靠悬停读全——否则「最多两行」这条 CSS 就等于静默丢信息。
+  const metaText = gameBadgeMeta(it.badge) || it.meta || agoText(it.ts);
   el.innerHTML = `
-    <span class="rank-num ${rankClass}">#${r}</span>
-    <span class="rank-title" title="${escapeHtml(it.title || "")}">${escapeHtml(it.title || "")}</span>
-    <div class="rank-tail">
-      ${srcText ? `<span class="source-badge">${escapeHtml(srcText)}</span>` : ""}
-      ${metaText ? `<span class="meta-badge" title="${escapeHtml(metaText)}">${escapeHtml(metaText)}</span>` : ""}
-      <span class="card-arrow" aria-hidden="true">↗</span>
-    </div>
-  `;
-
+    ${thumb}
+    <div class="bar"></div>
+    <div class="body">
+      <span class="tag">${escapeHtml(catName(it.category))}</span>
+      <a class="title" href="${escapeHtml(it.url || "#")}" target="_blank" rel="noopener">${escapeHtml(it.title || "")}</a>
+      ${desc}
+      <div class="meta"><span>${escapeHtml(it.source || "")}</span><span title="${escapeHtml(metaText)}">${escapeHtml(metaText)}</span></div>
+    </div>`;
   // 按用户语言翻译标题
-  const titleEl = el.querySelector(".rank-title");
+  const titleEl = el.querySelector(".title");
   if (translateOn() && it.lang && it.lang !== currentLang) {
     const from = srcCode(it.lang); const to = langCode(currentLang);
     translateText(it.title, from, to).then((t) => { if (t && t !== it.title) titleEl.textContent = t; });
@@ -746,35 +702,20 @@ function loadDemoBatch(n) {
   const pool = DEMO_ALL;
   if (!pool.length) return;
   const batch = [];
-  for (let i = 0; i < n; i++) {
-    const it = pool[(feedCursor + i) % pool.length];
-    batch.push(it);
-    const k = feedKey(it);
-    if (!feedSeen.has(k)) {
-      feedSeen.add(k);
-      feedPool.push(it);
-    }
-  }
+  for (let i = 0; i < n; i++) batch.push(pool[(feedCursor + i) % pool.length]);
   feedCursor = (feedCursor + n) % pool.length;
   buffer = buffer.concat(batch);
-  renderStructuredFeed();
 }
 
 // ---------- 启动：立即打底一屏 ----------
-function bootstrapFeed() {
+function bootstrapFeed(force) {
   if (isLocal()) {
     if (!useDemo) { useDemo = true; showBanner("demo"); }
     loadDemoBatch(24);              // 一次性打底 24 张，首屏立刻满满
     renderMore(24);                 // 立即画 24 张
     return;
   }
-  // 不传 force：lang / tab / 坐标都在 fetchFeed 的 memo key 里，
-  // 换语言换 tab 必然是新 key，本来就不会撞到旧数据；
-  // 而同一语言的这一屏里 reloadWidgets() 已经先发过同一个 brief 了
-  // （天气部件和游戏部件都是 tab=brief），这里再 force 一次就是纯粹多打一发。
-  // 首屏那次也不需要 force —— 页面刚加载时 memo 空的，带不带 force 行为一样。
-  // 真正需要绕过复用的只有用户点刷新按钮那一处，那边显式传 force=true。
-  loadFeed();
+  loadFeed(force);
 }
 
 // ---------- 远端拉取（部署后） ----------
@@ -808,6 +749,27 @@ function filterByTabState(items, tabId) {
 //   TTL 15 秒 —— 与服务端 L1 缓存 TTL 对齐，不会拿到比服务端更旧的响应。
 const feedMemo = new Map();
 const FEED_MEMO_TTL = 15000;
+const CLIENT_CACHE_TTL = 3600000; // 1 小时客户端本地缓存
+
+function getClientFeed(key) {
+  try {
+    const raw = localStorage.getItem("infostream_feed_" + key);
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    if (obj && obj.t && (Date.now() - obj.t < CLIENT_CACHE_TTL) && obj.data) {
+      return obj.data;
+    }
+  } catch {}
+  return null;
+}
+
+function setClientFeed(key, data) {
+  try {
+    if (data && Array.isArray(data.items) && data.items.length) {
+      localStorage.setItem("infostream_feed_" + key, JSON.stringify({ t: Date.now(), data }));
+    }
+  } catch {}
+}
 
 /**
  * 取一份 feed。
@@ -818,10 +780,43 @@ function fetchFeed(q, force) {
   const key = q.toString();
   const m = feedMemo.get(key);
   if (!force && m && Date.now() - m.t < FEED_MEMO_TTL) return m.promise;
-  const promise = fetch(`/api/feed?${key}`, { cache: "no-store" }).then((res) => {
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    return res.json();
-  });
+
+  // 1. 尝试读客户端本地 1 小时缓存（秒开，无网络往返）
+  if (!force) {
+    const cached = getClientFeed(key);
+    if (cached) return Promise.resolve(cached);
+  }
+
+  // 2. 发起请求：force 时带 force=1 与 no-store，平时走 Cloudflare 边缘长缓存
+  const query = new URLSearchParams(q);
+  if (force) query.set("force", "1");
+  const fetchOpts = force ? { cache: "no-store" } : {};
+
+  const promise = fetch(`/api/feed?${query.toString()}`, fetchOpts)
+    .then((res) => {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then((data) => {
+      setClientFeed(key, data);
+      return data;
+    })
+    .catch(async (err) => {
+      // 3. 静态快照兜底（方案2）：若 API 暂时不可用，尝试读取构建时生成的静态快照 /data/feed-${tab}.json
+      const tabId = q.get("tab") || "brief";
+      try {
+        const staticRes = await fetch(`/data/feed-${tabId}.json`);
+        if (staticRes.ok) {
+          const staticData = await staticRes.json();
+          if (staticData && staticData.items && staticData.items.length) {
+            setClientFeed(key, staticData);
+            return staticData;
+          }
+        }
+      } catch {}
+      throw err;
+    });
+
   feedMemo.set(key, { t: Date.now(), promise });
   // 失败不留在 memo 里：上游偶发失败时服务端本来就不缓存空结果，
   // 下一次重试就能拿到数据 —— 不能让一次抖动被钉死 15 秒。
@@ -845,6 +840,9 @@ async function loadFeed(force) {
     q.set("tab", tab.id);
     // lang 是界面语言，news 站用它决定拉哪个语种的源；srcLang 不传 = 全语种
     q.set("lang", currentLang);
+    if (weatherCtx.city) q.set("city", weatherCtx.city);
+    if (weatherCtx.lat != null) q.set("lat", String(weatherCtx.lat));
+    if (weatherCtx.lon != null) q.set("lon", String(weatherCtx.lon));
     const data = await fetchFeed(q, force);
     // 后端实时源全部超时时，会回退到 24h 内的旧快照并标 stale=true。
     // 「有内容但不是最新的」必须说清楚 —— 不提示的话用户会把旧快照当成实时流，
@@ -854,8 +852,7 @@ async function loadFeed(force) {
     // 拿到整批后先按当前 tab 的口径收窄，再交给去重。顺序不能反 ——
     // 「本周免费」tab 若先把即将/长期也写进 feedSeen，切到「即将开放」时
     // 它们会被当成「已经见过了」而被丢掉，两个 tab 互相把对方的数据吃掉。
-    // 天气只在顶栏展示：服务端已不再下发，这里再兜一道（边缘旧缓存 / stale 快照里可能还有）。
-    const items = (Array.isArray(data.items) ? data.items : []).filter((it) => it && it.category !== "天气");
+    const items = Array.isArray(data.items) ? data.items : [];
     const scoped = filterByTabState(items, activeTabDef().id);
     if (scoped.length) {
       // 丢掉已经画过的条目（见 feedSeen 注释）。
@@ -865,7 +862,6 @@ async function loadFeed(force) {
         feedSeen.add(k);
         return true;
       });
-      for (const it of fresh) feedPool.push(it);
       // 按时间倒序：新→旧。服务端已经按源分组返回了，直接全局排序会让
       // 「国际要闻」和「AI 快讯」的时间线交错 —— 这正是简报想要的效果。
       // ts=0 的排最后，不能当成 1970 年。
@@ -873,6 +869,8 @@ async function loadFeed(force) {
         fresh.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0)),
       );
       // 整个 tab 都已经见过了 → 这个 tab 暂时没新东西。标记到底，别再空转请求。
+      // 不这么做的话：renderMore 见 buffer<8 就再拉一次，拉回来的全是重复项，
+      // 去重后为空 → 又触发下一轮，形成永不停止的刷新循环。
       if (!fresh.length) feedExhausted = true;
     } else {
       feedExhausted = true;
@@ -886,599 +884,154 @@ async function loadFeed(force) {
     }
   } finally {
     loading = false;
-    renderStructuredFeed();
-    setStatus(loading ? "loading" : feedPool.length > 0 ? "more" : "end");
-  }
-}
-
-// ---------- 视图布局模式（形态1 列表流 vs 形态4 规整网格） ----------
-const VIEW_STORAGE_KEY = "infostream_view";
-function getSavedView() {
-  try {
-    const v = localStorage.getItem(VIEW_STORAGE_KEY);
-    if (v === "grid" || v === "list") return v;
-  } catch {}
-  return "list"; // 默认形态 1：高密度列表流
-}
-
-let currentView = getSavedView();
-
-function applyViewMode(view) {
-  currentView = view;
-  try { localStorage.setItem(VIEW_STORAGE_KEY, view); } catch {}
-  if (feed) {
-    feed.classList.remove("view-list", "view-grid");
-    feed.classList.add("view-" + view);
-  }
-  if (btnViewList && btnViewGrid) {
-    btnViewList.classList.toggle("active", view === "list");
-    btnViewGrid.classList.toggle("active", view === "grid");
-  }
-}
-
-// ---------- 自适应排版列数系统（自适应 / 3列 / 4列 / 2列 / 全屏铺满） ----------
-const COLS_STORAGE_KEY = "infostream_cols";
-function getSavedCols() {
-  try {
-    const c = localStorage.getItem(COLS_STORAGE_KEY);
-    if (["auto", "2", "3", "4", "full"].includes(c)) return c;
-  } catch {}
-  return "auto"; // 默认智能自适应铺满
-}
-
-let currentCols = getSavedCols();
-
-function applyColMode(mode) {
-  currentCols = mode;
-  try { localStorage.setItem(COLS_STORAGE_KEY, mode); } catch {}
-  if (feed) {
-    feed.classList.remove("cols-auto", "cols-2", "cols-3", "cols-4", "cols-full");
-    feed.classList.add("cols-" + mode);
-  }
-  if (colSelect) {
-    colSelect.value = mode;
-  }
-  const chips = document.querySelectorAll(".layout-chip");
-  chips.forEach((c) => c.classList.toggle("active", c.dataset.col === mode));
-}
-
-// =========================================================================
-// 综合简报：四大分类板块与模块配置体系
-// =========================================================================
-const CUSTOM_CONFIG_KEY = "infostream_custom_config";
-
-const DEFAULT_SECTIONS = [
-  {
-    id: "sec_hot",
-    i18nTitle: "secHot",
-    title: "🔥 全网热榜",
-    desc: "微博 · 百度 · 抖音 · 实时热搜",
-    link: "https://hot.myinfostream.com/",
-    linkText: "热搜站 ↗",
-    modules: [
-      { id: "mod_weibo", name: "微博热搜", icon: "🔴", match: (it) => it.source === "微博" || (it.category === "境内热搜" && it.source?.includes("微博")) },
-      { id: "mod_baidu", name: "百度热搜", icon: "🔵", match: (it) => it.source === "百度" || (it.category === "境内热搜" && it.source?.includes("百度")) },
-      { id: "mod_douyin", name: "抖音与娱乐", icon: "🎵", match: (it) => it.source === "抖音" || it.source === "B站热搜" || it.category === "娱乐" },
-      { id: "mod_hot_other", name: "综合热点", icon: "⚡", match: (it) => it.bucket === "cn" || it.category === "境内热搜" || it.category === "热搜" },
-    ]
-  },
-  {
-    id: "sec_tech",
-    i18nTitle: "secAi",
-    title: "🤖 科技前沿 & 开发者",
-    desc: "AI 动态 · 开发者社区 · 论文精选",
-    link: "https://ai.myinfostream.com/",
-    linkText: "AI 站 ↗",
-    modules: [
-      { id: "mod_ai", name: "AI 动态与商业", icon: "🧠", match: (it) => it.category?.startsWith("AI") || it.bucket === "ai" },
-      { id: "mod_hn", name: "Hacker News", icon: "🧡", match: (it) => it.source === "Hacker News" || it.category === "技术社区" },
-      { id: "mod_papers", name: "论文前沿", icon: "📄", match: (it) => it.source === "HuggingFace" || it.source === "arXiv" || it.category === "AI 论文" },
-    ]
-  },
-  {
-    id: "sec_world",
-    i18nTitle: "secWorld",
-    title: "🌐 环球视野与要闻",
-    desc: "Reuters · BBC · 国际主流通讯社",
-    link: "https://news.myinfostream.com/",
-    linkText: "新闻站 ↗",
-    modules: [
-      { id: "mod_world_news", name: "国际要闻精选", icon: "🌍", match: (it) => it.category === "国际要闻" || it.category === "国际" || (it.region === "global" && it.bucket !== "life") },
-      { id: "mod_biz", name: "商业财经", icon: "💼", match: (it) => it.category === "商业" || it.category === "财经" },
-    ]
-  },
-  {
-    id: "sec_life",
-    i18nTitle: "secLife",
-    title: "☕ 生活与游戏福利",
-    desc: "Epic 喜加一限免 · 金融汇率与行情",
-    link: "https://game.myinfostream.com/",
-    linkText: "游戏站 ↗",
-    modules: [
-      { id: "mod_epic", name: "Epic 喜加一", icon: "🎮", match: (it) => it.category?.startsWith("游戏") || it.source === "Epic" },
-      { id: "mod_market", name: "市场与汇率", icon: "📈", match: (it) => it.category === "市场" || it.source === "Exchangerate" || it.sourceType === "market" },
-    ]
-  }
-];
-
-function getDefaultConfig() {
-  const sections = DEFAULT_SECTIONS.map((s) => ({ id: s.id, enabled: true }));
-  const modules = {};
-  for (const s of DEFAULT_SECTIONS) {
-    for (const m of s.modules) modules[m.id] = true;
-  }
-  return { sections, modules };
-}
-
-function getCustomConfig() {
-  const def = getDefaultConfig();
-  try {
-    const saved = localStorage.getItem(CUSTOM_CONFIG_KEY);
-    if (!saved) return def;
-    const parsed = JSON.parse(saved);
-    if (!parsed || !Array.isArray(parsed.sections)) return def;
-    const secIds = new Set(parsed.sections.map((s) => s.id));
-    for (const s of def.sections) {
-      if (!secIds.has(s.id)) parsed.sections.push(s);
+    // 数据到货但页面还是空的 → 主动画出来。
+    // 踩坑记录（2026-10-22）：v2.4 重构时这里只剩 setStatus，把原来的绘制调用丢了。
+    // 后果是「后端返回 19 条、buffer 有数据、但 #feed 零张卡片」——死锁：
+    // 启动时 IO 触发 pump → renderMore 发现 buffer 空 → 异步 loadFeed 起飞 →
+    // renderMore 循环什么都没画就返回 → loadFeed 回来只塞 buffer 不画 →
+    // sentinel 相交状态没变，IO 不再触发，用户不滚动，scroll 兜底也不跑。
+    // 表面症状是「接口 200 有数据，页面全白」，curl 和接口测试全都测不出来。
+    // 只有渲染路径能画，用 feed.childElementCount===0 精确判断「用户还没看到东西」。
+    //
+    // 第二条（2026-10-22 又踩一次）：不能只看「页面是不是空的」。补货回来后
+    // buffer 里往往还剩几条没画，而把它们逼出来的只有 IO 与 scroll 两个**边沿**触发：
+    //   · IO 只在 sentinel 相交状态「变化」时回调，内容变高但 sentinel 仍在视口内 → 不再触发
+    //   · scroll 兜底有 220ms 节流，用户恰好在节流窗口里停下滚动 → 那一次 pump 被丢掉
+    // 实测：首屏 24 张 → 滚一下变 36 张，buffer 里还剩 3 张，
+    // 之后无论怎么滚都停在 36，底部却写着「✓ 暂时到底」——货在 buffer 里画不出来。
+    // 所以判断标准补一条：底部还露着（nearBottom）就继续画，与 feedExhausted 无关。
+    if (buffer.length && (feed.childElementCount === 0 || nearBottom())) {
+      renderMore(pumpNeed());
+      return;                       // renderMore 内部会 setStatus
     }
-    parsed.modules = Object.assign({}, def.modules, parsed.modules || {});
-    return parsed;
-  } catch {
-    return def;
-  }
-}
-
-function saveCustomConfig(cfg) {
-  try {
-    localStorage.setItem(CUSTOM_CONFIG_KEY, JSON.stringify(cfg));
-  } catch {}
-}
-
-function openCustomizeModal() {
-  if (!customizeModal) return;
-  renderModalModuleList();
-  customizeModal.removeAttribute("hidden");
-}
-
-function closeCustomizeModal() {
-  if (!customizeModal) return;
-  customizeModal.setAttribute("hidden", "");
-}
-
-function renderModalModuleList() {
-  if (!modalModuleList) return;
-  const cfg = getCustomConfig();
-  modalModuleList.innerHTML = "";
-
-  const layoutWrap = document.createElement("div");
-  layoutWrap.className = "modal-layout-wrap";
-  layoutWrap.innerHTML = `
-    <span class="modal-layout-title">📐 排版列数与自适应：</span>
-    <div class="modal-layout-chips">
-      <button type="button" class="layout-chip ${currentCols === 'auto' ? 'active' : ''}" data-col="auto">⚡ 智能自适应 (填满无留白)</button>
-      <button type="button" class="layout-chip ${currentCols === '3' ? 'active' : ''}" data-col="3">3 列 (标准宽屏)</button>
-      <button type="button" class="layout-chip ${currentCols === '4' ? 'active' : ''}" data-col="4">4 列 (大显示器)</button>
-      <button type="button" class="layout-chip ${currentCols === '2' ? 'active' : ''}" data-col="2">2 列 (紧凑并排)</button>
-      <button type="button" class="layout-chip ${currentCols === 'full' ? 'active' : ''}" data-col="full">全屏铺满</button>
-    </div>
-  `;
-  modalModuleList.appendChild(layoutWrap);
-
-  layoutWrap.querySelectorAll(".layout-chip").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      applyColMode(btn.dataset.col);
-      layoutWrap.querySelectorAll(".layout-chip").forEach((b) => b.classList.toggle("active", b === btn));
-    });
-  });
-
-  cfg.sections.forEach((secCfg, idx) => {
-    const def = DEFAULT_SECTIONS.find((s) => s.id === secCfg.id);
-    if (!def) return;
-
-    const box = document.createElement("div");
-    box.className = "modal-sec-box";
-
-    const titleText = uiText(def.i18nTitle) || def.title;
-    box.innerHTML = `
-      <div class="modal-sec-head">
-        <label class="modal-sec-left">
-          <input type="checkbox" class="sec-toggle" data-sec-id="${def.id}" ${secCfg.enabled ? "checked" : ""}>
-          <span>${escapeHtml(titleText)}</span>
-        </label>
-        <div class="modal-sec-tools">
-          <button type="button" class="modal-order-btn btn-up" data-idx="${idx}" ${idx === 0 ? "disabled" : ""}>↑</button>
-          <button type="button" class="modal-order-btn btn-down" data-idx="${idx}" ${idx === cfg.sections.length - 1 ? "disabled" : ""}>↓</button>
-        </div>
-      </div>
-      <div class="modal-mod-grid">
-        ${def.modules.map((m) => {
-          const isModOn = cfg.modules[m.id] !== false;
-          return `
-            <label class="modal-mod-item">
-              <input type="checkbox" class="mod-toggle" data-mod-id="${m.id}" ${isModOn ? "checked" : ""}>
-              <span>${m.icon || ""} ${escapeHtml(m.name)}</span>
-            </label>
-          `;
-        }).join("")}
-      </div>
-    `;
-
-    modalModuleList.appendChild(box);
-  });
-
-  modalModuleList.querySelectorAll(".btn-up").forEach((b) => {
-    b.addEventListener("click", () => {
-      const idx = Number(b.dataset.idx);
-      if (idx > 0) {
-        const tmp = cfg.sections[idx];
-        cfg.sections[idx] = cfg.sections[idx - 1];
-        cfg.sections[idx - 1] = tmp;
-        saveCustomConfig(cfg);
-        renderModalModuleList();
-      }
-    });
-  });
-  modalModuleList.querySelectorAll(".btn-down").forEach((b) => {
-    b.addEventListener("click", () => {
-      const idx = Number(b.dataset.idx);
-      if (idx < cfg.sections.length - 1) {
-        const tmp = cfg.sections[idx];
-        cfg.sections[idx] = cfg.sections[idx + 1];
-        cfg.sections[idx + 1] = tmp;
-        saveCustomConfig(cfg);
-        renderModalModuleList();
-      }
-    });
-  });
-
-  modalModuleList.querySelectorAll(".sec-toggle").forEach((ck) => {
-    ck.addEventListener("change", () => {
-      const secId = ck.dataset.secId;
-      const target = cfg.sections.find((s) => s.id === secId);
-      if (target) {
-        target.enabled = ck.checked;
-        saveCustomConfig(cfg);
-      }
-    });
-  });
-
-  modalModuleList.querySelectorAll(".mod-toggle").forEach((ck) => {
-    ck.addEventListener("change", () => {
-      const modId = ck.dataset.modId;
-      cfg.modules[modId] = ck.checked;
-      saveCustomConfig(cfg);
-    });
-  });
-}
-
-function getCardSection(it) {
-  if (!it) return "hot";
-  const cat = it.category || "";
-  const src = it.source || "";
-  if (it.bucket === "cn" || cat === "境内热搜" || cat === "热搜" || cat === "娱乐" || src === "微博" || src === "百度" || src === "B站热搜" || src === "抖音") return "hot";
-  if (cat === "国际要闻" || cat === "国际" || cat === "头条" || cat === "地区") return "world";
-  if (cat.startsWith("AI") || cat === "大模型" || cat === "芯片算力" || cat === "技术社区" || src === "HuggingFace" || src === "arXiv") return "ai";
-  if (it.bucket === "life" || cat === "天气" || cat === "市场" || cat.startsWith("游戏") || cat === "足球" || cat === "生活") return "life";
-  return "hot";
-}
-
-let feedPool = [];
-
-function createModuleBoard(mod, items) {
-  const board = document.createElement("div");
-  board.className = "mod-board";
-  board.dataset.mod = mod.id;
-
-  const topItems = items.slice(0, 8);
-  const overflowItems = items.slice(8);
-
-  const head = document.createElement("div");
-  head.className = "mod-head";
-  head.innerHTML = `
-    <span class="mod-head-title">${mod.icon ? `<span class="mod-icon">${mod.icon}</span>` : ""} ${escapeHtml(mod.name)}</span>
-    <span class="mod-head-badge">${items.length > 8 ? `Top 8 / 共 ${items.length} 条` : `${items.length} 条`}</span>
-  `;
-  board.appendChild(head);
-
-  const list = document.createElement("div");
-  list.className = "mod-list";
-
-  topItems.forEach((it, idx) => {
-    list.appendChild(makeCard(it, idx + 1));
-  });
-
-  if (overflowItems.length > 0) {
-    const overflow = document.createElement("div");
-    overflow.className = "rank-overflow";
-    overflowItems.forEach((it, idx) => {
-      overflow.appendChild(makeCard(it, idx + 9));
-    });
-    list.appendChild(overflow);
-
-    const expandBtn = document.createElement("button");
-    expandBtn.type = "button";
-    expandBtn.className = "rank-expand-btn";
-    expandBtn.textContent = `展开余下 ${overflowItems.length} 条 ↓`;
-    expandBtn.addEventListener("click", () => {
-      const isOpen = overflow.classList.toggle("is-open");
-      expandBtn.textContent = isOpen ? `收起 ↑` : `展开余下 ${overflowItems.length} 条 ↓`;
-    });
-    list.appendChild(expandBtn);
-  }
-
-  board.appendChild(list);
-  return board;
-}
-
-function renderStructuredFeed() {
-  if (!feed) return;
-  feed.innerHTML = "";
-  if (!feedPool.length) return;
-
-  const isBrief = IS_MAIN && activeTab === "brief";
-
-  if (isBrief) {
-    const cfg = getCustomConfig();
-    const usedKeys = new Set();
-
-    for (const secCfg of cfg.sections) {
-      if (!secCfg.enabled) continue;
-      const def = DEFAULT_SECTIONS.find((s) => s.id === secCfg.id);
-      if (!def) continue;
-
-      const moduleBoards = [];
-
-      for (const mod of def.modules) {
-        if (cfg.modules[mod.id] === false) continue;
-        const matched = [];
-        for (const it of feedPool) {
-          const k = feedKey(it);
-          if (usedKeys.has(k)) continue;
-          if (mod.match(it)) {
-            matched.push(it);
-            usedKeys.add(k);
-          }
-        }
-        if (matched.length) {
-          moduleBoards.push({ mod, items: matched });
-        }
-      }
-
-      if (moduleBoards.length) {
-        const secEl = document.createElement("section");
-        secEl.className = "feed-section";
-        secEl.dataset.sec = def.id;
-
-        const secHead = document.createElement("div");
-        secHead.className = "feed-sec-header";
-        const titleText = uiText(def.i18nTitle) || def.title;
-        secHead.innerHTML = `
-          <div class="feed-sec-title-wrap">
-            <h2 class="feed-sec-title">${escapeHtml(titleText)}</h2>
-            <span class="feed-sec-desc">${escapeHtml(def.desc)}</span>
-          </div>
-          ${def.link ? `<a class="feed-sec-link" href="${escapeHtml(def.link)}" target="_blank" rel="noopener">${escapeHtml(def.linkText)}</a>` : ""}
-        `;
-        secEl.appendChild(secHead);
-
-        const secBody = document.createElement("div");
-        secBody.className = "feed-sec-body";
-
-        for (const { mod, items } of moduleBoards) {
-          const boardEl = createModuleBoard(mod, items);
-          secBody.appendChild(boardEl);
-        }
-
-        secEl.appendChild(secBody);
-        feed.appendChild(secEl);
-      }
-    }
-
-    // 兜底剩余未归入特定模块的条目（如果有）
-    const leftovers = feedPool.filter((it) => !usedKeys.has(feedKey(it)));
-    if (leftovers.length) {
-      const leftoverSec = document.createElement("section");
-      leftoverSec.className = "feed-section";
-      leftoverSec.innerHTML = `
-        <div class="feed-sec-header">
-          <div class="feed-sec-title-wrap">
-            <h2 class="feed-sec-title">⚡ 更多综合资讯</h2>
-          </div>
-        </div>
-      `;
-      const leftoverBody = document.createElement("div");
-      leftoverBody.className = "feed-sec-body";
-      const board = createModuleBoard({ id: "leftovers", name: "综合快讯", icon: "📌" }, leftovers);
-      leftoverBody.appendChild(board);
-      leftoverSec.appendChild(leftoverBody);
-      feed.appendChild(leftoverSec);
-    }
-  } else {
-    // 非 brief 的单主题或子站（如 hot / ai / game / world）：
-    const groups = new Map();
-    for (const it of feedPool) {
-      const groupKey = it.source || it.category || "综合";
-      if (!groups.has(groupKey)) groups.set(groupKey, []);
-      groups.get(groupKey).push(it);
-    }
-
-    const secEl = document.createElement("section");
-    secEl.className = "feed-section";
-    const secBody = document.createElement("div");
-    secBody.className = "feed-sec-body";
-
-    for (const [groupName, items] of groups.entries()) {
-      const icon = ENTRY_ICON[activeTab] || "📌";
-      const board = createModuleBoard({ id: groupName, name: groupName, icon }, items);
-      secBody.appendChild(board);
-    }
-
-    secEl.appendChild(secBody);
-    feed.appendChild(secEl);
+    setStatus(loading ? "loading" : buffer.length > 0 ? "more" : "end");
   }
 }
 
 // ---------- 渲染更多 + 节流 + 演示池自补 ----------
 function renderMore(n) {
-  if (feedPool.length === 0) {
-    if (useDemo) loadDemoBatch(20);
-    else if (!feedExhausted) loadFeed();
+  // buffer 空了就补
+  if (buffer.length === 0) {
+    if (useDemo) loadDemoBatch(20);                              // 演示永远有
+    else if (!feedExhausted) loadFeed();                          // 真实模式按需 fetch
     else { setStatus("end"); return; }
-  } else {
-    renderStructuredFeed();
   }
-  setStatus(loading ? "loading" : feedPool.length > 0 ? "more" : "end");
+  const frag = document.createDocumentFragment();
+  // n<=0 表示"一次画完整个 buffer"
+  const want = n > 0 ? n : Infinity;
+  let drew = 0;
+  for (let i = 0; i < want && buffer.length > 0; i++) {
+    frag.appendChild(makeCard(buffer.shift()));
+    drew++;
+  }
+  if (frag.childNodes.length) feed.appendChild(frag);
+
+  // 演示模式：永远别让 buffer 见底
+  if (useDemo && buffer.length < 12) loadDemoBatch(20);
+  // 真实模式：buffer 少了就再 fetch
+  if (!useDemo && buffer.length < 8 && !feedExhausted && !loading) loadFeed();
+
+  setStatus(loading ? "loading" : buffer.length > 0 ? "more" : "end");
 }
 
-function resetFeed() {
-  feedPool = [];
+function resetFeed(force) {
   buffer = [];
   feedCursor = 0;
   feedExhausted = false;
+  // 去重表必须跟着一起清：换 tab 后同名同时间的条目要能重新出现，
+  // 否则新 tab 的首屏会被上一站的 key 误判成「见过」而整批丢掉。
   feedSeen.clear();
   feed.innerHTML = "";
-  applyViewMode(currentView);
-  applyColMode(currentCols);
-  bootstrapFeed();
+  bootstrapFeed(force);
 }
 
-// ---------- 顶栏天气 ----------
-// 原「常驻看板」（天气 / 游戏 / AI 三框）已移除：
-//   · 游戏 / AI 与简报四大板块、专题站内容重复；
-//   · 游戏框在 brief 里没拉到「游戏」类目时会回落显示整批简报 ——
-//     这就是「游戏」框里出现地震、星巴克新闻的原因。
-// 天气改成顶栏语言选择器前的一枚小胶囊，全部浏览器直连（Open-Meteo / ipwho.is 都开了 CORS），
-// 不经过 Pages Functions，不占 10 万次/天额度，也不再让 /api/feed 的缓存键带上城市参数。
-//
-// 定位优先级：用户手选城市（localStorage 持久）> IP 定位（缓存 6h）> 北京兜底。
-const WX_CITY_KEY = "infostream_city";     // 用户手选：{ name, lat, lon }
-const WX_IP_KEY = "infostream_ipgeo";      // IP 定位缓存：{ name, lat, lon, t }
-const WX_DATA_KEY = "infostream_wx";       // 天气缓存：{ k, t, d }
-const WX_IP_TTL = 6 * 3600 * 1000;
-const WX_DATA_TTL = 30 * 60 * 1000;
-const WX_FALLBACK = { name: "Beijing", lat: 39.9042, lon: 116.4074 };
-// WMO 天气代码 → 图标。只给图标不给文字：图标天然跨语言，省掉 19 语种文案。
-const WX_ICON = (c) =>
-  c === 0 ? "☀️" : c <= 2 ? "🌤️" : c === 3 ? "☁️" : c <= 48 ? "🌫️" :
-  c <= 57 ? "🌦️" : c <= 67 ? "🌧️" : c <= 77 ? "🌨️" : c <= 82 ? "🌦️" : "⛈️";
+// ---------- 固定部件 ----------
+// v2.4：旧的 ?cat=天气 端点没有了，部件改为「拉当前 tab 的数据，再按 category 挑」。
+// 这样部件和主信息流共用同一条链路，也就不会出现部件还停留在旧类目体系的问题。
+const WIDGET_SRC_TAB = { 天气: "brief", 游戏: "brief", AI: "ai" };
+const WIDGET_CATS = { 天气: ["天气"], 游戏: ["游戏"], AI: ["AI", "AI 快讯", "AI 产品", "AI 商业", "大模型", "AI 论文"] };
 
-let wxPlace = null;   // 当前地点 { name, lat, lon, manual? }
-let wxData = null;    // Open-Meteo 返回的 { current, daily }
-
-const lsGet = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
-const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-
-async function wxFetchJSON(url, ms = 5000) {
-  const ctl = new AbortController();
-  const t = setTimeout(() => ctl.abort(), ms);
+async function loadWidget(cat, opts, force) {
+  const body = cat === "天气" ? weatherBody : cat === "游戏" ? gamesBody : aiBody;
+  if (!body) return;
+  body.innerHTML = `<div class="w-loading">…</div>`;
+  if (opts && opts.city !== undefined) setWeatherCtx(opts);
+  const want = WIDGET_CATS[cat] || [];
+  if (isLocal()) {
+    renderWidget(body, DEMO_ALL.filter((it) => want.includes(it.category)).slice(0, 6));
+    return;
+  }
   try {
-    const r = await fetch(url, { signal: ctl.signal });
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    return await r.json();
-  } finally { clearTimeout(t); }
-}
-
-// IP 定位：两家免费、免密钥、开 CORS 的服务，先 ipwho.is，失败再 ipapi.co。
-async function ipLocate() {
-  const cached = lsGet(WX_IP_KEY);
-  if (cached && Date.now() - cached.t < WX_IP_TTL) return cached;
-  const tries = [
-    async () => { const d = await wxFetchJSON("https://ipwho.is/?fields=success,city,latitude,longitude");
-      return d && d.success !== false && d.latitude != null ? { name: d.city, lat: d.latitude, lon: d.longitude } : null; },
-    async () => { const d = await wxFetchJSON("https://ipapi.co/json/");
-      return d && d.latitude != null ? { name: d.city, lat: d.latitude, lon: d.longitude } : null; },
-  ];
-  for (const f of tries) {
-    try { const p = await f(); if (p) { const v = { ...p, t: Date.now() }; lsSet(WX_IP_KEY, v); return v; } } catch {}
-  }
-  return null;
-}
-
-// 城市名本地化：IP 服务返回英文名（Beijing），中文界面希望看到「北京」。
-// 用 Open-Meteo 地理编码按当前语言再查一次，结果随地点一起缓存，不重复请求。
-async function geocode(name) {
-  const lang = (currentLang || "en").split("-")[0];
-  const d = await wxFetchJSON(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=${lang}`);
-  const r = d && d.results && d.results[0];
-  return r ? { name: r.name, lat: r.latitude, lon: r.longitude } : null;
-}
-
-async function loadWeatherData(place, force) {
-  const k = `${place.lat.toFixed(2)},${place.lon.toFixed(2)}`;
-  const c = lsGet(WX_DATA_KEY);
-  if (!force && c && c.k === k && Date.now() - c.t < WX_DATA_TTL) return c.d;
-  const d = await wxFetchJSON(`https://api.open-meteo.com/v1/forecast?latitude=${place.lat}&longitude=${place.lon}` +
-    "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m" +
-    "&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto");
-  lsSet(WX_DATA_KEY, { k, t: Date.now(), d });
-  return d;
-}
-
-function renderWeather() {
-  const icon = document.getElementById("wxIcon");
-  const temp = document.getElementById("wxTemp");
-  const city = document.getElementById("wxCity");
-  const detail = document.getElementById("wxDetail");
-  if (!icon || !temp) return;
-  const cur = wxData && wxData.current;
-  if (!cur) { icon.textContent = "🌡️"; temp.textContent = "--°"; if (city) city.textContent = wxPlace ? wxPlace.name : ""; return; }
-  icon.textContent = WX_ICON(cur.weather_code);
-  temp.textContent = Math.round(cur.temperature_2m) + "°";
-  if (city) city.textContent = wxPlace ? wxPlace.name : "";
-  if (detail) {
-    const dl = wxData.daily || {};
-    const hi = dl.temperature_2m_max ? Math.round(dl.temperature_2m_max[0]) : null;
-    const lo = dl.temperature_2m_min ? Math.round(dl.temperature_2m_min[0]) : null;
-    detail.innerHTML =
-      `<div class="wx-d-main">${WX_ICON(cur.weather_code)} <b>${Math.round(cur.temperature_2m)}°C</b> ` +
-      `<span>${escapeHtml(wxPlace ? wxPlace.name : "")}${wxPlace && wxPlace.manual ? "" : " · IP"}</span></div>` +
-      `<div class="wx-d-sub">${hi != null ? `↑${hi}° ↓${lo}° · ` : ""}💧${cur.relative_humidity_2m}% · 🌬️${cur.wind_speed_10m}km/h</div>`;
+    const q = new URLSearchParams();
+    q.set("tab", WIDGET_SRC_TAB[cat] || activeTab);
+    q.set("lang", currentLang);
+    if (weatherCtx.city) q.set("city", weatherCtx.city);
+    if (weatherCtx.lat != null) q.set("lat", String(weatherCtx.lat));
+    if (weatherCtx.lon != null) q.set("lon", String(weatherCtx.lon));
+    const data = await fetchFeed(q, force);
+    const items = (data.items || []).filter((x) => want.includes(x.category));
+    // tab 里没有这个类目（比如 brief tab 恰好没拉到天气）时退回 tab 全量，
+    // 宁可显示别的内容，也不要给用户一个永远转圈的框。
+    renderWidget(body, items.length ? items : (data.items || []).slice(0, 6));
+  } catch (e) {
+    if (isLocal()) renderWidget(body, DEMO_ALL.filter((it) => want.includes(it.category)).slice(0, 6));
+    else body.innerHTML = `<div class="w-loading">⚠️</div>`;
   }
 }
-
-async function showWeather(place, force) {
-  wxPlace = place;
-  renderWeather();
-  try { wxData = await loadWeatherData(place, force); } catch { wxData = null; }
-  renderWeather();
+function setWeatherCtx(opts) {
+  if (!opts) return;
+  if (opts.city !== undefined) weatherCtx.city = opts.city || "";
+  if (opts.lat != null) weatherCtx.lat = opts.lat;
+  if (opts.lon != null) weatherCtx.lon = opts.lon;
 }
-
-async function initWeather() {
-  const manual = lsGet(WX_CITY_KEY);
-  if (manual && manual.lat != null) return showWeather({ ...manual, manual: true });
-  await weatherByIp(false);
-}
-
-// IP 定位（也是「📍 定位」按钮的行为）：清掉手选城市，回到自动定位。
-async function weatherByIp(clearManual = true) {
-  if (clearManual === true || (clearManual && clearManual.type)) lsSet(WX_CITY_KEY, null);
-  let p = await ipLocate();
-  if (p && p.name && !p.local) {
-    try { const g = await geocode(p.name); if (g) { p = { ...p, name: g.name, local: true }; lsSet(WX_IP_KEY, { ...p, t: p.t || Date.now() }); } } catch {}
+function renderWidget(body, items) {
+  if (!items || !items.length) { body.innerHTML = `<div class="w-loading">-</div>`; return; }
+  const rows = items.slice(0, 6);
+  body.innerHTML = rows.map((it) => widgetItem(it, true)).join("");
+  // 部件内标题翻译（异步回填）
+  if (translateOn()) {
+    const nodes = body.querySelectorAll(".w-item a, .w-item span");
+    rows.forEach((it, i) => {
+      if (it.lang && it.lang !== currentLang) {
+        translateText(it.title, srcCode(it.lang), langCode(currentLang)).then((t) => {
+          const node = nodes[i]; if (node && t && t !== it.title) node.textContent = t;
+        });
+      }
+    });
   }
-  await showWeather(p ? { name: p.name || "", lat: p.lat, lon: p.lon } : WX_FALLBACK);
-  toggleWxPop(false);
+}
+// 只有主站有常驻看板：ai / news 站的内容本身就是这些主题，
+// 再挂一块「游戏」看板只会稀释站点定位。
+// 不只是不发请求 —— 整段（含标题）必须 hidden，否则子站页面上会留一个
+// 空标题和三个空框，比不显示更像出故障。
+function reloadWidgets(force) {
+  const wrap = document.getElementById("widgetsWrap");
+  if (wrap) wrap.hidden = !IS_MAIN;
+  if (!IS_MAIN) return;
+  loadWidget("天气", undefined, force);
+  loadWidget("游戏", undefined, force);
+  loadWidget("AI", undefined, force);
 }
 
-// 手动切换城市：地理编码成功才落盘，避免把错字记成「我的城市」。
+// 天气：城市搜索（浏览器直连 Open-Meteo 地理编码，已开启 CORS）
+// 定位结果写进 weatherCtx 而不是只传给一次请求 —— v2.4 的取数入口是 /api/feed?tab=，
+// 主信息流和天气部件共用这条链路，两边都要拿到城市。
 async function weatherByCity(name) {
   if (!name) return;
   try {
-    const g = await geocode(name);
-    if (!g) { if (wxInput) wxInput.select(); return; }
-    lsSet(WX_CITY_KEY, g);
-    if (wxInput) wxInput.value = "";
-    await showWeather({ ...g, manual: true });
-    toggleWxPop(false);
-  } catch { /* 网络失败：保留输入，用户可重试 */ }
+    const g = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1`, { cache: "no-store" });
+    const d = await g.json();
+    const r = d.results && d.results[0];
+    if (r) loadWidget("天气", { city: r.name, lat: r.latitude, lon: r.longitude });
+    else loadWidget("天气", { city: name });
+  } catch (e) { loadWidget("天气", { city: name }); }
 }
-
-function toggleWxPop(force) {
-  if (!wxPop || !wxBtn) return;
-  const open = typeof force === "boolean" ? force : wxPop.hidden;
-  wxPop.hidden = !open;
-  wxBtn.setAttribute("aria-expanded", String(open));
-  if (open && wxInput) setTimeout(() => wxInput.focus(), 0);
+function weatherByGeo() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    (pos) => loadWidget("天气", { city: "本地", lat: pos.coords.latitude, lon: pos.coords.longitude }),
+    () => loadWidget("天气")
+  );
 }
 
 // ---------- 接口发现（仅开发者模式） ----------
@@ -1596,47 +1149,23 @@ if (autoBtn) autoBtn.addEventListener("click", () => {
   autoBtn.textContent = autoScroll ? (I18N[currentLang] || I18N.zh).autoPause : (I18N[currentLang] || I18N.zh).autoStart;
 });
 if (refreshBtn) refreshBtn.addEventListener("click", () => {
-  resetFeed();
+  resetFeed(true); reloadWidgets(true);
   if (DEV_MODE && discoverInput) loadDiscover(discoverInput.value);
 });
 if (translateBtn) translateBtn.addEventListener("click", () => {
   translateEnabled = !translateEnabled;
   translateBtn.classList.toggle("on", translateEnabled);
   // 重新渲染以应用/取消翻译
-  resetFeed();
+  resetFeed(); reloadWidgets();
 });
-if (wxBtn) wxBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleWxPop(); });
-if (wxPop) wxPop.addEventListener("click", (e) => e.stopPropagation());
-document.addEventListener("click", () => toggleWxPop(false));
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleWxPop(false); });
-if (wxGo) wxGo.addEventListener("click", () => weatherByCity(wxInput.value.trim()));
-if (wxInput) wxInput.addEventListener("keydown", (e) => { if (e.key === "Enter") weatherByCity(wxInput.value.trim()); });
-if (wxIp) wxIp.addEventListener("click", weatherByIp);
-if (btnViewList) btnViewList.addEventListener("click", () => applyViewMode("list"));
-if (btnViewGrid) btnViewGrid.addEventListener("click", () => applyViewMode("grid"));
-if (colSelect) colSelect.addEventListener("change", (e) => applyColMode(e.target.value));
-if (btnCustomize) btnCustomize.addEventListener("click", openCustomizeModal);
-if (modalClose) modalClose.addEventListener("click", closeCustomizeModal);
-if (customizeModal) {
-  customizeModal.addEventListener("click", (e) => {
-    if (e.target === customizeModal) closeCustomizeModal();
-  });
-}
-if (btnResetConfig) {
-  btnResetConfig.addEventListener("click", () => {
-    const def = getDefaultConfig();
-    saveCustomConfig(def);
-    applyColMode("auto");
-    renderModalModuleList();
-    renderStructuredFeed();
-  });
-}
-if (btnSaveConfig) {
-  btnSaveConfig.addEventListener("click", () => {
-    closeCustomizeModal();
-    renderStructuredFeed();
-  });
-}
+if (cityGo) cityGo.addEventListener("click", () => weatherByCity(cityInput.value.trim()));
+if (cityInput) cityInput.addEventListener("keydown", (e) => { if (e.key === "Enter") weatherByCity(cityInput.value.trim()); });
+if (geoBtn) geoBtn.addEventListener("click", weatherByGeo);
+// force=true 是必须的：用户明确点了刷新，就该真的打一次网络，
+// 不能被上面 fetchFeed 的 15 秒复用挡掉，否则按钮看着像坏了。
+document.querySelectorAll(".w-refresh").forEach((b) =>
+  b.addEventListener("click", () => loadWidget(b.dataset.widget || "AI", undefined, true))
+);
 if (discoverInput) discoverInput.addEventListener("input", () => { clearTimeout(discoverInput._t); discoverInput._t = setTimeout(() => loadDiscover(discoverInput.value.trim()), 300); });
 if (feed) {
   feed.addEventListener("mouseenter", () => (hovering = true));
@@ -1678,11 +1207,8 @@ function detectLang() {
 activeTab = resolveTabFromUrl().id;
 currentLang = detectLang();
 buildLangSelect();
-// applyLang 末尾已经串好 buildTabs → renderEntries → renderWeather → resetFeed，
+// applyLang 末尾已经串好 buildTabs → renderEntries → reloadWidgets → resetFeed，
 // 这里不要再来一遍 —— 重复调会让首屏打两次 /api/feed，浪费一次上游抓取。
 applyLang(currentLang);
-applyViewMode(currentView);
-applyColMode(currentCols);
-initWeather();
 if (DEV_MODE) loadDiscover("");
 requestAnimationFrame(tick);

@@ -36,7 +36,7 @@ const OUT = join(ROOT, "public");
 //   于是每次加载页面都要为 app.js / styles.css 各付一次 Pages Functions 调用，
 //   10 万次/天的免费额度被静态文件吃光 —— 正好是 _guard.js 头部
 //   「不做防护会被人当免费 API 白嫖」担心的同一件事，从另一个方向发生。
-const ENTRIES = ["index.html", "assets", "favicon.svg", "_routes.json"];
+const ENTRIES = ["index.html", "assets", "favicon.svg", "_routes.json", "data"];
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });

@@ -1,8 +1,15 @@
 {
   "version": 1,
-  "include": ["/", "/index.html", "/robots.txt", "/sitemap.xml", "/api/*"],
+  "include": [
+    "/",
+    "/index.html",
+    "/robots.txt",
+    "/sitemap.xml",
+    "/api/*"
+  ],
   "exclude": [
     "/assets/*",
+    "/data/*",
     "/*.css",
     "/*.js",
     "/*.svg",

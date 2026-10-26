@@ -46,10 +46,10 @@ function setL1Cache(key, items) {
   }
 }
 
-// L2 边缘缓存 TTL。比 L1 长得多：L1 的存在意义是「同一批用户共享一次抓取」，
-// L2 的意义是「冷 isolate 不用重抓」。给到 60s 是权衡结果 ——
-// 新闻列表晚一分钟出现没有实际损失，但能把上游请求量压掉一个数量级。
-const EDGE_TTL = 60;
+// L2 边缘缓存 TTL。设定为 1 小时（3600 秒）：
+// 同一 PoP 边缘节点在此期间内的所有访客直接命中缓存，
+// 只有过期后的首位访客触发后台异步更新。
+const EDGE_TTL = 3600;
 
 // ---------------------------------------------------------------------------
 // 陈旧兜底快照（stale-while-error）
@@ -142,6 +142,7 @@ export async function onRequest(context) {
 
   // ---- tab 解析：未知 tab 回落本站第一个 tab，而不是「全部类目」 ----
   const wantTab = url.searchParams.get("tab") || "";
+  const force = url.searchParams.get("force") === "1" || url.searchParams.get("force") === "true";
   const tabs = conf.tabs || [];
   const tab = tabs.find((t) => t.id === wantTab) || tabs[0] || { id: "default", sources: [] };
 
@@ -175,13 +176,13 @@ export async function onRequest(context) {
   // （实测：一次加载 4 个请求 + 切一次界面语言 4 个，翻 8 种语言 = 36 个 > 30）。
   // 所以缓存命中走独立的宽松配额桶，但**同源校验一步都不能省** ——
   // 缓存命中也照样要挡跨站盗用。
-  if (hit && Date.now() - hit.t < CACHE_TTL) {
+  if (!force && hit && Date.now() - hit.t < CACHE_TTL) {
     items = hit.items;
     cacheHit = true;
   } else {
     // L2：跨 isolate 的边缘缓存。冷 isolate 上这是唯一能避免重抓上游的一层。
     const { fresh, stale: staleKey } = edgeKeys(request, host, tab.id);
-    const cached = await edgeGet(fresh);
+    const cached = !force ? await edgeGet(fresh) : null;
     if (cached) {
       items = cached;
       // 顺手回填 L1，让同 isolate 的下一个请求走零开销路径
@@ -240,11 +241,11 @@ export async function onRequest(context) {
     items,
   }), {
     headers: apiHeaders({
-      // 预览域保持 no-store；正式域开启 Cloudflare CDN 边缘缓存（60s）与后台异步刷新（120s）
-      // 挡掉重复请求，直接节约 80%~95% 的 Pages Functions 免费调用配额
-      "Cache-Control": isPreview
-        ? "no-store"
-        : "public, max-age=10, s-maxage=60, stale-while-revalidate=120",
+      // 预览域或强制刷新保持 no-store；正式域开启 Cloudflare CDN 边缘缓存（1小时）与后台异步刷新（10分钟）
+      // 挡掉重复请求，直接节约 99% 的 Pages Functions 免费调用配额
+      "Cache-Control": (isPreview || force)
+        ? "no-cache, no-store"
+        : "public, max-age=1800, s-maxage=3600, stale-while-revalidate=600",
     }),
   });
 }

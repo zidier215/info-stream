@@ -26,7 +26,7 @@ const OUT = process.argv[3] || join(SRC, "..", "hao-feed.zip");
 
 // 顶层固定收这几个；其余三个目录整棵收；*.mjs 收在根但排除 probe-*
 const TOP = ["index.html", "favicon.svg", "wrangler.toml", "_routes.json", "README.md", ".gitignore"];
-const DIRS = ["assets", "functions", "public"];
+const DIRS = ["assets", "functions", "public", "data"];
 
 const files = [...TOP];
 for (const d of DIRS) {

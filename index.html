@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,6 +27,7 @@
 
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
+
 <body>
   <header class="topbar">
     <div class="brand">
@@ -37,34 +39,6 @@
       </div>
     </div>
     <div class="controls">
-      <!-- 顶栏天气：浏览器直连 IP 定位 + Open-Meteo，不经过 Pages Functions（不占 10 万次/天额度） -->
-      <div class="wx" id="wx">
-        <button type="button" id="wxBtn" class="wx-btn" data-i18n-title="weather" title="天气" aria-haspopup="true" aria-expanded="false">
-          <span id="wxIcon">🌡️</span><span id="wxTemp">--°</span><span id="wxCity" class="wx-city"></span>
-        </button>
-        <div id="wxPop" class="wx-pop" hidden>
-          <div id="wxDetail" class="wx-detail"></div>
-          <div class="wx-form">
-            <input id="wxInput" class="wx-input" type="text" data-i18n-ph="cityPlaceholder" placeholder="输入城市" />
-            <button type="button" id="wxGo" class="wx-mini">→</button>
-          </div>
-          <button type="button" id="wxIp" class="wx-mini wx-ip" data-i18n="myLocation">📍 定位</button>
-        </div>
-      </div>
-      <!-- 视图切换：列表 (形态1) / 网格 (形态4) -->
-      <div class="view-switch" id="viewSwitch" role="group" aria-label="视图模式">
-        <button type="button" id="btnViewList" class="view-btn active" data-view="list" title="形态1：规整线性列表流（高密度单行，15-20条/屏）">📑 列表</button>
-        <button type="button" id="btnViewGrid" class="view-btn" data-view="grid" title="形态4：规整标准化网格卡片（等高棋盘格）">🔲 网格</button>
-      </div>
-      <!-- 排版列数控制：自适应 / 3列 / 4列 / 2列 / 全屏铺满 -->
-      <select id="colSelect" class="col-select" aria-label="排版列数" title="排版列数与自适应选项">
-        <option value="auto">⚡ 自适应</option>
-        <option value="3">3 列</option>
-        <option value="4">4 列</option>
-        <option value="2">2 列</option>
-        <option value="full">全屏铺满</option>
-      </select>
-      <button type="button" id="btnCustomize" class="btn btn-customize" title="定制板块与数据源">⚙️ <span data-i18n="customize">定制</span></button>
       <select id="lang" class="lang" aria-label="语言 / Language"></select>
       <button id="translateBtn" class="btn" data-i18n="translate" style="display:none">🌐 翻译</button>
       <button id="autoBtn" class="btn" data-i18n="autoStart">▶ 自动滚动</button>
@@ -72,17 +46,53 @@
     </div>
   </header>
 
-  <!-- 主站专题站导航：一行链接（portal 模式独有），子站整段 hidden -->
-  <nav id="entries" class="entries" aria-label="专题站" hidden></nav>
-
   <!-- 顶部 Tab：由 app.js 按 __HOST_CONFIG__.tabs 渲染（每个站自己的 tab 组合不同） -->
   <nav id="tabs" class="tabs" aria-label="内容分区" hidden></nav>
+
+  <!-- 主站入口卡片（portal 模式）：跳向 ai / news 子站。只有主站渲染，子站整段 hidden -->
+  <section id="entries" class="entries" hidden></section>
+
+  <!-- 常驻看板：只有主站渲染（reloadWidgets 里 if (!IS_MAIN) return） -->
+  <section class="widgets-wrap" id="widgetsWrap">
+    <h2 class="section-title" data-i18n="widgetsTitle">常驻看板</h2>
+    <div class="widgets">
+      <!-- 天气 -->
+      <div class="widget" id="w-weather">
+        <div class="widget-head">
+          <span class="widget-title" data-i18n="weather">天气</span>
+          <div class="widget-tools">
+            <input id="cityInput" class="mini-input" type="text" data-i18n-ph="cityPlaceholder" placeholder="输入城市" />
+            <button id="cityGo" class="mini-btn">→</button>
+            <button id="geoBtn" class="mini-btn" data-i18n="myLocation" title="我的位置">📍</button>
+          </div>
+        </div>
+        <div class="widget-body" id="weatherBody"></div>
+      </div>
+      <!-- 游戏 -->
+      <div class="widget" id="w-games">
+        <div class="widget-head">
+          <span class="widget-title" data-i18n="games">游戏</span>
+          <button class="mini-btn w-refresh" data-widget="游戏">⟳</button>
+        </div>
+        <div class="widget-body" id="gamesBody"></div>
+      </div>
+      <!-- AI -->
+      <div class="widget" id="w-ai">
+        <div class="widget-head">
+          <span class="widget-title" data-i18n="ai">AI</span>
+          <button class="mini-btn w-refresh" data-widget="AI">⟳</button>
+        </div>
+        <div class="widget-body" id="aiBody"></div>
+      </div>
+    </div>
+  </section>
 
   <!-- 私有工具区：默认隐藏。地址栏带 ?key=你的密钥 才显示（见 README「只给自己用」） -->
   <section class="discover-wrap" id="discoverWrap" hidden>
     <h2 class="section-title" data-i18n="discoverTitle">发现全球免费接口</h2>
     <p class="discover-hint" data-i18n="discoverHint">搜索全球各类免费、无需密钥的公共 API，点击前往。</p>
-    <input id="discoverInput" class="discover-input" type="text" data-i18n-ph="discoverSearch" placeholder="搜索接口，如 weather / 翻译 / 图片 …" />
+    <input id="discoverInput" class="discover-input" type="text" data-i18n-ph="discoverSearch"
+      placeholder="搜索接口，如 weather / 翻译 / 图片 …" />
     <div class="discover-results" id="discoverResults"></div>
   </section>
 
@@ -95,26 +105,21 @@
   </main>
 
   <footer class="foot">
-    <span data-i18n="foot1">数据源：微博/百度/抖音热搜 · Hacker News · Open-Meteo · Epic · Exchangerate/Binance · OpenLigaDB · HuggingFace</span>
+    <span data-i18n="foot1">数据源：微博/百度/抖音热搜 · Hacker News · Open-Meteo · Epic · Exchangerate/Binance · OpenLigaDB ·
+      HuggingFace</span>
     <span data-i18n="foot2">部署于 Cloudflare Pages · 服务端聚合 · 公共接口已限流并校验来源，私有接口需密钥</span>
   </footer>
 
-  <!-- 板块与数据源定制弹窗 -->
-  <div id="customizeModal" class="modal-backdrop" hidden>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-head">
-        <h3 id="modalTitle">⚙️ <span data-i18n="customizeTitle">定制板块与数据源</span></h3>
-        <button type="button" id="modalClose" class="modal-close" aria-label="关闭">&times;</button>
-      </div>
-      <p class="modal-sub" data-i18n="customizeSub">自由勾选需要关注的板块，调整显示顺序，设置自动保存在本地浏览器。</p>
-      <div id="modalModuleList" class="modal-module-list"></div>
-      <div class="modal-foot">
-        <button type="button" id="btnResetConfig" class="btn btn-subtle" data-i18n="resetDefaults">恢复默认</button>
-        <button type="button" id="btnSaveConfig" class="btn btn-primary" data-i18n="saveApply">保存并应用</button>
-      </div>
-    </div>
-  </div>
-
   <script src="assets/app.js"></script>
 </body>
+
+</html>
+<button type="button" id="btnSaveConfig" class="btn btn-primary" data-i18n="saveApply">保存并应用</button>
+</div>
+</div>
+</div>
+
+<script src="assets/app.js"></script>
+</body>
+
 </html>

@@ -26,7 +26,7 @@ probe-*.mjs
 # dumptpl 是 dumptpl 用的模板落盘临时件
 dumptpl-*.html
 
-# ── 系统噪音与本地包 ──
+# ── 系统噪音 ──
 .DS_Store
 Thumbs.db
 *.log

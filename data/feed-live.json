@@ -1,0 +1,181 @@
+{
+  "ok": true,
+  "host": "game.myinfostream.com",
+  "site": "game",
+  "tab": "live",
+  "updated": 1792996889062,
+  "count": 8,
+  "stale": false,
+  "preview": false,
+  "items": [
+    {
+      "category": "游戏·本周",
+      "title": "Home - A Unique Horror Adventure",
+      "url": "https://store.epicgames.com/p/home-19212a",
+      "desc": "Home is a unique horror adventure set in a beautifully-realized pixel world. It’s a murder mystery with a twist – because you decide what ultimately happens.",
+      "img": "https://cdn1.epicgames.com/spt-assets/46fc0cdb9f164a848e916249a8f68fc7/home-1f6qi.png",
+      "meta": "💰 $4.99 · 至 10/29（剩 4 天）",
+      "source": "Epic",
+      "ts": 1792681200000,
+      "lang": "en",
+      "region": "global",
+      "sourceType": "service",
+      "topic": "game",
+      "bucket": "life",
+      "badge": {
+        "k": "live",
+        "price": "$4.99",
+        "date": "10/29",
+        "left": 4,
+        "bundle": []
+      }
+    },
+    {
+      "category": "游戏·本周",
+      "title": "Sker Ritual",
+      "url": "https://store.epicgames.com/p/sker-ritual-aac702",
+      "desc": "The round-based co-op survival FPS and spin-off to the award-winning British horror, Maid of Sker. Play solo or up to 4 players to survive the supernatural onslaught of the Quiet Ones.",
+      "img": "https://cdn1.epicgames.com/spt-assets/43d96f4437e34c87b7eff08831d1b1de/sker-ritual-1tuka.png",
+      "meta": "💰 $24.99 · 至 10/29（剩 4 天）",
+      "source": "Epic",
+      "ts": 1792681200000,
+      "lang": "en",
+      "region": "global",
+      "sourceType": "service",
+      "topic": "game",
+      "bucket": "life",
+      "badge": {
+        "k": "live",
+        "price": "$24.99",
+        "date": "10/29",
+        "left": 4,
+        "bundle": []
+      }
+    },
+    {
+      "category": "游戏·即将",
+      "title": "Sorry We're Closed",
+      "url": "https://store.epicgames.com/p/sorry-were-closed-724c86",
+      "desc": "Sorry We're Closed is a story-driven survival horror game about demons, angels and what happens when both sides collide. A mix of fixed-camera exploration and arcade-style shooting where Michelle must use her Third Eye t",
+      "img": "https://cdn1.epicgames.com/spt-assets/9ab7eaaeb2f041969b350955b789f0f7/sorry-were-closed-1orqh.png",
+      "meta": "🔔 10/29 起免费 · 价值 $24.99",
+      "source": "Epic",
+      "ts": 1793286000000,
+      "lang": "en",
+      "region": "global",
+      "sourceType": "service",
+      "topic": "game",
+      "bucket": "life",
+      "badge": {
+        "k": "soon",
+        "price": "$24.99",
+        "date": "10/29",
+        "bundle": []
+      }
+    },
+    {
+      "category": "游戏·长期",
+      "title": "TerraScape",
+      "url": "https://store.epicgames.com/p/terrascape-2b12b1",
+      "desc": "Build gorgeous kingdoms on floating islands by strategically placing buildings in this cozy, medieval City-Puzzler. Discover secret combinations, take on monthly challenges and explore randomly generated maps in various ",
+      "img": "https://cdn1.epicgames.com/spt-assets/a740a2eed807469f88b9dff17e7cd3a3/terrascape-j7p8d.png",
+      "meta": "♾ 长期免费 · 原价 $16.99",
+      "source": "Epic",
+      "ts": 1791471600000,
+      "lang": "en",
+      "region": "global",
+      "sourceType": "service",
+      "topic": "game",
+      "bucket": "life",
+      "badge": {
+        "k": "perma",
+        "price": "$16.99",
+        "bundle": []
+      }
+    },
+    {
+      "category": "游戏·长期",
+      "title": "Luftrausers",
+      "url": "https://store.epicgames.com/p/luftrausers-51e5e9",
+      "desc": "The skies are aflame and the seas will overflow with wreckage in Vlambeer’s stylish arcade shooter LUFTRAUSERS! Take to the skies in customized fighter planes to battle battleships, submarines, and rival aces for glory, ",
+      "img": "https://cdn1.epicgames.com/spt-assets/85ddeeec9d4243b3a2d78aab87bfae7f/luftrausers-1mxb1.png",
+      "meta": "♾ 长期免费 · 原价 $9.99",
+      "source": "Epic",
+      "ts": 1789052400000,
+      "lang": "en",
+      "region": "global",
+      "sourceType": "service",
+      "topic": "game",
+      "bucket": "life",
+      "badge": {
+        "k": "perma",
+        "price": "$9.99",
+        "bundle": []
+      }
+    },
+    {
+      "category": "游戏·长期",
+      "title": "Lost Castle: The Old Ones Awaken",
+      "url": "https://store.epicgames.com/p/lost-castle-abb2e2",
+      "desc": "The Old Ones Awaken adds new levels to explore, new enemies to defeat, and new bosses to face along with a host exciting new weapons and equipment to wield and wear.",
+      "img": "https://cdn1.epicgames.com/spt-assets/a6d76157ad884f2c9aa470b30da9e2ff/lost-castle-r390n.png",
+      "meta": "♾ 长期免费 · 原价 $3.99",
+      "source": "Epic",
+      "ts": 1707408000000,
+      "lang": "en",
+      "region": "global",
+      "sourceType": "service",
+      "topic": "game",
+      "bucket": "life",
+      "badge": {
+        "k": "perma",
+        "price": "$3.99",
+        "bundle": []
+      }
+    },
+    {
+      "category": "游戏·长期",
+      "title": "Model Builder: Complete Edition",
+      "url": "https://store.epicgames.com/p/model-builder-complete-edition-f9b456",
+      "desc": "Join the latest trend in simulation games, bring out your creativity and make awesome-looking models with the base game and all available DLCs. Assemble, customize and display your creations, whether you’re a veteran or ",
+      "img": "https://cdn1.epicgames.com/spt-assets/7472ec268e344e77a85e95976c0ffc6d/model-builder-1vfgr.png",
+      "meta": "♾ 长期免费 · 原价 $19.99 · 含全部 DLC",
+      "source": "Epic",
+      "ts": 1673888400000,
+      "lang": "en",
+      "region": "global",
+      "sourceType": "service",
+      "topic": "game",
+      "bucket": "life",
+      "badge": {
+        "k": "perma",
+        "price": "$19.99",
+        "bundle": [
+          {
+            "c": "allDlc"
+          }
+        ]
+      }
+    },
+    {
+      "category": "游戏·长期",
+      "title": "Them's Fightin' Herds",
+      "url": "https://store.epicgames.com/p/thems-fightin-herds",
+      "desc": "Mane6 · Them's Fightin' Herds",
+      "img": "https://cdn1.epicgames.com/offer/a567c32599bf4d4fb609e424f3691b39/EGS_ThemsFightinHerds_Mane6Inc_S1_2560x1440-da3a940faafe30c602d3966d2c295825",
+      "meta": "♾ 长期免费 · 原价 $19.99",
+      "source": "Epic",
+      "ts": 1671465600000,
+      "lang": "en",
+      "region": "global",
+      "sourceType": "service",
+      "topic": "game",
+      "bucket": "life",
+      "badge": {
+        "k": "perma",
+        "price": "$19.99",
+        "bundle": []
+      }
+    }
+  ]
+}

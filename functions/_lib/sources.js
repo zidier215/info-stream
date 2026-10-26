@@ -76,37 +76,8 @@ async function weibo(defs) {
 }
 
 async function baidu(defs) {
-  // 1. 优先直连百度官方移动端实时热搜 API（零依赖、免第三方代理、稳定性更高）
   try {
-    const d = await fetchJSON(
-      "https://top.baidu.com/api/board?platform=wise&tab=realtime",
-      { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)" },
-      HTTP_TIMEOUT.default,
-    );
-    const rawList = d?.data?.cards?.[0]?.content || [];
-    const list = (rawList[0]?.content && Array.isArray(rawList[0].content)) ? rawList[0].content : rawList;
-    if (Array.isArray(list) && list.length) {
-      const now = Date.now();
-      return list.filter((x) => x && x.word).map((x) => normalize({
-        category: "境内热搜",
-        title: x.word,
-        url: x.url || ("https://www.baidu.com/s?wd=" + encodeURIComponent(x.word || "")),
-        desc: x.desc || "",
-        img: x.img || "",
-        meta: "🔥 " + (x.hotScore ? String(x.hotScore) : (x.newHotName || x.labelTagName || "")),
-        source: "百度",
-        lang: "zh",
-        ts: now,
-        region: "cn",
-        sourceType: "social",
-        bucket: "cn",
-      }, defs));
-    }
-  } catch { /* 官方接口异常时降级至备份反代 */ }
-
-  // 2. 备用通道：xxapi
-  try {
-    const d = await fetchJSON("https://v2.xxapi.cn/api/baiduhot", {}, HTTP_TIMEOUT.default);
+    const d = await fetchJSON("https://v2.xxapi.cn/api/baiduhot");
     if (!d || d.code !== 200) return [];
     const now = Date.now();
     return (d.data || []).map((x) => normalize({
@@ -119,7 +90,7 @@ async function baidu(defs) {
 
 async function douyin(defs) {
   try {
-    const d = await fetchJSON("https://v2.xxapi.cn/api/douyinhot", {}, HTTP_TIMEOUT.default);
+    const d = await fetchJSON("https://v2.xxapi.cn/api/douyinhot");
     if (!d || d.code !== 200) return [];
     const now = Date.now();
     return (d.data || []).map((x) => normalize({
@@ -130,45 +101,6 @@ async function douyin(defs) {
       region: "cn", sourceType: "social", bucket: "fun",
     }, defs));
   } catch { return []; }
-}
-
-async function bilibili(defs) {
-  try {
-    const d = await fetchJSON(
-      "https://api.bilibili.com/x/web-interface/search/square?limit=30",
-      { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" },
-      HTTP_TIMEOUT.default,
-    );
-    const list = d?.data?.trending?.list || [];
-    if (!Array.isArray(list) || !list.length) return [];
-    const now = Date.now();
-    return list.map((x) => normalize({
-      category: "娱乐",
-      title: x.show_name || x.keyword,
-      url: "https://search.bilibili.com/all?keyword=" + encodeURIComponent(x.keyword || ""),
-      meta: "🔥 " + (x.heat_score ? (x.heat_score > 10000 ? (x.heat_score / 10000).toFixed(0) + "万" : x.heat_score) : ""),
-      source: "B站热搜",
-      lang: "zh",
-      ts: now,
-      region: "cn",
-      sourceType: "social",
-      bucket: "fun",
-    }, defs));
-  } catch { return []; }
-}
-
-async function funCn(defs) {
-  const [dy, b] = await Promise.all([douyin(defs), bilibili(defs)]);
-  if (dy.length && b.length) {
-    const out = [];
-    const max = Math.max(dy.length, b.length);
-    for (let i = 0; i < max; i++) {
-      if (dy[i]) out.push(dy[i]);
-      if (b[i]) out.push(b[i]);
-    }
-    return out;
-  }
-  return dy.length ? dy : b;
 }
 
 // =========================================================================
@@ -224,16 +156,22 @@ async function weather(opts, defs) {
 //   所以这里做成「三家并发竞速 + 3.5 秒截止」，任何一家通就用，通不了就
 //   悄悄丢掉这两张卡，绝不让它拖慢整个简报页。
 const CRYPTO_ENDPOINTS = [
-  { name: "Binance", url: 'https://api.binance.com/api/v3/ticker/price?symbols=%5B%22BTCUSDT%22,%22ETHUSDT%22%5D',
-    pick: (d) => (Array.isArray(d) ? d.map((t) => ({ sym: t.symbol, price: Number(t.price) })) : null) },
-  { name: "Coinbase", url: "https://api.coinbase.com/v2/prices/BTC-USD/spot",
-    pick: (d) => (d?.data?.amount ? [{ sym: "BTCUSDT", price: Number(d.data.amount) }] : null) },
-  { name: "Kraken", url: "https://api.kraken.com/0/public/Ticker?pair=XBTUSD",
+  {
+    name: "Binance", url: 'https://api.binance.com/api/v3/ticker/price?symbols=%5B%22BTCUSDT%22,%22ETHUSDT%22%5D',
+    pick: (d) => (Array.isArray(d) ? d.map((t) => ({ sym: t.symbol, price: Number(t.price) })) : null)
+  },
+  {
+    name: "Coinbase", url: "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+    pick: (d) => (d?.data?.amount ? [{ sym: "BTCUSDT", price: Number(d.data.amount) }] : null)
+  },
+  {
+    name: "Kraken", url: "https://api.kraken.com/0/public/Ticker?pair=XBTUSD",
     pick: (d) => {
       const k = Object.keys(d?.result || {}).find((x) => x.startsWith("XBT"));
       const c = k ? d.result[k]?.c?.[0] : null;
       return c ? [{ sym: "BTCUSDT", price: Number(c) }] : null;
-    } },
+    }
+  },
 ];
 
 const CRYPTO_NAMES = { BTCUSDT: "比特币 BTC", ETHUSDT: "以太坊 ETH" };
@@ -586,7 +524,7 @@ const g = (o) => (opts, defs) => makeGNews({ ...(defs || {}), ...o })().then((it
 // 主站简报：境内热搜（微博+百度，前端再排序取头部）
 const briefCn = async (opts, defs) => {
   const [a, b] = await Promise.all([weibo(defs), baidu(defs)]);
-  return dedupeBy(a.slice(0, 10).concat(b.slice(0, 10)), (x) => x.title);
+  return dedupeBy(a.concat(b), (x) => x.title).slice(0, 12);
 };
 // 主站简报：国际要闻（英 + 西）
 const briefWorld = async (opts, defs) => {
@@ -604,8 +542,8 @@ const briefAi = async (opts, defs) => {
   return a.concat(b);
 };
 const briefLife = async (opts, defs) => {
-  const [m, g2] = await Promise.all([market(opts, defs), games(opts, defs)]);
-  return m.slice(0, 4).concat(g2.slice(0, 4));
+  const [w, m, g2] = await Promise.all([weather(opts, defs), market(opts, defs), games(opts, defs)]);
+  return w.slice(0, 2).concat(m.slice(0, 3), g2.slice(0, 2));
 };
 
 // 主站「国际」Tab 的五语种源，在 NEWS_LANGS 定义之后注册（见下方 news 章节末尾）。
@@ -860,7 +798,7 @@ for (const L of NEWS_LANGS) {
 // =========================================================================
 export const SOURCES = {
   // 境内
-  weibo, baidu, douyin, bilibili,
+  weibo, baidu, douyin,
   // 生活
   weather, market, games, football, hn,
   // AI
@@ -870,7 +808,7 @@ export const SOURCES = {
   "brief-world": briefWorld,
   "brief-ai": briefAi,
   "brief-life": briefLife,
-  "fun-cn": funCn,
+  "fun-cn": douyin,
   "fun-intl": funIntl,
   ...world,
   // AI 站
