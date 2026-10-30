@@ -639,23 +639,39 @@ function renderEntries() {
     `</div>`;
 }
 
+let cardCounter = 0;
+
 // ---------- 卡片 ----------
 function makeCard(it) {
+  cardCounter++;
   const el = document.createElement("article");
   el.className = "card";
-  el.style.setProperty("--accent", CAT_COLOR[it.category] || "#e8743b");
+  el.style.setProperty("--accent", CAT_COLOR[it.category] || "#2563eb");
   const thumb = it.img ? `<div class="thumb" style="background-image:url('${escapeHtml(it.img)}')"></div>` : "";
   const desc = it.desc ? `<p class="desc">${escapeHtml(it.desc)}</p>` : "";
-  // badge 有值就按当前语言重排（Epic），没有才用服务端拼好的 meta 兜底。
-  // meta 里带的价格/截止日也是服务端那一版中文，两者都缺时才退到相对时间。
-  // 徽章在 .meta 里被 -webkit-line-clamp 截到 2 行，所以下面渲染时同时挂 title，
-  // 被截掉的部分还能靠悬停读全——否则「最多两行」这条 CSS 就等于静默丢信息。
   const metaText = gameBadgeMeta(it.badge) || it.meta || agoText(it.ts);
+
+  // 热搜站排名徽章
+  let rankHtml = "";
+  if (HOST.key === "hot") {
+    const rClass = cardCounter === 1 ? "rank-1" : cardCounter === 2 ? "rank-2" : cardCounter === 3 ? "rank-3" : "rank-other";
+    rankHtml = `<span class="badge-rank ${rClass}">#${cardCounter}</span>`;
+  }
+
+  // 游戏站免费领取直达按钮
+  let gameBtn = "";
+  if (HOST.key === "game" && it.url && it.url !== "#") {
+    gameBtn = `<a class="game-claim-btn" href="${escapeHtml(it.url)}" target="_blank" rel="noopener">🎮 去 Epic 免费领取</a>`;
+  }
+
   el.innerHTML = `
     ${thumb}
     <div class="bar"></div>
     <div class="body">
-      <span class="tag">${escapeHtml(catName(it.category))}</span>
+      <div class="card-top-bar">
+        <div class="card-tags">${rankHtml}<span class="tag">${escapeHtml(catName(it.category))}</span></div>
+        ${gameBtn}
+      </div>
       <a class="title" href="${escapeHtml(it.url || "#")}" target="_blank" rel="noopener">${escapeHtml(it.title || "")}</a>
       ${desc}
       <div class="meta"><span>${escapeHtml(it.source || "")}</span><span title="${escapeHtml(metaText)}">${escapeHtml(metaText)}</span></div>
@@ -669,10 +685,10 @@ function makeCard(it) {
   return el;
 }
 
-// 规范化广告卡片：严格遵守 AdSense 政策，明确标注「赞助商广告」，避免与内容混淆
+// 规范化广告卡片：严格遵守 AdSense 政策，明确标注「赞助商广告」，独立于内容卡片
 function makeAdCard() {
-  const el = document.createElement("article");
-  el.className = "card card-ad";
+  const el = document.createElement("aside");
+  el.className = "ad-slot";
   el.innerHTML = `
     <div class="ad-label-bar">
       <span class="ad-badge">赞助商内容 · Ad</span>
@@ -737,7 +753,19 @@ function bootstrapFeed(force) {
     renderMore(24);                 // 立即画 24 张
     return;
   }
-  loadFeed(force);
+  // 首屏 Instant Hydration（0ms 秒开）：服务端已直接内联初始快照
+  if (!force && window.__INITIAL_DATA__ && Array.isArray(window.__INITIAL_DATA__.items) && window.__INITIAL_DATA__.items.length) {
+    const scoped = filterByTabState(window.__INITIAL_DATA__.items, activeTabDef().id);
+    if (scoped.length) {
+      for (const it of scoped) feedSeen.add(feedKey(it));
+      buffer = scoped.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      renderMore(24);
+      // 延迟静默预取第 2 页，平滑接管无限流
+      setTimeout(() => { if (!loading && buffer.length < 12) loadFeed(false, 2); }, 1500);
+      return;
+    }
+  }
+  loadFeed(force, 1);
 }
 
 // ---------- 远端拉取（部署后） ----------
@@ -862,53 +890,54 @@ function fetchFeed(q, force) {
   return promise;
 }
 
-// v2.4：请求从 ?cat=热搜,娱乐 换成 ?tab=brief。tab 的源组合由服务端 hosts.js 决定，
-// 前端只报 tab id。这样加一个 tab 不用碰前端，加一个源不用碰前端。
-async function loadFeed(force) {
+let feedPage = 1;
+
+// v2.4：按 tab + page 连续取数，支持多页无缝加载
+async function loadFeed(force, pageNum) {
   if (loading) return;
-  if (!force && buffer.length >= 24) { setStatus("more"); return; }
+  const wantPage = pageNum || (feedPage + 1);
+  if (!force && buffer.length >= 30) { setStatus("more"); return; }
   loading = true;
   setStatus("loading");
   try {
     const tab = activeTabDef();
     const q = new URLSearchParams();
     q.set("tab", tab.id);
+    q.set("page", String(wantPage));
+    q.set("pageSize", "30");
     // lang 是界面语言，news 站用它决定拉哪个语种的源；srcLang 不传 = 全语种
     q.set("lang", currentLang);
     if (weatherCtx.city) q.set("city", weatherCtx.city);
     if (weatherCtx.lat != null) q.set("lat", String(weatherCtx.lat));
     if (weatherCtx.lon != null) q.set("lon", String(weatherCtx.lon));
     const data = await fetchFeed(q, force);
-    // 后端实时源全部超时时，会回退到 24h 内的旧快照并标 stale=true。
-    // 「有内容但不是最新的」必须说清楚 —— 不提示的话用户会把旧快照当成实时流，
-    // 这比白屏更糟：白屏用户会去刷新，旧快照看起来一切正常。
     if (data.stale) showBanner("stale");
-    else if (bannerKind === "stale") showBanner("");   // 已恢复正常，清掉兜底提示
-    // 拿到整批后先按当前 tab 的口径收窄，再交给去重。顺序不能反 ——
-    // 「本周免费」tab 若先把即将/长期也写进 feedSeen，切到「即将开放」时
-    // 它们会被当成「已经见过了」而被丢掉，两个 tab 互相把对方的数据吃掉。
+    else if (bannerKind === "stale") showBanner("");
     const items = Array.isArray(data.items) ? data.items : [];
     const scoped = filterByTabState(items, activeTabDef().id);
     if (scoped.length) {
-      // 丢掉已经画过的条目（见 feedSeen 注释）。
       const fresh = scoped.filter((it) => {
         const k = feedKey(it);
         if (feedSeen.has(k)) return false;
         feedSeen.add(k);
         return true;
       });
-      // 按时间倒序：新→旧。服务端已经按源分组返回了，直接全局排序会让
-      // 「国际要闻」和「AI 快讯」的时间线交错 —— 这正是简报想要的效果。
-      // ts=0 的排最后，不能当成 1970 年。
-      buffer = buffer.concat(
-        fresh.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0)),
-      );
-      // 整个 tab 都已经见过了 → 这个 tab 暂时没新东西。标记到底，别再空转请求。
-      // 不这么做的话：renderMore 见 buffer<8 就再拉一次，拉回来的全是重复项，
-      // 去重后为空 → 又触发下一轮，形成永不停止的刷新循环。
-      if (!fresh.length) feedExhausted = true;
+      if (fresh.length) {
+        buffer = buffer.concat(
+          fresh.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0)),
+        );
+        feedPage = wantPage;
+      } else if (data.hasMore) {
+        feedPage = wantPage;
+      } else {
+        feedExhausted = true;
+      }
     } else {
-      feedExhausted = true;
+      if (data.hasMore) {
+        feedPage = wantPage;
+      } else {
+        feedExhausted = true;
+      }
     }
   } catch (e) {
     if (isLocal() && !useDemo) {
@@ -919,25 +948,9 @@ async function loadFeed(force) {
     }
   } finally {
     loading = false;
-    // 数据到货但页面还是空的 → 主动画出来。
-    // 踩坑记录（2026-10-22）：v2.4 重构时这里只剩 setStatus，把原来的绘制调用丢了。
-    // 后果是「后端返回 19 条、buffer 有数据、但 #feed 零张卡片」——死锁：
-    // 启动时 IO 触发 pump → renderMore 发现 buffer 空 → 异步 loadFeed 起飞 →
-    // renderMore 循环什么都没画就返回 → loadFeed 回来只塞 buffer 不画 →
-    // sentinel 相交状态没变，IO 不再触发，用户不滚动，scroll 兜底也不跑。
-    // 表面症状是「接口 200 有数据，页面全白」，curl 和接口测试全都测不出来。
-    // 只有渲染路径能画，用 feed.childElementCount===0 精确判断「用户还没看到东西」。
-    //
-    // 第二条（2026-10-22 又踩一次）：不能只看「页面是不是空的」。补货回来后
-    // buffer 里往往还剩几条没画，而把它们逼出来的只有 IO 与 scroll 两个**边沿**触发：
-    //   · IO 只在 sentinel 相交状态「变化」时回调，内容变高但 sentinel 仍在视口内 → 不再触发
-    //   · scroll 兜底有 220ms 节流，用户恰好在节流窗口里停下滚动 → 那一次 pump 被丢掉
-    // 实测：首屏 24 张 → 滚一下变 36 张，buffer 里还剩 3 张，
-    // 之后无论怎么滚都停在 36，底部却写着「✓ 暂时到底」——货在 buffer 里画不出来。
-    // 所以判断标准补一条：底部还露着（nearBottom）就继续画，与 feedExhausted 无关。
     if (buffer.length && (feed.childElementCount === 0 || nearBottom())) {
       renderMore(pumpNeed());
-      return;                       // renderMore 内部会 setStatus
+      return;
     }
     setStatus(loading ? "loading" : buffer.length > 0 ? "more" : "end");
   }
@@ -948,7 +961,7 @@ function renderMore(n) {
   // buffer 空了就补
   if (buffer.length === 0) {
     if (useDemo) loadDemoBatch(20);                              // 演示永远有
-    else if (!feedExhausted) loadFeed();                          // 真实模式按需 fetch
+    else if (!feedExhausted) loadFeed(false, feedPage + 1);       // 真实模式多页 fetch
     else { setStatus("end"); return; }
   }
   const frag = document.createDocumentFragment();
@@ -969,8 +982,10 @@ function renderMore(n) {
 
   // 演示模式：永远别让 buffer 见底
   if (useDemo && buffer.length < 12) loadDemoBatch(20);
-  // 真实模式：buffer 少了就再 fetch
-  if (!useDemo && buffer.length < 8 && !feedExhausted && !loading) loadFeed();
+  // 真实模式：buffer 降至 8 以下自动提前拉取下一页
+  if (!useDemo && buffer.length < 8 && !feedExhausted && !loading) {
+    loadFeed(false, feedPage + 1);
+  }
 
   setStatus(loading ? "loading" : buffer.length > 0 ? "more" : "end");
 }
@@ -978,10 +993,10 @@ function renderMore(n) {
 function resetFeed(force) {
   buffer = [];
   feedCursor = 0;
+  feedPage = 1;
+  cardCounter = 0;
   cardsSinceLastAd = 0;
   feedExhausted = false;
-  // 去重表必须跟着一起清：换 tab 后同名同时间的条目要能重新出现，
-  // 否则新 tab 的首屏会被上一站的 key 误判成「见过」而整批丢掉。
   feedSeen.clear();
   feed.innerHTML = "";
   bootstrapFeed(force);
@@ -1272,7 +1287,7 @@ if (cookieBanner) {
   }
 }
 
-// ---------- 合规四件套模态窗控制器 (Privacy, Terms, About, Contact) ----------
+// ---------- 合规五件套模态窗控制器 (Privacy, Editorial, Terms, About, Contact) ----------
 const policyModal = document.getElementById("policyModal");
 const policyCloseBtn = document.getElementById("policyCloseBtn");
 const policyTabs = document.querySelectorAll(".policy-tab");
@@ -1303,7 +1318,7 @@ function closePolicyModal() {
   if (!policyModal) return;
   policyModal.hidden = true;
   document.body.style.overflow = "";
-  if (["#privacy", "#terms", "#about", "#contact"].includes(location.hash)) {
+  if (["#privacy", "#editorial", "#terms", "#about", "#contact"].includes(location.hash)) {
     try { history.replaceState(null, "", location.pathname + location.search); } catch {}
   }
 }
@@ -1332,12 +1347,102 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// URL 深度链接检测（便于 AdSense 审核团队或用户直达 /#privacy, /#terms, /#about, /#contact）
+// URL 深度链接检测（便于 AdSense 审核团队或用户直达 /#privacy, /#editorial, /#terms, /#about, /#contact）
 function checkPolicyHash() {
   const hash = (location.hash || "").replace(/^#/, "");
-  if (["privacy", "terms", "about", "contact"].includes(hash)) {
+  if (["privacy", "editorial", "terms", "about", "contact"].includes(hash)) {
     openPolicyModal(hash);
   }
 }
 window.addEventListener("hashchange", checkPolicyHash);
 checkPolicyHash();
+
+// ---------------- 可用性强化：主题切换 (Dark/Light Mode) ----------------
+const themeToggleBtn = document.getElementById("themeToggleBtn");
+
+function initTheme() {
+  const saved = localStorage.getItem("theme");
+  const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const theme = saved || (prefersDark ? "dark" : "light");
+  applyTheme(theme);
+}
+
+function applyTheme(theme) {
+  if (theme === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+    if (themeToggleBtn) themeToggleBtn.textContent = "☀️";
+  } else {
+    document.documentElement.setAttribute("data-theme", "light");
+    if (themeToggleBtn) themeToggleBtn.textContent = "🌙";
+  }
+}
+
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme");
+    const next = cur === "dark" ? "light" : "dark";
+    localStorage.setItem("theme", next);
+    applyTheme(next);
+  });
+}
+initTheme();
+
+// ---------------- 可用性强化：信息流即时搜索筛选 (Instant Stream Search) ----------------
+const streamSearch = document.getElementById("streamSearch");
+const clearSearchBtn = document.getElementById("clearSearchBtn");
+const streamStats = document.getElementById("streamStats");
+
+function doStreamFilter() {
+  if (!streamSearch) return;
+  const q = streamSearch.value.trim().toLowerCase();
+  const cards = feed.querySelectorAll(".card");
+  
+  if (!q) {
+    if (clearSearchBtn) clearSearchBtn.hidden = true;
+    if (streamStats) streamStats.hidden = true;
+    cards.forEach((c) => (c.style.display = ""));
+    return;
+  }
+
+  if (clearSearchBtn) clearSearchBtn.hidden = false;
+  let matches = 0;
+  cards.forEach((c) => {
+    const text = c.innerText.toLowerCase();
+    const hit = text.includes(q);
+    c.style.display = hit ? "" : "none";
+    if (hit) matches++;
+  });
+
+  if (streamStats) {
+    streamStats.hidden = false;
+    streamStats.textContent = `${matches} / ${cards.length} 条`;
+  }
+}
+
+if (streamSearch) {
+  streamSearch.addEventListener("input", doStreamFilter);
+}
+if (clearSearchBtn) {
+  clearSearchBtn.addEventListener("click", () => {
+    if (streamSearch) streamSearch.value = "";
+    doStreamFilter();
+    streamSearch?.focus();
+  });
+}
+
+// ---------------- 可用性强化：回到顶部 (Back to Top) ----------------
+const backToTopBtn = document.getElementById("backToTopBtn");
+window.addEventListener("scroll", () => {
+  if (!backToTopBtn) return;
+  if (window.scrollY > 350) {
+    backToTopBtn.hidden = false;
+  } else {
+    backToTopBtn.hidden = true;
+  }
+}, { passive: true });
+
+if (backToTopBtn) {
+  backToTopBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}

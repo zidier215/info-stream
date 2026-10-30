@@ -47,9 +47,34 @@ export async function onRequest(context) {
       changefreq: "hourly",
       priority: "1.0",
     },
+    {
+      loc: `https://${cfg.host}/about`,
+      changefreq: "monthly",
+      priority: "0.5",
+    },
+    {
+      loc: `https://${cfg.host}/privacy`,
+      changefreq: "monthly",
+      priority: "0.5",
+    },
+    {
+      loc: `https://${cfg.host}/editorial`,
+      changefreq: "monthly",
+      priority: "0.5",
+    },
+    {
+      loc: `https://${cfg.host}/contact`,
+      changefreq: "monthly",
+      priority: "0.5",
+    },
+    {
+      loc: `https://${cfg.host}/terms`,
+      changefreq: "monthly",
+      priority: "0.4",
+    },
   ];
 
-  // 主站多列出两个入口子站，让权重能流过去（子站自己也各有一份）
+  // 主站多列出子站入口，让权重能流过去（子站自己也各有一份）
   if (cfg.isMain) {
     for (const s of cfg.siblings || []) {
       urls.push({ loc: `https://${s}/`, changefreq: "hourly", priority: "0.8" });

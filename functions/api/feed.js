@@ -23,6 +23,7 @@
 import { guard, apiHeaders } from "./_guard.js";
 import { resolveHost, HOSTS, MAIN_HOST } from "../_lib/hosts.js";
 import { fetchBySources } from "../_lib/sources.js";
+import { dedupeBy } from "../_lib/util.js";
 
 // 三层缓存，从快到慢：
 //
@@ -201,15 +202,30 @@ export async function onRequest(context) {
       items = await fetchBySources(tab.sources, opts, {
         topic: conf.key === "main" ? "main" : conf.key,
       });
+      // 容灾与内容充实度兜底：若获取到的内容不足（例如上游部分源波动导致条目数 < 35），从内置静态资产快照合并补全
+      if ((!items || items.length < 35) && env && env.ASSETS) {
+        try {
+          const snapReq = new Request(new URL(`/data/feed-${tab.id}.json`, url.origin), { method: "GET" });
+          const snapRes = await env.ASSETS.fetch(snapReq);
+          if (snapRes && snapRes.ok) {
+            const snapData = await snapRes.json();
+            if (snapData && Array.isArray(snapData.items) && snapData.items.length) {
+              if (!items || !items.length) {
+                items = snapData.items;
+                stale = true;
+              } else {
+                items = dedupeBy(items.concat(snapData.items), (x) => x.title);
+              }
+            }
+          }
+        } catch {}
+      }
+
       // 只截断到 limit；sources 里已经各自限过量
-      items = items.slice(0, limit);
-      // 空结果 **不进任何一层缓存**。2026-10-22 实测踩坑：上游 Google News
-      // 偶发超时，抓回来 0 条也照样写缓存，于是接下来 15 秒内这个 tab 一直返回空 ——
-      // 一次偶发失败被放大成一整段用户可见的空白。
+      items = (items || []).slice(0, limit);
+      // 空结果 **不进任何一层缓存**。
       if (items.length) {
         setL1Cache(cacheKey, items);
-        // 两份都写：新鲜的给正常路径，旧快照留作兜底。fire-and-forget，
-        // 不 await —— 缓存写失败不该让用户多等。
         const payload = JSON.stringify({ items });
         edgePut(fresh, payload, EDGE_TTL).catch(() => {});
         edgePut(staleKey, payload, STALE_TTL).catch(() => {});
@@ -231,22 +247,38 @@ export async function onRequest(context) {
     if (blocked) return blocked;
   }
 
+  const page = Math.max(parseInt(url.searchParams.get("page"), 10) || 1, 1);
+  const pageSize = Math.min(
+    Math.max(parseInt(url.searchParams.get("pageSize"), 10) || (url.searchParams.has("page") ? 20 : limit), 1),
+    100,
+  );
+
+  // 截取当前分页
+  const allItems = items || [];
+  const total = allItems.length;
+  const start = (page - 1) * pageSize;
+  const pagedItems = url.searchParams.has("page") ? allItems.slice(start, start + pageSize) : allItems;
+  const hasMore = url.searchParams.has("page") ? (start + pageSize < total) : (total > limit);
+
   return new Response(JSON.stringify({
     ok: true,
     host,
     site: conf.key,
     tab: tab.id,
     updated: Date.now(),
-    count: items.length,
+    page,
+    pageSize,
+    total,
+    hasMore,
+    count: pagedItems.length,
     // stale=true 表示这次没能拿到实时数据，展示的是旧快照。
     // 前端据此在顶部给一条轻提示，而不是假装一切正常。
     stale,
     preview: isPreview,
-    items,
+    items: pagedItems,
   }), {
     headers: apiHeaders({
       // 预览域或强制刷新保持 no-store；正式域开启 Cloudflare CDN 边缘缓存（1小时）与后台异步刷新（10分钟）
-      // 挡掉重复请求，直接节约 99% 的 Pages Functions 免费调用配额
       "Cache-Control": (isPreview || force)
         ? "no-cache, no-store"
         : "public, max-age=1800, s-maxage=3600, stale-while-revalidate=600",

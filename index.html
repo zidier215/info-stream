@@ -22,10 +22,55 @@
   <meta property="og:locale:alt" content="en_US" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="信息河 · InfoStream" />
-  <meta name="twitter:description" content="一条面向全球用户的无限信息河：热搜、娱乐、天气、游戏、市场、足球、AI，多语言、暖心设计。" />
-  <!-- Google AdSense -->
+  <!-- Google Analytics 4 (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JBQYPMLVHR"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-JBQYPMLVHR');
+  </script>
+
+  <!-- Google AdSense 双重验证 (Meta + 异步加载脚本) -->
+  <meta name="google-adsense-account" content="ca-pub-1130777358854864" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1130777358854864"
      crossorigin="anonymous"></script>
+
+  <!-- 现代字体体系与无衬线排版优化 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- E-E-A-T 官方组织结构化数据 (Schema.org JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "信息河 · InfoStream",
+    "url": "https://myinfostream.com/",
+    "description": "全球信息简报：境内热搜、国际要闻、AI 动态、市场天气，一屏看完，不做信息过载。",
+    "publisher": {
+      "@type": "Organization",
+      "name": "信息河",
+      "alternateName": "InfoStream",
+      "url": "https://myinfostream.com/",
+      "logo": "https://myinfostream.com/favicon.svg",
+      "sameAs": [
+        "https://github.com/zidier215",
+        "https://github.com/zidier215/info-stream",
+        "https://calcguide.tech",
+        "https://techminds.cn",
+        "https://zidier215.github.io"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "contact@myinfostream.com",
+        "contactType": "customer service"
+      }
+    }
+  }
+  </script>
 
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
@@ -44,6 +89,7 @@
       <select id="lang" class="lang" aria-label="语言 / Language"></select>
       <button id="translateBtn" class="btn" data-i18n="translate" style="display:none">🌐 翻译</button>
       <button id="autoBtn" class="btn" data-i18n="autoStart">▶ 自动滚动</button>
+      <button id="themeToggleBtn" class="btn btn-icon" title="切换深色/浅色模式" aria-label="切换深色/浅色模式">🌙</button>
       <button id="refreshBtn" class="btn" data-i18n="refresh">⟳ 刷新</button>
       <a href="https://github.com/zidier215/info-stream" target="_blank" rel="noopener" class="github-btn" title="GitHub 源码 · zidier215" aria-label="GitHub 仓库">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
@@ -102,6 +148,14 @@
   </section>
 
   <main>
+    <div class="stream-toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input id="streamSearch" class="search-input" type="search" placeholder="筛选资讯标题或来源 / Filter stream..." aria-label="筛选当前资讯" />
+        <button id="clearSearchBtn" class="clear-search-btn" title="清空筛选" aria-label="清空筛选" hidden>&times;</button>
+      </div>
+      <div class="stream-stats" id="streamStats" hidden></div>
+    </div>
     <section id="feed" class="feed" aria-live="polite"></section>
     <div id="sentinel" class="sentinel">
       <div class="loader"><span></span><span></span><span></span></div>
@@ -111,17 +165,27 @@
 
   <footer class="foot">
     <div class="foot-links">
-      <a href="#about" class="policy-trigger" data-tab="about">关于本站</a>
+      <a href="/about" class="policy-trigger" data-tab="about">关于本站</a>
       <span class="sep">·</span>
-      <a href="#privacy" class="policy-trigger" data-tab="privacy">隐私政策</a>
+      <a href="/editorial" class="policy-trigger" data-tab="editorial">编辑准则</a>
       <span class="sep">·</span>
-      <a href="#terms" class="policy-trigger" data-tab="terms">服务条款</a>
+      <a href="/privacy" class="policy-trigger" data-tab="privacy">隐私政策</a>
       <span class="sep">·</span>
-      <a href="#contact" class="policy-trigger" data-tab="contact">联系我们</a>
+      <a href="/terms" class="policy-trigger" data-tab="terms">服务条款</a>
+      <span class="sep">·</span>
+      <a href="/contact" class="policy-trigger" data-tab="contact">联系我们</a>
       <span class="sep">·</span>
       <a href="https://github.com/zidier215/info-stream" target="_blank" rel="noopener">GitHub 源码</a>
+    </div>
+    <div class="foot-links foot-sister">
+      <span class="foot-label">🌐 生态与姐妹站点 (Sister Publications)：</span>
+      <a href="https://calcguide.tech" target="_blank" rel="noopener">CalcGuide 计算指南</a>
       <span class="sep">·</span>
-      <a href="https://github.com/zidier215" target="_blank" rel="noopener">开发者主页</a>
+      <a href="https://techminds.cn" target="_blank" rel="noopener">TechMinds 科技评测</a>
+      <span class="sep">·</span>
+      <a href="https://zidier215.github.io" target="_blank" rel="noopener">Zidier 开发者工具箱</a>
+      <span class="sep">·</span>
+      <a href="https://github.com/zidier215" target="_blank" rel="noopener">@zidier215</a>
     </div>
     <div class="foot-copy">
       <span data-i18n="foot1">数据源：微博/百度/抖音热搜 · B站 · TechCrunch · GitHub · Epic · Hacker News · 气象/外汇/加密</span>
@@ -145,7 +209,7 @@
     </div>
   </aside>
 
-  <!-- 合规四件套弹窗 (About / Privacy / Terms / Contact) -->
+  <!-- 合规五件套弹窗 (Privacy / Editorial / Terms / About / Contact) -->
   <div id="policyModal" class="policy-modal" hidden role="dialog" aria-modal="true" aria-labelledby="policyModalTitle">
     <div class="policy-backdrop"></div>
     <div class="policy-wrap">
@@ -153,6 +217,7 @@
         <div class="policy-head">
           <div class="policy-tabs" role="tablist">
             <button class="policy-tab is-active" data-tab="privacy" role="tab">隐私政策</button>
+            <button class="policy-tab" data-tab="editorial" role="tab">编辑准则</button>
             <button class="policy-tab" data-tab="terms" role="tab">服务条款</button>
             <button class="policy-tab" data-tab="about" role="tab">关于本站</button>
             <button class="policy-tab" data-tab="contact" role="tab">联系我们</button>
@@ -163,14 +228,14 @@
           <!-- 隐私政策 (含 Google AdSense 强制要求的第三方 Cookie 与广告公示) -->
           <section id="policyTab-privacy" class="policy-pane is-active">
             <h3 id="policyModalTitle">隐私权政策 (Privacy Policy)</h3>
-            <p class="policy-date">更新日期：2026年10月26日 · 生效日期：2026年10月26日</p>
+            <p class="policy-date">更新日期：2026年10月28日 · 生效日期：2026年10月26日 · <a href="/privacy">查看独立页面 ↗</a></p>
             <p>信息河（InfoStream，以下简称“本站”）高度重视用户的隐私保护。本隐私政策旨在向您说明我们如何收集、使用、存储及保护您的信息，以及第三方合作伙伴（包括 Google）在本站的服务规范。</p>
             
             <h4>1. Google AdSense 与第三方 Cookie 说明（核心合规条款）</h4>
             <div class="policy-callout">
               <p>• <strong>第三方广告商</strong>：Google 作为第三方供应商，使用 Cookie 在本网站上投放广告。</p>
               <p>• <strong>个性化广告 Cookie</strong>：Google 对广告 Cookie（包括 DoubleClick Cookie）的使用，使其及其合作伙伴能够根据您对本网站和/或互联网上其他网站的访问记录向您投放个性化广告。</p>
-              <p>• <strong>如何停用个性化广告</strong>：您可以通过访问 <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google 广告设置 (Google Ads Settings)</a> 自由管理或停用个性化广告投放。此外，您也可以访问 <a href="https://www.aboutads.info/" target="_blank" rel="noopener">aboutads.info</a> 停用第三方供应商为投放个性化广告而使用的 Cookie。</p>
+              <p>• <strong>如何停用个性化广告</strong>：您可以通过访问 <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google 广告设置 (Google Ads Settings)</a> 自由管理或停用个性化广告投放。此外，您也可以访问 <a href="https://www.aboutads.info/" target="_blank" rel="noopener">aboutads.info</a> 停用第三方供应商为投放个性化广告而使用的 Cookie。</p>
             </div>
 
             <h4>2. 本站收集的信息与本地存储</h4>
@@ -179,14 +244,31 @@
             <h4>3. 日志与流量统计</h4>
             <p>当您访问本站时，我们的服务器和基础网络提供商（Cloudflare）可能会自动记录标准网络请求日志（如匿名 IP 地址、浏览器类型、引用页面、访问时间等），仅用于防御恶意刷量攻击、统计站点负载和保障网络服务稳定性。</p>
 
-            <h4>4. 数据安全</h4>
-            <p>本站全程采用 HTTPS 加密传输，严格隔离未授权访问，绝不会向任何未经授权的第三方出售、出租或交易用户数据。</p>
+            <h4>4. 数据安全与联系方式</h4>
+            <p>本站全程采用 HTTPS 加密传输，严格隔离未授权访问，绝不会向任何未经授权的第三方出售、出租或交易用户数据。隐私与合规联络邮箱：<a href="mailto:contact@myinfostream.com">contact@myinfostream.com</a>。</p>
+          </section>
+
+          <!-- 编辑准则与内容政策 -->
+          <section id="policyTab-editorial" class="policy-pane" hidden>
+            <h3>编辑准则与内容政策 (Editorial Policy)</h3>
+            <p class="policy-date">信息聚合规范 · 严选信息源 · 坚持溯源与版权归属 · <a href="/editorial">查看独立页面 ↗</a></p>
+            <h4>1. 信息聚合与筛选原则</h4>
+            <p>信息河（InfoStream）作为技术驱动的信息流聚合平台，旨在为公众提供多元、清洁、高质量的新闻资讯与专业情报。我们遵循以下核心编辑与筛选原则：</p>
+            <ul>
+              <li><strong>权威性与一手源</strong>：优先索引主流通讯社、严肃媒体、官方论文发布库（如 ArXiv、Hugging Face）、以及开源官方技术社区（如 GitHub、Hacker News）。</li>
+              <li><strong>反低俗与反垃圾策略 (Anti-Spam)</strong>：部署算法机制自动剔除标题党、低俗广告导流、虚构第一人称体验（Deceptive Experience）及规模化机器洗稿内容。</li>
+              <li><strong>中立与客观</strong>：聚合呈现多元语种与多方视角，不人为干预或倾向性篡改第三方新闻原文立场。</li>
+            </ul>
+            <h4>2. 知识产权与原创归属</h4>
+            <p>所有卡片均显式保留原发布媒体品牌名称（如 Reuters、BBC、百度、微博、Epic），用户点击卡片将直接跳转至原始媒体的完整报道页面，所有正文阅读量与商业权益均归原始网站所有。</p>
+            <h4>3. 纠错与争议处理通道</h4>
+            <p>若收录的资讯存在事实性错误或涉及版权权属争议，请联系编辑部门：<a href="mailto:editorial@myinfostream.com">editorial@myinfostream.com</a> 或官方通用邮箱：<a href="mailto:contact@myinfostream.com">contact@myinfostream.com</a>。</p>
           </section>
 
           <!-- 服务条款与免责声明 -->
           <section id="policyTab-terms" class="policy-pane" hidden>
             <h3>服务条款与免责声明 (Terms of Service)</h3>
-            <p class="policy-date">生效日期：2026年10月26日</p>
+            <p class="policy-date">生效日期：2026年10月26日 · <a href="/terms">查看独立页面 ↗</a></p>
             <h4>1. 服务定位</h4>
             <p>信息河（InfoStream）是由独立开发者搭建的信息聚合与浏览平台，通过公开可用的 RSS、网络开放接口及合规渠道汇聚境内外新闻要闻、科技动态、热搜榜单、气象及开源项目信息，旨在为用户提供高效、清洁、不作信息过载的信息参考。</p>
 
@@ -201,23 +283,35 @@
           <!-- 关于本站 -->
           <section id="policyTab-about" class="policy-pane" hidden>
             <h3>关于信息河 (About InfoStream)</h3>
-            <p><strong>信息河 · InfoStream</strong> 是一条部署在 Cloudflare 全球边缘网络上的多域名信息流平台。我们摒弃了传统导航网站的拥挤与繁杂广告，致力于打造一条“永远往下流、滚动不息”的清洁信息之河。</p>
+            <p class="policy-date">多域名全景与垂直信息聚合平台 · <a href="/about">查看独立页面 ↗</a></p>
+            <p><strong>信息河 · InfoStream</strong>（<code>myinfostream.com</code>）是一条部署在 Cloudflare 全球边缘网络上的多域名信息流平台。我们摒弃了传统导航网站的拥挤与繁杂广告，致力于打造一条“永远往下流、滚动不息”的清洁信息之河。</p>
             <h4>平台特色</h4>
             <ul>
-              <li><strong>多站点垂直聚焦</strong>：主站聚合全景简报，子站点专注 AI 动态、严肃国际新闻、免费游戏与实时热搜。</li>
+              <li><strong>多站点垂直聚焦</strong>：主站聚合全景简报，子站点专注 AI 动态（<code>ai.myinfostream.com</code>）、严肃国际新闻（<code>news.myinfostream.com</code>）、免费游戏（<code>game.myinfostream.com</code>）与实时热搜（<code>hot.myinfostream.com</code>）。</li>
               <li><strong>全球多语言支持</strong>：支持全球 19 种主流语言与特色语种，让来自不同地区的用户都能亲切阅读。</li>
               <li><strong>极速与低碳</strong>：纯原生前端技术构建，无沉重商业追踪脚本，毫秒级响应，节能高效。</li>
+            </ul>
+            <h4>生态网络与姐妹站点 (Network &amp; Sister Publications)</h4>
+            <ul>
+              <li><strong><a href="https://calcguide.tech" target="_blank" rel="noopener">CalcGuide.tech ↗</a></strong>：专业在线计算模型、金融理财与科学分析工具母站（AdSense 官方认证发布商）。</li>
+              <li><strong><a href="https://techminds.cn" target="_blank" rel="noopener">TechMinds ↗</a></strong>：独立开发者硬件、AI 生产力工具与工作台工程实测评测实验室。</li>
+              <li><strong><a href="https://zidier215.github.io" target="_blank" rel="noopener">Zidier Lab &amp; Utilities ↗</a></strong>：开源 Web 开发者工具箱、实验项目与区域文化探索门户。</li>
             </ul>
           </section>
 
           <!-- 联系我们 -->
           <section id="policyTab-contact" class="policy-pane" hidden>
             <h3>联系我们 (Contact Us)</h3>
+            <p class="policy-date">官方客服与事务联络通道 · <a href="/contact">查看独立页面 ↗</a></p>
             <p>我们非常重视用户的意见反馈、版权通知与商业合作洽谈。如果您在使用过程中遇到任何问题或建议，欢迎随时与我们取得联系：</p>
             <div class="contact-card">
               <div class="contact-row">
                 <span class="contact-label">📧 站务与联系邮箱：</span>
-                <a href="mailto:shitou215@hotmail.com" class="contact-value">shitou215@hotmail.com</a>
+                <a href="mailto:contact@myinfostream.com" class="contact-value">contact@myinfostream.com</a>
+              </div>
+              <div class="contact-row">
+                <span class="contact-label">✍️ 编辑部与纠错邮箱：</span>
+                <a href="mailto:editorial@myinfostream.com" class="contact-value">editorial@myinfostream.com</a>
               </div>
               <div class="contact-row">
                 <span class="contact-label">⏱️ 响应时效：</span>
@@ -234,6 +328,7 @@
     </div>
   </div>
 
+  <button id="backToTopBtn" class="back-to-top" title="回到顶部" aria-label="回到顶部" hidden>↑</button>
   <script src="assets/app.js"></script>
 </body>
 

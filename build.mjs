@@ -36,7 +36,21 @@ const OUT = join(ROOT, "public");
 //   于是每次加载页面都要为 app.js / styles.css 各付一次 Pages Functions 调用，
 //   10 万次/天的免费额度被静态文件吃光 —— 正好是 _guard.js 头部
 //   「不做防护会被人当免费 API 白嫖」担心的同一件事，从另一个方向发生。
-const ENTRIES = ["index.html", "assets", "favicon.svg", "_routes.json", "data"];
+const ENTRIES = [
+  "index.html",
+  "assets",
+  "favicon.svg",
+  "_routes.json",
+  "_headers",
+  "ads.txt",
+  "404.html",
+  "about.html",
+  "privacy.html",
+  "contact.html",
+  "editorial.html",
+  "terms.html",
+  "data"
+];
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
@@ -108,3 +122,30 @@ if (leaked.length) {
   process.exit(1);
 }
 console.log("  ✓ 未泄漏源码/测试脚本");
+
+// 自检 3：静态 HTML 内部链接与本地资源完整性校验（0 死链 / 0 坏图）
+{
+  const broken = [];
+  const htmlFiles = readdirSync(OUT).filter((f) => f.endsWith(".html"));
+  for (const hf of htmlFiles) {
+    const content = readFileSync(join(OUT, hf), "utf8");
+    const attrRe = /\b(?:href|src)=["']([^"'#?]+)["']/gi;
+    let m;
+    while ((m = attrRe.exec(content)) !== null) {
+      const ref = m[1].trim();
+      if (!ref || /^(https?:|mailto:|tel:|javascript:|data:)/i.test(ref)) continue;
+      const clean = ref.replace(/^\/+/, "");
+      if (!clean) continue; // "/" 根路径
+      const fullPath = join(OUT, clean);
+      const htmlAlt = join(OUT, `${clean}.html`);
+      if (!existsSync(fullPath) && !existsSync(htmlAlt)) {
+        broken.push(`${hf} -> ${ref}`);
+      }
+    }
+  }
+  if (broken.length) {
+    console.error("✗ 静态 HTML 存在失效内部链接或资源: " + broken.join(", "));
+    process.exit(1);
+  }
+  console.log("  ✓ 内部链接与静态资源 100% 完整可达");
+}

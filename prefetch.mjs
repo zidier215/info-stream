@@ -18,15 +18,31 @@ if (!existsSync(DATA_DIR)) {
 }
 
 const TABS = [
+  // 主站
   { host: "myinfostream.com", tab: "brief", lang: "zh" },
   { host: "myinfostream.com", tab: "world", lang: "zh" },
   { host: "myinfostream.com", tab: "ai", lang: "zh" },
   { host: "myinfostream.com", tab: "fun", lang: "zh" },
+  // AI 站
+  { host: "ai.myinfostream.com", tab: "all", lang: "zh" },
   { host: "ai.myinfostream.com", tab: "models", lang: "zh" },
+  { host: "ai.myinfostream.com", tab: "chips", lang: "zh" },
+  { host: "ai.myinfostream.com", tab: "biz", lang: "zh" },
+  { host: "ai.myinfostream.com", tab: "papers", lang: "zh" },
+  // 国际新闻站
   { host: "news.myinfostream.com", tab: "top", lang: "en" },
+  { host: "news.myinfostream.com", tab: "biz", lang: "en" },
+  { host: "news.myinfostream.com", tab: "tech", lang: "en" },
+  { host: "news.myinfostream.com", tab: "region", lang: "en" },
+  // 游戏站
   { host: "game.myinfostream.com", tab: "live", lang: "zh" },
+  { host: "game.myinfostream.com", tab: "soon", lang: "zh" },
+  { host: "game.myinfostream.com", tab: "perma", lang: "zh" },
+  // 热搜站
   { host: "hot.myinfostream.com", tab: "weibo", lang: "zh" },
+  { host: "hot.myinfostream.com", tab: "baidu", lang: "zh" },
   { host: "hot.myinfostream.com", tab: "bilibili", lang: "zh" },
+  { host: "hot.myinfostream.com", tab: "douyin", lang: "zh" },
 ];
 
 console.log("==> 开始预生成静态数据快照 (方案2)...");
@@ -40,7 +56,7 @@ for (const item of TABS) {
     });
     const res = await Promise.race([
       feed({ request: req, env: {} }),
-      new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 8000)),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 14000)),
     ]);
     const body = await res.json();
     if (body && Array.isArray(body.items) && body.items.length > 0) {

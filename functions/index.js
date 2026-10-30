@@ -30,8 +30,25 @@ export async function onRequest(context) {
   // 「访问 /index.html 拿到未改写的模板」这种 SEO 重复内容漏洞
   if (pathname === "/index.html" || pathname === "/index.htm") pathname = "/";
   if (pathname !== "/" && pathname !== "") {
-    // 带扩展名的（.css/.js/.svg/.png）交给 ASSETS；无扩展名的交给静态 404
-    return env.ASSETS.fetch(request);
+    // 带扩展名或静态子路径交给 ASSETS；未找到的补充 X-Robots-Tag: noindex 并返回 404 页面
+    const assetRes = await env.ASSETS.fetch(request);
+    if (assetRes.status === 404) {
+      let bodyText = "";
+      try {
+        const notFound404 = await env.ASSETS.fetch(new Request(new URL("/404.html", url.origin)));
+        if (notFound404 && notFound404.ok) bodyText = await notFound404.text();
+      } catch {}
+      return new Response(bodyText || "404 Not Found", {
+        status: 404,
+        statusText: "Not Found",
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "X-Robots-Tag": "noindex, nofollow",
+          "Cache-Control": "no-cache, no-store",
+        },
+      });
+    }
+    return assetRes;
   }
 
   const { host, cfg, isPreview } = resolveHost(request);
@@ -43,11 +60,29 @@ export async function onRequest(context) {
   if (!res || !res.ok) return res || new Response("Not Found", { status: 404 });
   const raw = await res.text();
 
+  // 首屏 0ms 秒开：尝试从静态数据快照预取该站首屏 tab 的数据
+  let initialFeed = null;
+  const primaryTab = (conf.tabs && conf.tabs[0] && conf.tabs[0].id) || "brief";
+  const candidateTabs = [primaryTab];
+  if (conf.key === "ai") candidateTabs.push("all", "ai", "models");
+  else if (conf.key === "main") candidateTabs.push("brief");
+  for (const cTab of candidateTabs) {
+    try {
+      const snapReq = new Request(new URL(`/data/feed-${cTab}.json`, url.origin), { method: "GET" });
+      const snapRes = await env.ASSETS.fetch(snapReq);
+      if (snapRes && snapRes.ok) {
+        initialFeed = await snapRes.json();
+        break;
+      }
+    } catch {}
+  }
+
   let html;
   try {
     html = renderHostHTML(raw, conf, {
       canonical: `https://${conf.host}/`,
       isPreview,
+      initialFeed,
     });
   } catch (err) {
     // 改写失败宁可直接发原页面，也不要给用户一个 500 白屏

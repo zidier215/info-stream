@@ -26,6 +26,12 @@ export async function onRequest(context) {
     lines.push("Disallow: /");
   } else {
     lines.push(`# ${cfg.title} / ${cfg.titleEn}`);
+    lines.push("User-agent: Mediapartners-Google");
+    lines.push("Allow: /");
+    lines.push("");
+    lines.push("User-agent: Googlebot");
+    lines.push("Allow: /");
+    lines.push("");
     lines.push("User-agent: *");
     lines.push("Disallow: /api/");       // JSON 接口，无索引价值且暴露结构
     lines.push("Disallow: /*?key=");     // 私有工具的密钥参数，别让爬虫捡走

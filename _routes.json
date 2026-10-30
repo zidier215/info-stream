@@ -16,6 +16,18 @@
     "/*.png",
     "/*.jpg",
     "/*.ico",
-    "/favicon.svg"
+    "/favicon.svg",
+    "/ads.txt",
+    "/404.html",
+    "/about.html",
+    "/privacy.html",
+    "/contact.html",
+    "/editorial.html",
+    "/terms.html",
+    "/about",
+    "/privacy",
+    "/contact",
+    "/editorial",
+    "/terms"
   ]
 }

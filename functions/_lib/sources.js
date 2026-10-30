@@ -620,32 +620,32 @@ async function githubTrending(defs) {
 const g = (o) => (opts, defs) => makeGNews({ ...(defs || {}), ...o })().then((items) =>
   items.map((x) => normalize(x, defs)));
 
-// 主站简报：境内热搜（微博+百度，前端再排序取头部）
+// 主站简报：境内热搜（微博+百度+B站，多源聚合提供丰富热搜流）
 const briefCn = async (opts, defs) => {
   const [a, b, c] = await Promise.all([weibo(defs), baidu(defs), bilibili(defs)]);
-  return dedupeBy(a.concat(b, c), (x) => x.title).slice(0, 15);
+  return dedupeBy(a.concat(b, c), (x) => x.title).slice(0, 30);
 };
 // 主站简报：国际要闻（中 + 英 + 西多语种混合，中文保障可读性，英美保障一手深度）
 const briefWorld = async (opts, defs) => {
   const [zh, en, es] = await Promise.all([
-    g({ lang: "zh", extra: "(国际局势 OR 联合早报 OR 路透 OR 中东 OR 美联储 OR 欧洲 OR 外交部)", strictSource: false, when: "2d", category: "国际要闻", topic: "main", limit: 6, label: "环球要闻" })(opts, defs),
-    g({ lang: "en", sources: GN_SOURCES.en.slice(0, 6), when: "1d", category: "国际要闻", topic: "main", limit: 6, label: "Reuters · BBC · FT" })(opts, defs),
-    g({ lang: "es", extra: "(internacional OR política OR economía)", strictSource: false, when: "2d", category: "国际要闻", topic: "main", limit: 4, label: "El País · EFE" })(opts, defs),
+    g({ lang: "zh", extra: "(国际局势 OR 联合早报 OR 路透 OR 中东 OR 美联储 OR 欧洲 OR 外交部)", strictSource: false, when: "2d", category: "国际要闻", topic: "main", limit: 12, label: "环球要闻" })(opts, defs),
+    g({ lang: "en", sources: GN_SOURCES.en.slice(0, 8), when: "1d", category: "国际要闻", topic: "main", limit: 12, label: "Reuters · BBC · FT" })(opts, defs),
+    g({ lang: "es", extra: "(internacional OR política OR economía)", strictSource: false, when: "2d", category: "国际要闻", topic: "main", limit: 8, label: "El País · EFE" })(opts, defs),
   ]);
   return zh.concat(en, es);
 };
 const briefAi = async (opts, defs) => {
   const [a, b, tc, gh] = await Promise.all([
-    g({ lang: "en", extra: "artificial intelligence OR OpenAI OR Anthropic OR Nvidia", when: "1d", category: "AI 快讯", topic: "main", limit: 6, label: "AI News" })(opts, defs),
-    g({ lang: "en", extra: "AI startup OR AI funding OR \"machine learning\"", when: "2d", category: "AI 商业", topic: "main", limit: 4, label: "AI Business" })(opts, defs),
+    g({ lang: "en", extra: "artificial intelligence OR OpenAI OR Anthropic OR Nvidia", when: "1d", category: "AI 快讯", topic: "main", limit: 10, label: "AI News" })(opts, defs),
+    g({ lang: "en", extra: "AI startup OR AI funding OR \"machine learning\"", when: "2d", category: "AI 商业", topic: "main", limit: 8, label: "AI Business" })(opts, defs),
     techcrunch(defs),
     githubTrending(defs),
   ]);
-  return a.concat(b, tc.slice(0, 3), gh.slice(0, 3));
+  return a.concat(b, tc.slice(0, 6), gh.slice(0, 6));
 };
 const briefLife = async (opts, defs) => {
   const [w, m, g2] = await Promise.all([weather(opts, defs), market(opts, defs), games(opts, defs)]);
-  return w.slice(0, 2).concat(m.slice(0, 3), g2.slice(0, 2));
+  return w.slice(0, 6).concat(m.slice(0, 6), g2.slice(0, 4));
 };
 
 // 主站「国际」Tab 的五语种源，在 NEWS_LANGS 定义之后注册（见下方 news 章节末尾）。

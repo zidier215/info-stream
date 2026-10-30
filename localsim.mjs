@@ -180,8 +180,14 @@ const srv = http.createServer(async (req, res) => {
     res.writeHead(200, { "content-type": MIME[extname(file)] || "application/octet-stream" });
     res.end(buf);
   } catch {
-    res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
-    res.end("404");
+    try {
+      const notFoundBuf = await readFile(join(ROOT, "public", "404.html"));
+      res.writeHead(404, { "content-type": "text/html; charset=utf-8" });
+      res.end(notFoundBuf);
+    } catch {
+      res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+      res.end("404");
+    }
   }
 });
 

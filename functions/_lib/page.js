@@ -109,9 +109,6 @@ export function renderHostHTML(html, hostCfg, opt = {}) {
     host: hostCfg.host,
     title: hostCfg.title,
     titleEn: hostCfg.titleEn,
-    // tagline 随界面语言走：中文站给中文 tagline，英文站给英文。
-    // 非中英界面（ja/fr/ar…）回落到英文 tagline —— 总比让子站显示
-    // 「滚动不息 · 多源聚合」这种主站文案要好。
     tagline: hostCfg.tagline || "",
     taglineEn: hostCfg.taglineEn || hostCfg.tagline || "",
     desc,
@@ -128,6 +125,52 @@ export function renderHostHTML(html, hostCfg, opt = {}) {
     canonical,
   };
   out = out.replace(/<\/head>/i, () => `  ${configScript(cfgPayload)}\n</head>`);
+
+  // E-E-A-T 实体信任：注入官方 WebSite 与 Organization 结构化数据 (JSON-LD)
+  const schemaPayload = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": `${hostCfg.title} · ${hostCfg.titleEn}`,
+    "url": canonical,
+    "description": desc,
+    "publisher": {
+      "@type": "Organization",
+      "name": hostCfg.title,
+      "alternateName": hostCfg.titleEn,
+      "url": canonical,
+      "logo": `https://${hostCfg.host}/favicon.svg`,
+      "sameAs": [
+        "https://github.com/zidier215",
+        "https://github.com/zidier215/info-stream",
+        "https://calcguide.tech",
+        "https://techminds.cn",
+        "https://zidier215.github.io"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "contact@myinfostream.com",
+        "contactType": "customer service"
+      }
+    }
+  };
+  const schemaStr = JSON.stringify(schemaPayload, null, 2)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e");
+  if (/<script type="application\/ld\+json">[\s\S]*?<\/script>/i.test(out)) {
+    out = out.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, `<script type="application/ld+json">\n${schemaStr}\n  </script>`);
+  } else {
+    out = out.replace(/<\/head>/i, () => `  <script type="application/ld+json">\n${schemaStr}\n  </script>\n</head>`);
+  }
+
+  // 首屏 0 毫秒秒开：若服务端取到了静态快照，直接内联注入 window.__INITIAL_DATA__
+  if (opt.initialFeed && Array.isArray(opt.initialFeed.items) && opt.initialFeed.items.length) {
+    const feedJson = JSON.stringify(opt.initialFeed)
+      .replace(/</g, "\\u003c")
+      .replace(/>/g, "\\u003e")
+      .replace(/\u2028/g, "\\u2028")
+      .replace(/\u2029/g, "\\u2029");
+    out = out.replace(/<\/head>/i, () => `  <script>window.__INITIAL_DATA__ = ${feedJson};</script>\n</head>`);
+  }
 
   // 兄弟站点互链（页脚用），也让搜索引擎发现这是同一实体的三个子站
   for (const sib of hostCfg.siblings || []) {
