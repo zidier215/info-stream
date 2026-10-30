@@ -16,7 +16,8 @@
 // 无依赖，纯 node:fs，任何机器上 node build.mjs 都能跑。
 // ---------------------------------------------------------------------------
 
-import { cpSync, mkdirSync, rmSync, existsSync, readdirSync, statSync, readFileSync } from "node:fs";
+import { cpSync, mkdirSync, rmSync, existsSync, readdirSync, statSync, readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -79,6 +80,22 @@ for (const e of ENTRIES) {
     process.exit(1);
   }
   cpSync(src, join(OUT, e), { recursive: true });
+}
+
+// 为 /assets/styles.css 与 /assets/app.js 注入内容哈希 (?v=<hash>)，配合 _headers 的 immutable 强缓存实现构建自动破除旧缓存
+{
+  const cssHash = createHash("sha256").update(readFileSync(join(OUT, "assets/styles.css"))).digest("hex").slice(0, 8);
+  const jsHash = createHash("sha256").update(readFileSync(join(OUT, "assets/app.js"))).digest("hex").slice(0, 8);
+  const htmlFiles = readdirSync(OUT).filter((f) => f.endsWith(".html"));
+  for (const hf of htmlFiles) {
+    const p = join(OUT, hf);
+    let html = readFileSync(p, "utf8");
+    html = html
+      .replace(/(href=["']\/?assets\/styles\.css)(?:\?v=[^"']*)?(["'])/g, `$1?v=${cssHash}$2`)
+      .replace(/(src=["']\/?assets\/app\.js)(?:\?v=[^"']*)?(["'])/g, `$1?v=${jsHash}$2`);
+    writeFileSync(p, html, "utf8");
+  }
+  console.log(`  ✓ 静态资源版本指纹注入: styles.css?v=${cssHash}, app.js?v=${jsHash}`);
 }
 
 walk(OUT);

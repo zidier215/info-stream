@@ -47,35 +47,18 @@ export async function onRequest(context) {
       changefreq: "hourly",
       priority: "1.0",
     },
-    {
-      loc: `https://${cfg.host}/about`,
-      changefreq: "monthly",
-      priority: "0.5",
-    },
-    {
-      loc: `https://${cfg.host}/privacy`,
-      changefreq: "monthly",
-      priority: "0.5",
-    },
-    {
-      loc: `https://${cfg.host}/editorial`,
-      changefreq: "monthly",
-      priority: "0.5",
-    },
-    {
-      loc: `https://${cfg.host}/contact`,
-      changefreq: "monthly",
-      priority: "0.5",
-    },
-    {
-      loc: `https://${cfg.host}/terms`,
-      changefreq: "monthly",
-      priority: "0.4",
-    },
   ];
 
-  // 主站多列出子站入口，让权重能流过去（子站自己也各有一份）
+  // 仅主站收录 5 大合规落地页（其 Canonical 均指向主站 myinfostream.com）及子站入口，
+  // 杜绝子站 Sitemap 收录非本域 Canonical 页面而在 GSC 触发告警
   if (cfg.isMain) {
+    urls.push(
+      { loc: `https://${cfg.host}/about`, changefreq: "monthly", priority: "0.5" },
+      { loc: `https://${cfg.host}/privacy`, changefreq: "monthly", priority: "0.5" },
+      { loc: `https://${cfg.host}/editorial`, changefreq: "monthly", priority: "0.5" },
+      { loc: `https://${cfg.host}/contact`, changefreq: "monthly", priority: "0.5" },
+      { loc: `https://${cfg.host}/terms`, changefreq: "monthly", priority: "0.4" },
+    );
     for (const s of cfg.siblings || []) {
       urls.push({ loc: `https://${s}/`, changefreq: "hourly", priority: "0.8" });
     }

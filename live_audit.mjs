@@ -16,7 +16,7 @@ function curl(url, extra = "") {
   let lastErr = null;
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      const res = execSync(`curl.exe -4 ${proxyFlag} --http1.1 --connect-timeout 15 --max-time 40 --retry 2 -sL ${extra} "${url}"`, {
+      const res = execSync(`curl.exe -4 ${proxyFlag} --http1.1 --connect-timeout 15 --max-time 40 -f -sL ${extra} "${url}"`, {
         encoding: "utf8",
         maxBuffer: 10 * 1024 * 1024,
       });
@@ -117,6 +117,8 @@ ok(sitemap.includes("https://myinfostream.com/"), "sitemap.xml 包含主站根�
 const trustCleanUrls = ["/about", "/privacy", "/editorial", "/contact", "/terms"];
 ok(trustCleanUrls.every((p) => sitemap.includes(p)), "sitemap.xml 收录全部 5 大 Clean URL 落地页");
 ok(!sitemap.includes(".html"), "sitemap.xml 杜绝带 .html 的 308 重定向地址，纯净度 100%");
+const aiSitemap = curl("https://ai.myinfostream.com/sitemap.xml");
+ok(aiSitemap.includes("https://ai.myinfostream.com/") && !aiSitemap.includes("/about"), "子域名 sitemap.xml 仅收录本域 Canonical 根地址，杜绝跨站非 Canonical 冲突");
 
 // 5. 独立 GDPR / Cookie / DoubleClick 隐私政策
 const privacyHtml = curl("https://www.myinfostream.com/privacy");
@@ -173,6 +175,7 @@ ok(mainHtml.includes('id="streamSearch"'), "信息流提供即时搜索与过滤
 ok(mainHtml.includes('id="backToTopBtn"'), "页面具备回到顶部悬浮动作按钮 (Back to Top)");
 ok(mainHtml.includes("G-JBQYPMLVHR"), "主站部署 Google Analytics 4 (GA4) 测量代码 (G-JBQYPMLVHR)");
 ok(curl("https://www.myinfostream.com/about").includes("G-JBQYPMLVHR"), "合规落地页部署 Google Analytics 4 (GA4) 测量代码 (G-JBQYPMLVHR)");
+ok(/styles\.css\?v=[0-9a-f]{8}/.test(mainHtml) && /app\.js\?v=[0-9a-f]{8}/.test(mainHtml), "静态资源 (styles.css / app.js) 注入内容哈希 ?v=<hash> 实现强缓存即时破除");
 
 // ---------------- 第五层：5 大垂直子站专注度与无限流性能 ----------------
 console.log("\n【第五层：5 大站点主题专注度、0ms秒开与无限流性能】");
@@ -192,6 +195,8 @@ for (const s of subs) {
   
   const html = curl(`https://${s.host}/`);
   ok(html.includes("window.__INITIAL_DATA__"), `${s.name} 包含服务端首屏内联快照 (0ms 秒开)`);
+  ok(html.includes('<article class="card"'), `${s.name} 首屏 HTML 直出真实 SSR 资讯卡片（防爬虫空壳/低价值判定）`);
+  ok(html.includes('id="editorialBriefText"'), `${s.name} 首屏包含频道编辑导读 (Editorial Briefing) 原创价值背书`);
   ok(!html.includes("shitou215@"), `${s.name} HTML 首屏已剔除个人私密邮箱`);
 }
 

@@ -80,6 +80,8 @@ const FALLBACK_HOST = {
   title: "信息河",
   titleEn: "InfoStream",
   desc: "",
+  briefing: "频道编辑导读：信息河（InfoStream）聚合全球主流科技、国际新闻、AI 论文与实时热榜。每一条资讯均附带信源溯源与编辑分类，助您在信息过载时代高效获取高价值情报。",
+  briefingEn: "Editorial Briefing: InfoStream curates global technology, world news, AI research papers, and real-time trending topics with source attribution and structured categorization.",
   defaultLang: "zh",
   langs: LANGS.map((l) => l.code),
   tabs: [
@@ -169,6 +171,17 @@ const UI_I18N = {
   bdEdition: { zh: "完全版", "zh-Hant": "完全版", en: "Complete Edition", es: "Edición Completa", fr: "Édition Complète", ja: "コンプリート版", de: "Vollständige Edition", ru: "Полное издание", ar: "الإصدار الكامل", pt: "Edição Completa" },
   bdDeluxe: { zh: "豪华版", "zh-Hant": "豪華版", en: "Deluxe Edition", es: "Edición Deluxe", fr: "Édition Deluxe", ja: "デラックス版", de: "Deluxe-Edition", ru: "Издание Deluxe", ar: "إصدار ديلوكس", pt: "Edição Deluxe" },
   bdBundle: { zh: "捆绑包", "zh-Hant": "捆綁包", en: "Bundle", es: "Paquete", fr: "Pack", ja: "バンドル", de: "Bundle", ru: "Набор", ar: "حزمة", pt: "Pacote" },
+  searchPlaceholder: { zh: "搜索当前流内资讯标题、来源或关键词…", "zh-Hant": "搜尋目前流內資訊標題、來源或關鍵字…", en: "Filter current stream by title, source or keyword…", es: "Filtrar por título, fuente o palabra clave…", fr: "Filtrer par titre, source ou mot-clé…", ja: "タイトル・出典・キーワードで絞り込み…", de: "Nach Titel, Quelle oder Stichwort filtern…", ru: "Фильтр по заголовку, источнику или слову…", ar: "تصفية حسب العنوان أو المصدر أو الكلمة…", pt: "Filtrar por título, fonte ou palavra-chave…" },
+  footAbout: { zh: "关于信息河", "zh-Hant": "關於資訊河", en: "About InfoStream", es: "Acerca de", fr: "À propos", ja: "InfoStreamについて", de: "Über uns", ru: "О проекте", ar: "عن الموقع", pt: "Sobre" },
+  footEditorial: { zh: "编辑准则与聚合说明", "zh-Hant": "編輯準則與聚合說明", en: "Editorial Policy", es: "Política Editorial", fr: "Charte Éditoriale", ja: "編集ガイドライン", de: "Redaktionsrichtlinien", ru: "Редакционная политика", ar: "السياسة التحريرية", pt: "Política Editorial" },
+  footPrivacy: { zh: "隐私与 Cookie 政策", "zh-Hant": "隱私與 Cookie 政策", en: "Privacy & Cookie Policy", es: "Privacidad y Cookies", fr: "Confidentialité & Cookies", ja: "プライバシーとCookie", de: "Datenschutz & Cookies", ru: "Конфиденциальность", ar: "سياسة الخصوصية", pt: "Privacidade e Cookies" },
+  footTerms: { zh: "服务条款与免责声明", "zh-Hant": "服務條款與免責聲明", en: "Terms of Service", es: "Términos de Servicio", fr: "Conditions d'Utilisation", ja: "利用規約・免責事項", de: "Nutzungsbedingungen", ru: "Условия использования", ar: "شروط الخدمة", pt: "Termos de Serviço" },
+  footContact: { zh: "联系与反馈", "zh-Hant": "聯繫與回饋", en: "Contact & Feedback", es: "Contacto", fr: "Contact", ja: "お問い合わせ", de: "Kontakt", ru: "Контакты", ar: "اتصل بنا", pt: "Contato" },
+  footGithub: { zh: "GitHub 开源仓库", "zh-Hant": "GitHub 開源倉庫", en: "GitHub Repository", es: "Repositorio GitHub", fr: "Dépôt GitHub", ja: "GitHub リポジトリ", de: "GitHub-Repository", ru: "Репозиторий GitHub", ar: "مستودع GitHub", pt: "Repositório GitHub" },
+  footSisterLabel: { zh: "旗下与兄弟站点 (Network & Sister Publications)：", "zh-Hant": "旗下與兄弟站點 (Network & Sister Publications)：", en: "Network & Sister Publications:", es: "Publicaciones Hermanas:", fr: "Publications Sœurs :", ja: "姉妹サイト・ネットワーク：", de: "Schwesterpublikationen:", ru: "Проекты сети:", ar: "المواقع الشقيقة:", pt: "Publicações Irmãs:" },
+  cookieText: { zh: "本站使用 Cookie 与本地存储（含 Google AdSense / DoubleClick 广告服务）以保障核心偏好记忆与免费资讯聚合运营。继续浏览即表示您同意我们的", "zh-Hant": "本站使用 Cookie 與本地儲存（含 Google AdSense / DoubleClick 廣告服務）以保障偏好記憶與免費資訊聚合營運。繼續瀏覽即表示您同意我們的", en: "We use cookies and local storage (including Google AdSense / DoubleClick) to remember your preferences and support our free aggregation service. By continuing, you agree to our", es: "Usamos cookies y almacenamiento local (incluido Google AdSense) para recordar tus preferencias. Al continuar, aceptas nuestra", fr: "Nous utilisons des cookies (y compris Google AdSense) pour mémoriser vos préférences. En continuant, vous acceptez notre", ja: "当サイトは設定の保存と無料運営（Google AdSense等）のためにCookieを使用します。閲覧を続けることで、当サイトの", de: "Wir verwenden Cookies (einschließlich Google AdSense), um Ihre Einstellungen zu speichern. Mit der Nutzung stimmen Sie unserer", ru: "Мы используем файлы cookie (включая Google AdSense) для сохранения настроек. Продолжая, вы соглашаетесь с нашей", ar: "نحن نستخدم ملفات تعريف الارتباط (بما في ذلك Google AdSense) لحفظ تفضيلاتك. بالاستمرار، فإنك توافق على", pt: "Usamos cookies (incluindo Google AdSense) para lembrar suas preferências. Ao continuar, você concorda com nossa" },
+  cookiePolicyLink: { zh: "《隐私与 Cookie 政策》", "zh-Hant": "《隱私與 Cookie 政策》", en: "Privacy & Cookie Policy", es: "Política de Privacidad", fr: "Politique de Confidentialité", ja: "プライバシーポリシー", de: "Datenschutzerklärung", ru: "Политикой конфиденциальности", ar: "سياسة الخصوصية", pt: "Política de Privacidade" },
+  cookieAccept: { zh: "同意并继续", "zh-Hant": "同意並繼續", en: "Accept & Continue", es: "Aceptar", fr: "Accepter", ja: "同意して続行", de: "Akzeptieren", ru: "Принять", ar: "موافق", pt: "Aceitar" },
 };
 
 function uiText(key) {
@@ -516,12 +529,20 @@ function applyLang(code) {
   const dict = I18N[code] || I18N.zh;
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const k = el.getAttribute("data-i18n");
-    if (dict[k]) el.textContent = dict[k];
+    const v = dict[k] || (UI_I18N[k] && (UI_I18N[k][code] || UI_I18N[k].en));
+    if (v) el.textContent = v;
   });
   document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
     const k = el.getAttribute("data-i18n-ph");
-    if (dict[k]) el.placeholder = dict[k];
+    const v = dict[k] || (UI_I18N[k] && (UI_I18N[k][code] || UI_I18N[k].en));
+    if (v) el.placeholder = v;
   });
+  const briefEl = document.getElementById("editorialBriefText");
+  if (briefEl) {
+    const cn = code === "zh" || code === "zh-Hant";
+    const bt = (cn ? HOST.briefing : (HOST.briefingEn || HOST.briefing)) || "";
+    if (bt) briefEl.textContent = bt;
+  }
   // 品牌名 + 页面标题（跟随语言切换）
   const bn = brandName(code);
   const bMain = document.querySelector('[data-brand="main"]');
@@ -581,7 +602,10 @@ function buildLangSelect() {
     langSel.appendChild(o);
   }
   langSel.value = currentLang;
-  langSel.addEventListener("change", () => applyLang(langSel.value));
+  langSel.addEventListener("change", () => {
+    try { localStorage.setItem("infostream_lang", langSel.value); } catch {}
+    applyLang(langSel.value);
+  });
 }
 
 // ---------- 顶部 Tab（三个站统一形态） ----------
@@ -686,7 +710,12 @@ function makeCard(it) {
 }
 
 // 规范化广告卡片：严格遵守 AdSense 政策，明确标注「赞助商广告」，独立于内容卡片
+function hasValidAdSlot() {
+  const slot = window.__AD_SLOT_ID__;
+  return typeof slot === "string" && /^\d{10}$/.test(slot);
+}
 function makeAdCard() {
+  const slot = String(window.__AD_SLOT_ID__ || "");
   const el = document.createElement("aside");
   el.className = "ad-slot";
   el.innerHTML = `
@@ -699,7 +728,7 @@ function makeAdCard() {
            data-ad-format="fluid"
            data-ad-layout-key="-fb+5w+4e-db+86"
            data-ad-client="ca-pub-1130777358854864"
-           data-ad-slot="default"></ins>
+           data-ad-slot="${escapeHtml(slot)}"></ins>
     </div>`;
   try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
   return el;
@@ -844,6 +873,16 @@ function fetchFeed(q, force) {
   const m = feedMemo.get(key);
   if (!force && m && Date.now() - m.t < FEED_MEMO_TTL) return m.promise;
 
+  // 0. 首屏服务端内联快照直接复用（避免常驻看板与首屏重复请求 /api/feed?tab=brief）
+  if (!force && window.__INITIAL_DATA__ && Array.isArray(window.__INITIAL_DATA__.items) && window.__INITIAL_DATA__.items.length) {
+    const reqTab = q.get("tab") || (HOST.tabs[0] && HOST.tabs[0].id) || "brief";
+    const reqPage = q.get("page") || "1";
+    const firstTab = (HOST.tabs[0] && HOST.tabs[0].id) || "brief";
+    if (reqTab === firstTab && reqPage === "1" && !q.get("city") && !q.get("lat")) {
+      return Promise.resolve(window.__INITIAL_DATA__);
+    }
+  }
+
   // 1. 尝试读客户端本地 1 小时缓存（秒开，无网络往返）
   if (!force) {
     const cached = getClientFeed(key);
@@ -972,8 +1011,8 @@ function renderMore(n) {
     frag.appendChild(makeCard(buffer.shift()));
     drew++;
     cardsSinceLastAd++;
-    // 每展示 9 张内容卡片后插入一个规范的 AdSense 广告位插槽
-    if (cardsSinceLastAd >= 9 && buffer.length > 0) {
+    // 仅当已配置合法 10 位数字 AdSense Slot ID 时才插入手动信息流广告位（审核期与 Auto Ads 模式下不插空框）
+    if (hasValidAdSlot() && cardsSinceLastAd >= 9 && buffer.length > 0) {
       frag.appendChild(makeAdCard());
       cardsSinceLastAd = 0;
     }
@@ -1253,7 +1292,15 @@ function detectLang() {
   // zh-Hant 的URL 写法有zh-TW / zh-HK / zh-Hant 三种，统一归一
   if (/^zh-(tw|hk|mo|hant)/i.test(want)) want = "zh-Hant";
   if (ok.includes(want)) return want;
-  if (ok.includes(HOST.defaultLang)) return HOST.defaultLang;
+  // 2. 用户在当前浏览器手动选择并持久化的语言偏好
+  try {
+    const saved = localStorage.getItem("infostream_lang") || "";
+    if (ok.includes(saved)) return saved;
+  } catch {}
+  // 3. 特定外语垂直站（如 news 站 defaultLang=en）优先用站点默认语言；综合门户与中文默认站自适应浏览器语言
+  if (HOST.defaultLang && HOST.defaultLang !== "zh" && ok.includes(HOST.defaultLang)) {
+    return HOST.defaultLang;
+  }
   const nav = (navigator.languages && navigator.languages[0]) || navigator.language || "";
   const s = nav.toLowerCase();
   if (/^zh-(tw|hk|mo|hant)/.test(s)) return ok.includes("zh-Hant") ? "zh-Hant" : fallback;

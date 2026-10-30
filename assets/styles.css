@@ -1115,6 +1115,25 @@ main {
   }
 }
 
+/* ---------------- 频道编辑导读 (Editorial Briefing) ---------------- */
+.editorial-brief {
+  max-width: 1120px;
+  margin: 6px auto 14px;
+  padding: 12px 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.editorial-brief p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
 /* ---------------- 交互工具栏与即时检索 (Usability Toolbar) ---------------- */
 .stream-toolbar {
   max-width: 900px;

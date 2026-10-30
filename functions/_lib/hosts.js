@@ -45,6 +45,8 @@ export const HOSTS = {
     // 子站讲「专注」—— 让用户一眼看出这个域名是干什么的。
     tagline: "滚动不息 · 多源聚合 · 全球信息，为你而生",
     taglineEn: "Endless stream · Multi-source · Global info, made for you",
+    briefing: "【编辑导读】信息河主站采用边缘实时聚合架构，每 5 分钟自动巡检全球主流通讯社、科技社区、开源趋势与生活气象接口，经去重与反垃圾过滤后为您呈现零过载的跨语种全景简报。",
+    briefingEn: "Editorial Briefing: InfoStream continuously indexes tier-one global wire services, engineering communities, open-source repositories, and live market/weather telemetry — deduplicated and filtered at the edge for a zero-overload reading experience.",
     defaultLang: "zh",
     langs: ["zh", "zh-Hant", "en", "es", "fr", "ja", "pt", "de", "ru", "ar", "vi", "th", "id", "sw", "ca", "eu", "cy", "gl", "eo"],
     // 主站 = 简报 + 入口，不再把所有类目混成一条瀑布流
@@ -73,6 +75,8 @@ export const HOSTS = {
     descEn: "AI intelligence: model releases, chips, AI applications and funding, daily papers — from first-tier international sources.",
     tagline: "只谈 AI · 大模型 · 算力 · 论文",
     taglineEn: "AI only · Models · Chips · Papers",
+    briefing: "【AI 专题导读】聚焦基础大模型迭代、GPU/ASIC 算力架构、AI 商业投融资及 ArXiv / Hugging Face 每日前沿论文，严选一手技术信源，剔除营销噪音。",
+    briefingEn: "AI Intelligence Briefing: Curated tracking of foundation model releases, semiconductor compute architectures, AI venture funding, and daily ArXiv / Hugging Face research papers from primary technical sources.",
     defaultLang: "zh",
     // 只声明前端真的会渲染的语言。app.js 的 LANGS + I18N 是唯一的「能渲染」定义，
     // 往这里加一个前端没有的码，?lang=xx 会过服务端校验、前端回落中文，
@@ -99,6 +103,8 @@ export const HOSTS = {
     descEn: "World news in five languages — English, Spanish, French, Arabic and Russian, from Reuters, BBC, Le Monde, Al Jazeera, TASS.",
     tagline: "严肃媒体 · 五语种 · 不追热搜",
     taglineEn: "Serious media · Five languages · No clickbait",
+    briefing: "【国际新闻导读】直连英、西、法、阿、俄五语种国际主流通讯社与严肃媒体（Reuters、BBC、Le Monde、Al Jazeera 等），多维交叉呈现全球地缘、财经与科技要闻。",
+    briefingEn: "World News Briefing: Direct multi-lingual aggregation from established international newsrooms across English, Spanish, French, Arabic, and Russian — delivering balanced global geopolitics, economy, and science coverage without clickbait.",
     defaultLang: "en",
     langs: ["en", "es", "fr", "ar", "ru", "zh", "zh-Hant", "pt", "de", "ja"],
     tabs: [
@@ -133,6 +139,8 @@ export const HOSTS = {
     descEn: "Epic Games Store giveaways: live this week, coming soon and kept forever — sorted by claim deadline, with price and expiry at a glance.",
     tagline: "白嫖 Epic · 每周三款 · 别领过期",
     taglineEn: "Free Epic games · Three a week · Don't miss the window",
+    briefing: "【游戏福利导读】实时同步 Epic Games Store 官方限免接口，按「本周可领 · 即将开放 · 长期免费」三态分类，清晰标注原价、DLC 包含情况与领取截止倒计时。",
+    briefingEn: "Free Games Briefing: Real-time tracking of official Epic Games Store giveaways, organized by Live Now, Upcoming, and Free-to-Keep — complete with retail valuation, DLC bundle details, and claim expiration countdowns.",
     defaultLang: "zh",
     // 与 ai 站同一批语言：Epic 的 title/desc 是英文原文，站点形态是中文，
     // 两种都需要。游戏内容本身不随 srcLang 变化，所以不设语言过滤。
@@ -164,6 +172,8 @@ export const HOSTS = {
     descEn: "Live trending from Weibo, Baidu, Bilibili and Douyin — boards side by side, so you can see what the internet is watching right now.",
     tagline: "四榜实时 · 分榜对照 · 不做推荐",
     taglineEn: "Four live boards · Side by side · No recommendations",
+    briefing: "【实时热搜导读】同步汇聚微博、百度、B站与抖音四大平台实时热搜榜单，保留原始热度指标与排名，支持分榜对照与关键词即时检索，客观反映当下公共话题。",
+    briefingEn: "Live Trending Briefing: Side-by-side real-time trending boards from Weibo, Baidu, Bilibili, and Douyin — preserving native heat metrics and rankings with zero algorithmic manipulation.",
     defaultLang: "zh",
     // 热搜内容源全是中文（微博/百度/抖音），界面语言放开但内容恒为中文，
     // 这与 news 站的「内容随 srcLang 变」是两种不同形态。

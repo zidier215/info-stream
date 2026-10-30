@@ -148,10 +148,13 @@
   </section>
 
   <main>
+    <aside id="editorialBrief" class="editorial-brief" aria-label="编辑导读 / Editorial Briefing">
+      <p id="editorialBriefText">【编辑导读】信息河主站采用边缘实时聚合架构，每 5 分钟自动巡检全球主流通讯社、科技社区、开源趋势与生活气象接口，经去重与反垃圾过滤后为您呈现零过载的跨语种全景简报。</p>
+    </aside>
     <div class="stream-toolbar">
       <div class="search-box">
         <span class="search-icon">🔍</span>
-        <input id="streamSearch" class="search-input" type="search" placeholder="筛选资讯标题或来源 / Filter stream..." aria-label="筛选当前资讯" />
+        <input id="streamSearch" class="search-input" type="search" data-i18n-ph="searchPlaceholder" placeholder="筛选资讯标题或来源 / Filter stream..." aria-label="筛选当前资讯" />
         <button id="clearSearchBtn" class="clear-search-btn" title="清空筛选" aria-label="清空筛选" hidden>&times;</button>
       </div>
       <div class="stream-stats" id="streamStats" hidden></div>
@@ -165,25 +168,25 @@
 
   <footer class="foot">
     <div class="foot-links">
-      <a href="/about" class="policy-trigger" data-tab="about">关于本站</a>
+      <a href="/about" class="policy-trigger" data-tab="about" data-i18n="footAbout">关于本站</a>
       <span class="sep">·</span>
-      <a href="/editorial" class="policy-trigger" data-tab="editorial">编辑准则</a>
+      <a href="/editorial" class="policy-trigger" data-tab="editorial" data-i18n="footEditorial">编辑准则</a>
       <span class="sep">·</span>
-      <a href="/privacy" class="policy-trigger" data-tab="privacy">隐私政策</a>
+      <a href="/privacy" class="policy-trigger" data-tab="privacy" data-i18n="footPrivacy">隐私政策</a>
       <span class="sep">·</span>
-      <a href="/terms" class="policy-trigger" data-tab="terms">服务条款</a>
+      <a href="/terms" class="policy-trigger" data-tab="terms" data-i18n="footTerms">服务条款</a>
       <span class="sep">·</span>
-      <a href="/contact" class="policy-trigger" data-tab="contact">联系我们</a>
+      <a href="/contact" class="policy-trigger" data-tab="contact" data-i18n="footContact">联系我们</a>
       <span class="sep">·</span>
-      <a href="https://github.com/zidier215/info-stream" target="_blank" rel="noopener">GitHub 源码</a>
+      <a href="https://github.com/zidier215/info-stream" target="_blank" rel="noopener" data-i18n="footGithub">GitHub 源码</a>
     </div>
     <div class="foot-links foot-sister">
-      <span class="foot-label">🌐 生态与姐妹站点 (Sister Publications)：</span>
-      <a href="https://calcguide.tech" target="_blank" rel="noopener">CalcGuide 计算指南</a>
+      <span class="foot-label" data-i18n="footSisterLabel">🌐 生态与姐妹站点 (Sister Publications)：</span>
+      <a href="https://calcguide.tech" target="_blank" rel="noopener">CalcGuide.tech</a>
       <span class="sep">·</span>
-      <a href="https://techminds.cn" target="_blank" rel="noopener">TechMinds 科技评测</a>
+      <a href="https://techminds.cn" target="_blank" rel="noopener">TechMinds</a>
       <span class="sep">·</span>
-      <a href="https://zidier215.github.io" target="_blank" rel="noopener">Zidier 开发者工具箱</a>
+      <a href="https://zidier215.github.io" target="_blank" rel="noopener">Zidier Lab &amp; Utilities</a>
       <span class="sep">·</span>
       <a href="https://github.com/zidier215" target="_blank" rel="noopener">@zidier215</a>
     </div>
@@ -199,12 +202,12 @@
       <div class="cookie-text">
         <span class="cookie-icon">🍪</span>
         <span>
-          本站使用 Cookies 以优化浏览体验、进行访问统计并支持 Google 投放广告。继续浏览即表示您知悉并同意本站的
-          <a href="#privacy" class="policy-trigger" data-tab="privacy">《隐私政策》</a>。
+          <span data-i18n="cookieText">本站使用 Cookies 以优化浏览体验、进行访问统计并支持 Google 投放广告。继续浏览即表示您知悉并同意本站的</span>
+          <a href="#privacy" class="policy-trigger" data-tab="privacy" data-i18n="cookiePolicyLink">《隐私政策》</a>。
         </span>
       </div>
       <div class="cookie-btns">
-        <button id="cookieAcceptBtn" class="cookie-btn cookie-btn-accept">同意并接受</button>
+        <button id="cookieAcceptBtn" class="cookie-btn cookie-btn-accept" data-i18n="cookieAccept">同意并接受</button>
       </div>
     </div>
   </aside>

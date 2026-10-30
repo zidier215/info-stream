@@ -111,6 +111,8 @@ export function renderHostHTML(html, hostCfg, opt = {}) {
     titleEn: hostCfg.titleEn,
     tagline: hostCfg.tagline || "",
     taglineEn: hostCfg.taglineEn || hostCfg.tagline || "",
+    briefing: hostCfg.briefing || "",
+    briefingEn: hostCfg.briefingEn || hostCfg.briefing || "",
     desc,
     defaultLang: hostCfg.defaultLang,
     langs: hostCfg.langs,
@@ -162,7 +164,24 @@ export function renderHostHTML(html, hostCfg, opt = {}) {
     out = out.replace(/<\/head>/i, () => `  <script type="application/ld+json">\n${schemaStr}\n  </script>\n</head>`);
   }
 
-  // 首屏 0 毫秒秒开：若服务端取到了静态快照，直接内联注入 window.__INITIAL_DATA__
+  // 服务端直出频道编辑导读 (Editorial Briefing)
+  const briefText = en ? (hostCfg.briefingEn || hostCfg.briefing || "") : (hostCfg.briefing || "");
+  if (briefText) {
+    out = out.replace(
+      /<p id="editorialBriefText">[\s\S]*?<\/p>/i,
+      () => `<p id="editorialBriefText">${escapeXml(briefText)}</p>`,
+    );
+  }
+
+  // 子站页脚的 5 大合规链接统一指向主站规范 URL（避免子站产生重复法律页非规范索引）
+  if (!hostCfg.isMain) {
+    for (const p of ["about", "editorial", "privacy", "terms", "contact"]) {
+      const re = new RegExp(`href="/${p}"`, "g");
+      out = out.replace(re, `href="https://myinfostream.com/${p}"`);
+    }
+  }
+
+  // 首屏 0 毫秒秒开 + 服务端 SSR 卡片直出：若服务端取到了静态快照，内联 window.__INITIAL_DATA__ 并在 #feed 直出前 15 张语义化卡片
   if (opt.initialFeed && Array.isArray(opt.initialFeed.items) && opt.initialFeed.items.length) {
     const feedJson = JSON.stringify(opt.initialFeed)
       .replace(/</g, "\\u003c")
@@ -170,6 +189,23 @@ export function renderHostHTML(html, hostCfg, opt = {}) {
       .replace(/\u2028/g, "\\u2028")
       .replace(/\u2029/g, "\\u2029");
     out = out.replace(/<\/head>/i, () => `  <script>window.__INITIAL_DATA__ = ${feedJson};</script>\n</head>`);
+
+    const ssrItems = opt.initialFeed.items.slice(0, 15);
+    const ssrHtml = ssrItems
+      .map((it) => {
+        const titleTxt = escapeXml(it.title || "");
+        const urlTxt = escapeXml(it.url || "#");
+        const catTxt = escapeXml(it.category || "资讯");
+        const srcTxt = escapeXml(it.source || "");
+        const metaTxt = escapeXml(it.meta || "");
+        const descHtml = it.desc ? `<p class="desc">${escapeXml(it.desc)}</p>` : "";
+        return `<article class="card"><div class="bar"></div><div class="body"><div class="card-top-bar"><div class="card-tags"><span class="tag">${catTxt}</span></div></div><a class="title" href="${urlTxt}" target="_blank" rel="noopener">${titleTxt}</a>${descHtml}<div class="meta"><span>${srcTxt}</span><span>${metaTxt}</span></div></div></article>`;
+      })
+      .join("\n      ");
+    out = out.replace(
+      /<section id="feed" class="feed" aria-live="polite"><\/section>/i,
+      () => `<section id="feed" class="feed" aria-live="polite">\n      ${ssrHtml}\n    </section>`,
+    );
   }
 
   // 兄弟站点互链（页脚用），也让搜索引擎发现这是同一实体的三个子站
