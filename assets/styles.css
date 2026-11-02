@@ -1134,6 +1134,16 @@ main {
   color: var(--text-secondary);
 }
 
+.editorial-brief a {
+  color: var(--accent);
+  text-decoration: underline;
+  font-weight: 600;
+  margin-left: 6px;
+}
+.editorial-brief a:hover {
+  filter: brightness(1.2);
+}
+
 /* ---------------- 交互工具栏与即时检索 (Usability Toolbar) ---------------- */
 .stream-toolbar {
   max-width: 900px;

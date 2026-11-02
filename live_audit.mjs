@@ -214,6 +214,21 @@ const p1First = p1.items[0]?.title || "";
 const p2First = p2.items[0]?.title || "";
 ok(p1First !== p2First, "第 1 页与第 2 页内容差异化，真实翻页生效", `P1: [${p1First.slice(0, 16)}] vs P2: [${p2First.slice(0, 16)}]`);
 
+// ---------------- 第六层：AI 论文档案专区与持久化存储体系 ----------------
+console.log("\n【第六层：AI 论文档案专区 (Papers Archive) 与持久化存储】");
+const papersPageHtml = curl("https://ai.myinfostream.com/papers");
+ok(papersPageHtml.includes('rel="canonical" href="https://ai.myinfostream.com/papers"'), "AI 论文档案专区 (/papers) Canonical 正确指向本域落地页");
+ok(papersPageHtml.includes('ca-pub-1130777358854864'), "AI 论文档案落地页正确部署 Google AdSense 账号代码");
+ok(papersPageHtml.includes('id="sparkBars"'), "AI 论文档案落地页包含每日统计动态柱状图容器");
+ok(papersPageHtml.includes('id="timelineList"'), "AI 论文档案落地页包含时间轴流容器");
+
+const papersApiRaw = curl("https://ai.myinfostream.com/api/papers?days=7&pageSize=20");
+const papersApi = JSON.parse(papersApiRaw);
+ok(papersApi.items && papersApi.items.length > 0, "AI 论文档案 API 正常响应 (返回条目数=" + papersApi.items?.length + ")");
+ok(papersApi.total >= 40, "AI 论文档案数据储备充足 (总数=" + papersApi.total + ")");
+ok(Array.isArray(papersApi.daily) && papersApi.daily.length > 0, "AI 论文档案 API 包含每日分布统计指标");
+ok(papersApi.stats && papersApi.stats.sources >= 10, "AI 论文档案信源覆盖丰富 (信源数=" + papersApi.stats?.sources + ")");
+
 console.log("\n=================================================================");
 console.log(`   全景审计汇总: ${pass} 项全绿通过 / ${fail} 项失败`);
 console.log("=================================================================");

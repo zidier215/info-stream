@@ -53,6 +53,7 @@ export async function onRequest(context) {
   // 杜绝子站 Sitemap 收录非本域 Canonical 页面而在 GSC 触发告警
   if (cfg.isMain) {
     urls.push(
+      { loc: `https://${cfg.host}/papers`, changefreq: "daily", priority: "0.8" },
       { loc: `https://${cfg.host}/about`, changefreq: "monthly", priority: "0.5" },
       { loc: `https://${cfg.host}/privacy`, changefreq: "monthly", priority: "0.5" },
       { loc: `https://${cfg.host}/editorial`, changefreq: "monthly", priority: "0.5" },
@@ -62,6 +63,11 @@ export async function onRequest(context) {
     for (const s of cfg.siblings || []) {
       urls.push({ loc: `https://${s}/`, changefreq: "hourly", priority: "0.8" });
     }
+  } else if (cfg.key === "ai") {
+    // AI 垂直站收录专属于本域的 AI 论文档案专区
+    urls.push(
+      { loc: `https://${cfg.host}/papers`, changefreq: "daily", priority: "0.9" },
+    );
   }
 
   const body = urls

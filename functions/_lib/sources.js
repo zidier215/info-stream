@@ -18,6 +18,7 @@
 import { fetchJSON, fetchText, parseRssItems, parseAtomEntries, xmlPick, stripTags, dedupeBy, ago, toTs, withDeadline } from "./util.js";
 import { makeGNews, GN_LANG, GN_SOURCES } from "./gnews.js";
 import { SOURCE_DEADLINE, RETRY_DEADLINE, HTTP_TIMEOUT, SUB_DEADLINE } from "./budget.js";
+import { PAPERS_SEED } from "./papers_seed.js";
 
 // ---------- 通用卡片构造 ----------
 function card(o) {
@@ -484,6 +485,29 @@ async function football(opts, defs) {
 // 3. AI 源
 // =========================================================================
 
+// 精选 AI 论文档案（深度中文精要 + 顶级实验室权威信源，结合 D1 / 本地持久化种子库）
+async function curatedPapers(defs) {
+  try {
+    return PAPERS_SEED.slice(0, 25).map((p) => normalize({
+      category: "AI 论文",
+      title: p.title,
+      desc: p.summary,
+      url: p.url,
+      meta: `📄 ${p.source} · ${p.stamp || ago(p.ts, "zh")}`,
+      source: p.source,
+      lang: "zh",
+      ts: p.ts,
+      region: "global",
+      sourceType: "paper",
+      topic: "ai",
+      bucket: "ai",
+      badge: p.is_starred ? { k: "star" } : null,
+    }, defs));
+  } catch {
+    return [];
+  }
+}
+
 // HuggingFace 每日论文（一手论文源，不经媒体转述）
 async function hfPapers(defs) {
   try {
@@ -942,8 +966,8 @@ export const SOURCES = {
   "ai-biz": aiBiz,
   "ai-intl": aiIntl,
   "ai-papers": async (opts, defs) => {
-    const [a, b] = await Promise.all([hfPapers(defs), arxiv(opts, defs)]);
-    return a.concat(b);
+    const [c, a, b] = await Promise.all([curatedPapers(defs), hfPapers(defs), arxiv(opts, defs)]);
+    return c.concat(a).concat(b);
   },
   // news 站：一个 tab 一个源，语种由 opts.lang 控制（不传则五语种全出）
   "news-top": newsTop,

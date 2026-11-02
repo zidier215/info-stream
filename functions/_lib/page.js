@@ -167,9 +167,10 @@ export function renderHostHTML(html, hostCfg, opt = {}) {
   // 服务端直出频道编辑导读 (Editorial Briefing)
   const briefText = en ? (hostCfg.briefingEn || hostCfg.briefing || "") : (hostCfg.briefing || "");
   if (briefText) {
+    const safeBrief = /<a\s+href=/i.test(briefText) ? briefText : escapeXml(briefText);
     out = out.replace(
       /<p id="editorialBriefText">[\s\S]*?<\/p>/i,
-      () => `<p id="editorialBriefText">${escapeXml(briefText)}</p>`,
+      () => `<p id="editorialBriefText">${safeBrief}</p>`,
     );
   }
 

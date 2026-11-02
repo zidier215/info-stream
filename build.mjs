@@ -50,6 +50,7 @@ const ENTRIES = [
   "contact.html",
   "editorial.html",
   "terms.html",
+  "papers.html",
   "data"
 ];
 
@@ -145,7 +146,9 @@ console.log("  ✓ 未泄漏源码/测试脚本");
   const broken = [];
   const htmlFiles = readdirSync(OUT).filter((f) => f.endsWith(".html"));
   for (const hf of htmlFiles) {
-    const content = readFileSync(join(OUT, hf), "utf8");
+    let content = readFileSync(join(OUT, hf), "utf8");
+    // 剔除 <script> 与 <style> 块，避免将前端 JS 动态拼接的模板字符串误判为静态相对链接
+    content = content.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
     const attrRe = /\b(?:href|src)=["']([^"'#?]+)["']/gi;
     let m;
     while ((m = attrRe.exec(content)) !== null) {

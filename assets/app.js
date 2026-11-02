@@ -541,7 +541,7 @@ function applyLang(code) {
   if (briefEl) {
     const cn = code === "zh" || code === "zh-Hant";
     const bt = (cn ? HOST.briefing : (HOST.briefingEn || HOST.briefing)) || "";
-    if (bt) briefEl.textContent = bt;
+    if (bt) briefEl.innerHTML = bt;
   }
   // 品牌名 + 页面标题（跟随语言切换）
   const bn = brandName(code);
