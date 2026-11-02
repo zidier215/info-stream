@@ -35,25 +35,29 @@ function hasD1(env) {
  * 初始化 D1 表结构
  */
 async function ensureD1Schema(db) {
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS ai_papers (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      orig_title TEXT,
-      url TEXT NOT NULL UNIQUE,
-      summary TEXT,
-      source TEXT NOT NULL,
-      badge_type TEXT DEFAULT 'media',
-      is_starred INTEGER DEFAULT 0,
-      pub_date TEXT NOT NULL,
-      stamp TEXT,
-      ts INTEGER NOT NULL,
-      created_at INTEGER DEFAULT (unixepoch() * 1000)
-    );
-    CREATE INDEX IF NOT EXISTS idx_ai_papers_pub_date ON ai_papers(pub_date);
-    CREATE INDEX IF NOT EXISTS idx_ai_papers_ts ON ai_papers(ts DESC);
-    CREATE INDEX IF NOT EXISTS idx_ai_papers_starred ON ai_papers(is_starred);
-  `);
+  const createTableSql = `CREATE TABLE IF NOT EXISTS ai_papers (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    orig_title TEXT,
+    url TEXT NOT NULL UNIQUE,
+    summary TEXT,
+    source TEXT NOT NULL,
+    badge_type TEXT DEFAULT 'media',
+    is_starred INTEGER DEFAULT 0,
+    pub_date TEXT NOT NULL,
+    stamp TEXT,
+    ts INTEGER NOT NULL,
+    created_at INTEGER DEFAULT 0
+  )`;
+  await db.prepare(createTableSql).run();
+
+  try {
+    await db.prepare(`CREATE INDEX IF NOT EXISTS idx_ai_papers_pub_date ON ai_papers(pub_date)`).run();
+    await db.prepare(`CREATE INDEX IF NOT EXISTS idx_ai_papers_ts ON ai_papers(ts DESC)`).run();
+    await db.prepare(`CREATE INDEX IF NOT EXISTS idx_ai_papers_starred ON ai_papers(is_starred)`).run();
+  } catch (idxErr) {
+    console.warn("Index creation warning:", idxErr);
+  }
 }
 
 /**
@@ -220,115 +224,129 @@ export async function onRequestGet(context) {
  * 支持全自动抓取更新与 D1 数据初始化
  */
 export async function onRequestPost(context) {
-  const { request, env } = context;
-  const url = new URL(request.url);
-  const action = url.searchParams.get("action") || "sync";
+  try {
+    const { request, env } = context;
+    const url = new URL(request.url);
+    const action = url.searchParams.get("action") || "sync";
 
-  // 1. 初始化种子数据到 D1
-  if (action === "init_seed") {
-    if (!hasD1(env)) {
-      return json(400, { error: "D1 database binding 'DB' not found in Cloudflare environment" });
+    // 1. 初始化种子数据到 D1
+    if (action === "init_seed") {
+      if (!hasD1(env)) {
+        return json(400, { error: "D1 database binding 'DB' not found in Cloudflare environment" });
+      }
+      await ensureD1Schema(env.DB);
+
+      const stmts = [];
+      for (const p of PAPERS_SEED) {
+        stmts.push(
+          env.DB.prepare(`
+            INSERT OR IGNORE INTO ai_papers (id, title, orig_title, url, summary, source, badge_type, is_starred, pub_date, stamp, ts, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            p.id,
+            p.title,
+            p.orig_title || "",
+            p.url,
+            p.summary || "",
+            p.source,
+            p.badge_type || "media",
+            p.is_starred ? 1 : 0,
+            p.pub_date,
+            p.stamp || "",
+            p.ts,
+            p.ts
+          )
+        );
+      }
+      // 分批写入，每批最多 25 条，确保完全在 D1 安全限制内
+      const chunkSize = 25;
+      for (let i = 0; i < stmts.length; i += chunkSize) {
+        await env.DB.batch(stmts.slice(i, i + chunkSize));
+      }
+
+      return json(200, { success: true, count: stmts.length, message: "D1 database initialized with seed papers" });
     }
-    await ensureD1Schema(env.DB);
 
-    const stmts = [];
-    for (const p of PAPERS_SEED) {
-      stmts.push(
-        env.DB.prepare(`
-          INSERT OR IGNORE INTO ai_papers (id, title, orig_title, url, summary, source, badge_type, is_starred, pub_date, stamp, ts)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).bind(
-          p.id,
-          p.title,
-          p.orig_title || "",
-          p.url,
-          p.summary || "",
-          p.source,
-          p.badge_type || "media",
-          p.is_starred ? 1 : 0,
-          p.pub_date,
-          p.stamp || "",
-          p.ts
-        )
-      );
-    }
-    // 批量执行
-    await env.DB.batch(stmts);
-    return json(200, { success: true, count: stmts.length, message: "D1 database initialized with seed papers" });
-  }
+    // 2. 全自动从 Hugging Face / arXiv 抓取并持久化新论文
+    if (action === "sync") {
+      if (!hasD1(env)) {
+        return json(400, { error: "D1 database binding 'DB' not configured" });
+      }
+      await ensureD1Schema(env.DB);
 
-  // 2. 全自动从 Hugging Face / arXiv 抓取并持久化新论文
-  if (action === "sync") {
-    if (!hasD1(env)) {
-      return json(400, { error: "D1 database binding 'DB' not configured" });
-    }
-    await ensureD1Schema(env.DB);
+      let inserted = 0;
+      const errors = [];
 
-    let inserted = 0;
-    const errors = [];
+      // 抓取 Hugging Face Daily Papers
+      try {
+        const hfData = await fetchJSON("https://huggingface.co/api/daily_papers?limit=15");
+        if (Array.isArray(hfData)) {
+          for (const item of hfData) {
+            const p = item.paper || {};
+            if (!p.id || !p.title) continue;
+            const paperId = `hf_${p.id}`;
+            const paperUrl = `https://huggingface.co/papers/${p.id}`;
+            const summary = (p.summary || p.abstract || "").replace(/\s+/g, " ").slice(0, 260);
+            const pubDate = (p.publishedAt || "").slice(0, 10) || new Date().toISOString().slice(0, 10);
+            const ts = toTs(p.publishedAt) || Date.now();
+            const stamp = `${pubDate.slice(5)} · Hugging Face`;
 
-    // 抓取 Hugging Face Daily Papers
-    try {
-      const hfData = await fetchJSON("https://huggingface.co/api/daily_papers?limit=15");
-      if (Array.isArray(hfData)) {
-        for (const item of hfData) {
-          const p = item.paper || {};
-          if (!p.id || !p.title) continue;
-          const paperId = `hf_${p.id}`;
-          const paperUrl = `https://huggingface.co/papers/${p.id}`;
-          const summary = (p.summary || p.abstract || "").replace(/\s+/g, " ").slice(0, 260);
-          const pubDate = (p.publishedAt || "").slice(0, 10) || new Date().toISOString().slice(0, 10);
-          const ts = toTs(p.publishedAt) || Date.now();
-          const stamp = `${pubDate.slice(5)} · Hugging Face`;
+            const res = await env.DB.prepare(`
+              INSERT OR IGNORE INTO ai_papers (id, title, orig_title, url, summary, source, badge_type, is_starred, pub_date, stamp, ts, created_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(paperId, p.title, p.title, paperUrl, summary, "Hugging Face", "lab", 0, pubDate, stamp, ts, Date.now()).run();
+
+            if (res?.meta?.changes > 0) inserted++;
+          }
+        }
+      } catch (e) {
+        errors.push("Hugging Face: " + e.message);
+      }
+
+      // 抓取 arXiv cs.AI 最新论文
+      try {
+        const q = "cat:cs.AI+OR+cat:cs.LG";
+        const u = `https://export.arxiv.org/api/query?search_query=${q}&sortBy=submittedDate&sortOrder=descending&max_results=15`;
+        const xml = await fetchText(u, {}, 8000);
+        const blocks = parseAtomEntries(xml);
+        for (const b of blocks) {
+          const title = xmlPick(b, "title").replace(/\s+/g, " ").trim();
+          const rawId = xmlPick(b, "id").trim();
+          const summary = stripTags(xmlPick(b, "summary"), 260);
+          const published = xmlPick(b, "published");
+          if (!title || !rawId) continue;
+          const arxivNum = rawId.split("/abs/").pop() || "";
+          const paperId = `arxiv_${arxivNum || title.slice(0, 16)}`;
+          const pubDate = (published || "").slice(0, 10) || new Date().toISOString().slice(0, 10);
+          const ts = toTs(published) || Date.now();
+          const stamp = `${pubDate.slice(5)} · arXiv`;
 
           const res = await env.DB.prepare(`
-            INSERT OR IGNORE INTO ai_papers (id, title, orig_title, url, summary, source, badge_type, is_starred, pub_date, stamp, ts)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `).bind(paperId, p.title, p.title, paperUrl, summary, "Hugging Face", "lab", 0, pubDate, stamp, ts).run();
+            INSERT OR IGNORE INTO ai_papers (id, title, orig_title, url, summary, source, badge_type, is_starred, pub_date, stamp, ts, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(paperId, title, title, rawId, summary, "arXiv", "lab", 0, pubDate, stamp, ts, Date.now()).run();
 
           if (res?.meta?.changes > 0) inserted++;
         }
+      } catch (e) {
+        errors.push("arXiv: " + e.message);
       }
-    } catch (e) {
-      errors.push("Hugging Face: " + e.message);
+
+      return json(200, {
+        success: true,
+        inserted,
+        errors: errors.length ? errors : undefined,
+        message: `Sync completed, ${inserted} new papers stored into Cloudflare D1`,
+      });
     }
 
-    // 抓取 arXiv cs.AI 最新论文
-    try {
-      const q = "cat:cs.AI+OR+cat:cs.LG";
-      const u = `https://export.arxiv.org/api/query?search_query=${q}&sortBy=submittedDate&sortOrder=descending&max_results=15`;
-      const xml = await fetchText(u, {}, 8000);
-      const blocks = parseAtomEntries(xml);
-      for (const b of blocks) {
-        const title = xmlPick(b, "title").replace(/\s+/g, " ").trim();
-        const rawId = xmlPick(b, "id").trim();
-        const summary = stripTags(xmlPick(b, "summary"), 260);
-        const published = xmlPick(b, "published");
-        if (!title || !rawId) continue;
-        const arxivNum = rawId.split("/abs/").pop() || "";
-        const paperId = `arxiv_${arxivNum || title.slice(0, 16)}`;
-        const pubDate = (published || "").slice(0, 10) || new Date().toISOString().slice(0, 10);
-        const ts = toTs(published) || Date.now();
-        const stamp = `${pubDate.slice(5)} · arXiv`;
-
-        const res = await env.DB.prepare(`
-          INSERT OR IGNORE INTO ai_papers (id, title, orig_title, url, summary, source, badge_type, is_starred, pub_date, stamp, ts)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).bind(paperId, title, title, rawId, summary, "arXiv", "lab", 0, pubDate, stamp, ts).run();
-
-        if (res?.meta?.changes > 0) inserted++;
-      }
-    } catch (e) {
-      errors.push("arXiv: " + e.message);
-    }
-
-    return json(200, {
-      success: true,
-      inserted,
-      errors: errors.length ? errors : undefined,
-      message: `Sync completed, ${inserted} new papers stored into Cloudflare D1`,
+    return json(400, { error: `Unsupported action: ${action}` });
+  } catch (err) {
+    console.error("POST /api/papers error:", err);
+    return json(500, {
+      success: false,
+      error: err.message || String(err),
+      stack: err.stack,
     });
   }
-
-  return json(400, { error: `Unsupported action: ${action}` });
 }

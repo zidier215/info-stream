@@ -19,13 +19,7 @@ pages_build_output_dir = "public"
 # 密钥请在 Cloudflare 控制台配置（Settings → Environment variables），不要写进本文件。
 
 # ---------- Cloudflare D1 边缘数据库绑定（AI 论文档案与持久化存储）----------
-# 控制台配置路径（推荐直接界面绑定，无需在配置文件写死 UUID）：
-# Cloudflare 控制台 -> Workers & Pages -> info-stream -> Settings -> Functions -> D1 database bindings
-# 绑定变量名 (Variable name)：DB
-# 数据库 (Database)：infostream-db
-#
-# 若需通过 wrangler.toml 显式声明，请将下方 database_id 替换为您在控制台创建后的真实 UUID：
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "infostream-db"
-# database_id = "<your-real-d1-uuid>"
+[[d1_databases]]
+binding = "DB"
+database_name = "infostream-db"
+database_id = "ad7cbe3a-2444-4046-971f-2bf5fa06c3a3"

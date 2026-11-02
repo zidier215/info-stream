@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS ai_papers (
   is_starred INTEGER DEFAULT 0,
   pub_date TEXT NOT NULL,
   ts INTEGER NOT NULL,
-  created_at INTEGER DEFAULT (unixepoch() * 1000)
+  created_at INTEGER DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_ai_papers_pub_date ON ai_papers(pub_date);

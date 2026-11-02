@@ -11,10 +11,7 @@ export async function onRequest(context) {
   const url = new URL(request.url);
 
   // 拉取 papers.html 静态模板
-  let tplRes = await env.ASSETS.fetch(new Request(new URL("/papers.html", url.origin)));
-  if (!tplRes.ok) {
-    tplRes = await env.ASSETS.fetch(new Request("https://fake-host/papers.html"));
-  }
+  const tplRes = await env.ASSETS.fetch(new Request(new URL("/papers.html", url.origin)));
   if (!tplRes.ok) {
     return new Response("404 Not Found", { status: 404 });
   }
