@@ -849,9 +849,33 @@ h1 {
         }
         sel.value = currentWeek;
         updateNavButtons();
+        syncUrlAndCanonical(currentWeek);
       }
     } catch (e) {
       console.warn("loadWeeksOverview error:", e);
+    }
+  }
+
+  function syncUrlAndCanonical(week) {
+    if (currentMode === "week" && week) {
+      try {
+        const newUrl = `${window.location.pathname}?week=${week}`;
+        if (window.location.search !== `?week=${week}`) {
+          window.history.replaceState({ week }, "", newUrl);
+        }
+        const canLink = document.querySelector('link[rel="canonical"]');
+        if (canLink) canLink.href = `https://ai.myinfostream.com/papers?week=${week}`;
+        document.title = `AI 论文档案周刊 (${week}) · 深度学术归档 | AI 情报站`;
+      } catch {}
+    } else if (currentMode === "rolling") {
+      try {
+        if (window.location.search) {
+          window.history.replaceState({}, "", window.location.pathname);
+        }
+        const canLink = document.querySelector('link[rel="canonical"]');
+        if (canLink) canLink.href = `https://ai.myinfostream.com/papers`;
+        document.title = `AI 论文档案库 · 深度学术归档 | AI 情报站`;
+      } catch {}
     }
   }
 
@@ -944,6 +968,7 @@ h1 {
       currentMode = "week";
       weekNavArea.style.display = "flex";
       rollingNavArea.style.display = "none";
+      syncUrlAndCanonical(currentWeek);
       loadData();
     });
 
@@ -953,6 +978,7 @@ h1 {
       currentMode = "rolling";
       weekNavArea.style.display = "none";
       rollingNavArea.style.display = "flex";
+      syncUrlAndCanonical();
       loadData();
     });
   }
@@ -962,6 +988,7 @@ h1 {
   if (weekSelect) {
     weekSelect.addEventListener("change", () => {
       currentWeek = weekSelect.value;
+      syncUrlAndCanonical(currentWeek);
       loadData();
     });
   }
@@ -973,6 +1000,7 @@ h1 {
     if (targetIdx >= 0 && targetIdx < availableWeeks.length) {
       currentWeek = availableWeeks[targetIdx].week;
       if (weekSelect) weekSelect.value = currentWeek;
+      syncUrlAndCanonical(currentWeek);
       loadData();
       window.scrollTo({ top: 120, behavior: "smooth" });
     }

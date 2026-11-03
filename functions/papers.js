@@ -20,9 +20,22 @@ export async function onRequest(context) {
   const { cfg } = resolveHost(request);
   const hostCfg = cfg || HOSTS[MAIN_HOST];
 
-  // 按实际访问的主机动态注入 Canonical 规范链接
-  const canonicalUrl = `https://${hostCfg.host}/papers`;
+  const weekParam = url.searchParams.get("week");
+  const isWeek = weekParam && /^2026-W\d{2}$/.test(weekParam);
+
+  // 按实际访问的主机与周次动态注入 Canonical 规范链接
+  const canonicalUrl = isWeek
+    ? `https://${hostCfg.host}/papers?week=${weekParam}`
+    : `https://${hostCfg.host}/papers`;
   html = html.replace(/<link rel="canonical" href="[^"]*"/i, `<link rel="canonical" href="${canonicalUrl}"`);
+
+  // 若带特定周次，动态优化 title 与 meta 描述，赋能 Googlebot 精准索引
+  if (isWeek) {
+    const weekTitle = `AI 论文档案周刊 (${weekParam}) · 深度学术归档 | ${hostCfg.title}`;
+    html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${weekTitle}</title>`);
+    const weekDesc = `AI 论文档案库 ${weekParam} 周刊收录本周前沿大模型、强化学习与智能体架构论文，提供一手 ArXiv / Hugging Face 解读、实验指标与每日分布走势。`;
+    html = html.replace(/<meta name="description" content="[^"]*"/i, `<meta name="description" content="${weekDesc}"`);
+  }
 
   return new Response(html, {
     status: 200,

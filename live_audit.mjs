@@ -119,6 +119,8 @@ ok(trustCleanUrls.every((p) => sitemap.includes(p)), "sitemap.xml 收录全部 5
 ok(!sitemap.includes(".html"), "sitemap.xml 杜绝带 .html 的 308 重定向地址，纯净度 100%");
 const aiSitemap = curl("https://ai.myinfostream.com/sitemap.xml");
 ok(aiSitemap.includes("https://ai.myinfostream.com/") && !aiSitemap.includes("/about"), "子域名 sitemap.xml 仅收录本域 Canonical 根地址，杜绝跨站非 Canonical 冲突");
+ok(aiSitemap.includes("https://ai.myinfostream.com/papers"), "AI 子域 sitemap.xml 完整收录 AI 论文档案专区落地页");
+ok(aiSitemap.includes("https://ai.myinfostream.com/papers?week=2026-W44"), "AI 子域 sitemap.xml 完整收录 2026 全年周刊归档 URL (?week=2026-W44)");
 
 // 5. 独立 GDPR / Cookie / DoubleClick 隐私政策
 const privacyHtml = curl("https://www.myinfostream.com/privacy");

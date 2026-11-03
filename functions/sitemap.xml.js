@@ -15,6 +15,7 @@
 // ---------------------------------------------------------------------------
 
 import { resolveHost, HOSTS, MAIN_HOST } from "./_lib/hosts.js";
+import { getWeekDateRange } from "./api/papers.js";
 
 function esc(s) {
   return String(s == null ? "" : s)
@@ -46,6 +47,7 @@ export async function onRequest(context) {
       loc: `https://${cfg.host}/`,
       changefreq: "hourly",
       priority: "1.0",
+      lastmod: now,
     },
   ];
 
@@ -53,21 +55,62 @@ export async function onRequest(context) {
   // 杜绝子站 Sitemap 收录非本域 Canonical 页面而在 GSC 触发告警
   if (cfg.isMain) {
     urls.push(
-      { loc: `https://${cfg.host}/papers`, changefreq: "daily", priority: "0.8" },
-      { loc: `https://${cfg.host}/about`, changefreq: "monthly", priority: "0.5" },
-      { loc: `https://${cfg.host}/privacy`, changefreq: "monthly", priority: "0.5" },
-      { loc: `https://${cfg.host}/editorial`, changefreq: "monthly", priority: "0.5" },
-      { loc: `https://${cfg.host}/contact`, changefreq: "monthly", priority: "0.5" },
-      { loc: `https://${cfg.host}/terms`, changefreq: "monthly", priority: "0.4" },
+      { loc: `https://${cfg.host}/about`, changefreq: "monthly", priority: "0.5", lastmod: now },
+      { loc: `https://${cfg.host}/privacy`, changefreq: "monthly", priority: "0.5", lastmod: now },
+      { loc: `https://${cfg.host}/editorial`, changefreq: "monthly", priority: "0.5", lastmod: now },
+      { loc: `https://${cfg.host}/contact`, changefreq: "monthly", priority: "0.5", lastmod: now },
+      { loc: `https://${cfg.host}/terms`, changefreq: "monthly", priority: "0.4", lastmod: now },
     );
     for (const s of cfg.siblings || []) {
-      urls.push({ loc: `https://${s}/`, changefreq: "hourly", priority: "0.8" });
+      urls.push({ loc: `https://${s}/`, changefreq: "hourly", priority: "0.8", lastmod: now });
     }
   } else if (cfg.key === "ai") {
-    // AI 垂直站收录专属于本域的 AI 论文档案专区
+    // AI 垂直站收录专属于本域的 AI 论文档案专区首页与 2026 全年周刊档案 (W01-W44)
     urls.push(
-      { loc: `https://${cfg.host}/papers`, changefreq: "daily", priority: "0.9" },
+      { loc: `https://${cfg.host}/papers`, changefreq: "daily", priority: "0.9", lastmod: now },
     );
+
+    // 查询 D1 数据库获取全部已收录周次；若环境无 D1 则回落到 2026-W01~W44 预设周
+    let d1Weeks = [];
+    if (env && env.DB && typeof env.DB.prepare === "function") {
+      try {
+        const rows = await env.DB.prepare(`
+          SELECT year_week, max(pub_date) as last_date 
+          FROM ai_papers 
+          WHERE year_week IS NOT NULL AND year_week != ''
+          GROUP BY year_week 
+          ORDER BY year_week DESC
+        `).all();
+        if (rows?.results?.length) {
+          d1Weeks = rows.results;
+        }
+      } catch (e) {
+        console.warn("sitemap D1 query fallback:", e.message);
+      }
+    }
+
+    if (d1Weeks.length) {
+      for (const r of d1Weeks) {
+        urls.push({
+          loc: `https://${cfg.host}/papers?week=${r.year_week}`,
+          lastmod: r.last_date || now,
+          changefreq: r.year_week === "2026-W44" ? "daily" : "monthly",
+          priority: r.year_week === "2026-W44" ? "0.8" : "0.7",
+        });
+      }
+    } else {
+      // 种子/兜底生成 2026-W44 至 2026-W01
+      for (let w = 44; w >= 1; w--) {
+        const yw = `2026-W${String(w).padStart(2, "0")}`;
+        const range = getWeekDateRange(yw);
+        urls.push({
+          loc: `https://${cfg.host}/papers?week=${yw}`,
+          lastmod: range.endDate || now,
+          changefreq: w === 44 ? "daily" : "monthly",
+          priority: w === 44 ? "0.8" : "0.7",
+        });
+      }
+    }
   }
 
   const body = urls
@@ -75,7 +118,7 @@ export async function onRequest(context) {
       [
         "  <url>",
         `    <loc>${esc(u.loc)}</loc>`,
-        `    <lastmod>${now}</lastmod>`,
+        `    <lastmod>${u.lastmod || now}</lastmod>`,
         `    <changefreq>${u.changefreq}</changefreq>`,
         `    <priority>${u.priority}</priority>`,
         "  </url>",
