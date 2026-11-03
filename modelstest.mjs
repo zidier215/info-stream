@@ -144,3 +144,4 @@ await testAsync("带机构参数时 Canonical 自引用与标题定制", async (
 
 console.log(`\n全部通过: ${pass} 项成功 / ${fail} 项失败`);
 if (fail > 0) process.exit(1);
+

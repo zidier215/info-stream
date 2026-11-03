@@ -13,6 +13,8 @@
     "/games/*",
     "/models",
     "/models/*",
+    "/trends",
+    "/trends/*",
     "/api/*"
   ],
   "exclude": [

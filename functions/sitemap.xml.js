@@ -143,6 +143,27 @@ export async function onRequest(context) {
         lastmod: now,
       });
     }
+  } else if (cfg.key === "hot") {
+    // 热搜站收录专属的互联网破圈大事件历史通鉴与历年年鉴 (2020-2026) 及分类专区
+    urls.push(
+      { loc: `https://${cfg.host}/history`, changefreq: "daily", priority: "0.9", lastmod: now },
+    );
+    for (let hy = 2026; hy >= 2020; hy--) {
+      urls.push({
+        loc: `https://${cfg.host}/history?year=${hy}`,
+        changefreq: hy === 2026 ? "daily" : "monthly",
+        priority: hy === 2026 ? "0.8" : "0.7",
+        lastmod: now,
+      });
+    }
+    for (const cat of ["tech", "sports", "society", "ent", "biz"]) {
+      urls.push({
+        loc: `https://${cfg.host}/history?category=${cat}`,
+        changefreq: "weekly",
+        priority: "0.8",
+        lastmod: now,
+      });
+    }
   }
 
   const body = urls

@@ -172,8 +172,8 @@ export const HOSTS = {
     descEn: "Live trending from Weibo, Baidu, Bilibili and Douyin — boards side by side, so you can see what the internet is watching right now.",
     tagline: "四榜实时 · 分榜对照 · 不做推荐",
     taglineEn: "Four live boards · Side by side · No recommendations",
-    briefing: "【实时热搜导读】同步汇聚微博、百度、B站与抖音四大平台实时热搜榜单，保留原始热度指标与排名，支持分榜对照与关键词即时检索，客观反映当下公共话题。",
-    briefingEn: "Live Trending Briefing: Side-by-side real-time trending boards from Weibo, Baidu, Bilibili, and Douyin — preserving native heat metrics and rankings with zero algorithmic manipulation.",
+    briefing: "【实时热搜导读】同步汇聚微博、百度、B站与抖音四大平台实时热搜榜单，保留原始热度指标与排名，客观反映当下公共话题；支持前往 <a href=\"/history\">历史大事件通鉴</a> 回顾 2020-2026 破圈大事件与历史上的今天。",
+    briefingEn: "Live Trending Briefing: Side-by-side real-time trending boards from Weibo, Baidu, Bilibili, and Douyin with native heat metrics. Visit our <a href=\"/history\">Trending Events Almanac</a> to explore 2020-2026 viral milestones and On This Day in history.",
     defaultLang: "zh",
     // 热搜内容源全是中文（微博/百度/抖音），界面语言放开但内容恒为中文，
     // 这与 news 站的「内容随 srcLang 变」是两种不同形态。

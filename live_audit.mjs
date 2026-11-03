@@ -299,6 +299,36 @@ ok(aiSitemapModels.includes("https://ai.myinfostream.com/models"), "AI 子域 si
 ok(aiSitemapModels.includes("https://ai.myinfostream.com/models?year=2024"), "AI 子域 sitemap.xml 完整收录模型历年年份索引 URL");
 ok(aiSitemapModels.includes("https://ai.myinfostream.com/models?org=DeepSeek"), "AI 子域 sitemap.xml 完整收录模型厂商索引 URL");
 
+// ---------------- 第九层：互联网破圈大事件历史通鉴与 D1 边缘存储 ----------------
+console.log("\n【第九层：互联网破圈大事件历史通鉴 (Hot Events Almanac) 与 D1 边缘存储】");
+const trendsPageHtml = curl("https://hot.myinfostream.com/history");
+ok(trendsPageHtml.includes('rel="canonical" href="https://hot.myinfostream.com/history"'), "热搜大事件通鉴 (/history) Canonical 正确指向本域落地页");
+ok(trendsPageHtml.includes('ca-pub-1130777358854864'), "热搜大事件通鉴落地页正确部署 Google AdSense 账号代码");
+ok(trendsPageHtml.includes('G-JBQYPMLVHR'), "热搜大事件通鉴落地页正确部署 GA4 测量代码");
+ok(trendsPageHtml.includes('id="statEvents"'), "热搜大事件通鉴落地页包含收录大事件数看板 (id=statEvents)");
+ok(trendsPageHtml.includes('id="statEpoch"'), "热搜大事件通鉴落地页包含时代历史印记看板 (id=statEpoch)");
+ok(trendsPageHtml.includes('id="sparkBars"'), "热搜大事件通鉴落地页包含历年分布走势柱状图容器 (id=sparkBars)");
+ok(trendsPageHtml.includes('id="eventsList"'), "热搜大事件通鉴落地页包含精美大事件卡片流容器 (id=eventsList)");
+
+const trendsApiOverviewRaw = curl("https://hot.myinfostream.com/api/trends?overview=1");
+const trendsApiOverview = JSON.parse(trendsApiOverviewRaw);
+ok(trendsApiOverview.success === true, "热搜大事件 API overview 成功响应");
+ok(trendsApiOverview.storage === "d1", "热搜大事件 API 真实接入 Cloudflare D1 边缘数据库 (storage=d1)");
+ok(trendsApiOverview.total_events >= 35, "热搜大事件收录总数充足 (总数=" + trendsApiOverview.total_events + ")");
+ok(trendsApiOverview.epoch_count >= 15, "时代历史印记事件数充足 (时代级=" + trendsApiOverview.epoch_count + ")");
+ok(trendsApiOverview.peak_heat_max >= 90000000, "全网最高峰值热度 >= 9000万 (最高=" + trendsApiOverview.peak_heat_max + ")");
+ok(Array.isArray(trendsApiOverview.categories) && trendsApiOverview.categories.length >= 4, "涵盖核心领域 >= 4 个 (领域数=" + trendsApiOverview.categories?.length + ")");
+ok(Array.isArray(trendsApiOverview.years) && trendsApiOverview.years.length >= 6, "跨越年份完整 2020-2026 (跨度=" + trendsApiOverview.years?.length + "年)");
+
+const trendsApiTechRaw = curl("https://hot.myinfostream.com/api/trends?category=tech");
+const trendsApiTech = JSON.parse(trendsApiTechRaw);
+ok(trendsApiTech.success === true && trendsApiTech.items?.length >= 5, "科技突破专区查询正常 (收录=" + trendsApiTech.items?.length + "件)");
+
+const hotSitemap = curl("https://hot.myinfostream.com/sitemap.xml");
+ok(hotSitemap.includes("https://hot.myinfostream.com/history"), "热搜子域 sitemap.xml 完整收录 /history 通鉴主入口");
+ok(hotSitemap.includes("https://hot.myinfostream.com/history?year=2024"), "热搜子域 sitemap.xml 完整收录历年年份索引 URL");
+ok(hotSitemap.includes("https://hot.myinfostream.com/history?category=tech"), "热搜子域 sitemap.xml 完整收录领域分类索引 URL");
+
 console.log("\n=================================================================");
 console.log(`   全景审计汇总: ${pass} 项全绿通过 / ${fail} 项失败`);
 console.log("=================================================================");
