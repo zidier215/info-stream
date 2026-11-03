@@ -268,6 +268,37 @@ const gameSitemap = curl("https://game.myinfostream.com/sitemap.xml");
 ok(gameSitemap.includes("https://game.myinfostream.com/history"), "游戏子域 sitemap.xml 完整收录 /history 历史总账本主入口");
 ok(gameSitemap.includes("https://game.myinfostream.com/history?year=2026"), "游戏子域 sitemap.xml 完整收录历年年鉴索引 URL");
 
+// ---------------- 第八层：AI 大模型编年史与跑分评测档案与 D1 边缘存储 ----------------
+console.log("\n【第八层：AI 大模型编年史与跑分评测档案 (AI Model Almanac) 与 D1 边缘存储】");
+const modelsPageHtml = curl("https://ai.myinfostream.com/models");
+ok(modelsPageHtml.includes('rel="canonical" href="https://ai.myinfostream.com/models"'), "大模型编年史 (/models) Canonical 正确指向本域落地页");
+ok(modelsPageHtml.includes('ca-pub-1130777358854864'), "大模型编年史落地页正确部署 Google AdSense 账号代码");
+ok(modelsPageHtml.includes('G-JBQYPMLVHR'), "大模型编年史落地页正确部署 GA4 测量代码");
+ok(modelsPageHtml.includes('id="statModels"'), "大模型编年史落地页包含收录模型数看板 (id=statModels)");
+ok(modelsPageHtml.includes('id="statElo"'), "大模型编年史落地页包含最高 Arena ELO 看板 (id=statElo)");
+ok(modelsPageHtml.includes('id="sparkBars"'), "大模型编年史落地页包含历年分布走势柱状图容器 (id=sparkBars)");
+ok(modelsPageHtml.includes('id="modelsList"'), "大模型编年史落地页包含精美大模型卡片流容器 (id=modelsList)");
+
+const modelsApiOverviewRaw = curl("https://ai.myinfostream.com/api/models?overview=1");
+const modelsApiOverview = JSON.parse(modelsApiOverviewRaw);
+ok(modelsApiOverview.success === true, "AI 大模型历史 API overview 成功响应");
+ok(modelsApiOverview.storage === "d1", "AI 大模型历史 API 真实接入 Cloudflare D1 边缘数据库 (storage=d1)");
+ok(modelsApiOverview.total_models >= 40, "AI 大模型收录大作数充足 (总数=" + modelsApiOverview.total_models + ")");
+ok(modelsApiOverview.frontier_count >= 20, "AI 大模型 Frontier 旗舰数充足 (Frontier数=" + modelsApiOverview.frontier_count + ")");
+ok(modelsApiOverview.open_weights_count >= 20, "AI 大模型开源权重模型数充足 (开源数=" + modelsApiOverview.open_weights_count + ")");
+ok(modelsApiOverview.max_elo >= 1350, "AI 大模型最高 LMSYS ELO >= 1350 (最高分=" + modelsApiOverview.max_elo + ")");
+ok(modelsApiOverview.max_context >= 1000000, "AI 大模型最大上下文 >= 1M Tokens (最大=" + modelsApiOverview.max_context + ")");
+ok(Array.isArray(modelsApiOverview.orgs) && modelsApiOverview.orgs.length >= 6, "AI 大模型覆盖顶尖实验室 >= 6 家 (覆盖=" + modelsApiOverview.orgs?.length + "家)");
+
+const modelsApiDeepSeekRaw = curl("https://ai.myinfostream.com/api/models?org=DeepSeek");
+const modelsApiDeepSeek = JSON.parse(modelsApiDeepSeekRaw);
+ok(modelsApiDeepSeek.success === true && modelsApiDeepSeek.items?.length >= 4, "DeepSeek 专区查询正常 (收录=" + modelsApiDeepSeek.items?.length + "款)");
+
+const aiSitemapModels = curl("https://ai.myinfostream.com/sitemap.xml");
+ok(aiSitemapModels.includes("https://ai.myinfostream.com/models"), "AI 子域 sitemap.xml 完整收录 /models 编年史主入口");
+ok(aiSitemapModels.includes("https://ai.myinfostream.com/models?year=2024"), "AI 子域 sitemap.xml 完整收录模型历年年份索引 URL");
+ok(aiSitemapModels.includes("https://ai.myinfostream.com/models?org=DeepSeek"), "AI 子域 sitemap.xml 完整收录模型厂商索引 URL");
+
 console.log("\n=================================================================");
 console.log(`   全景审计汇总: ${pass} 项全绿通过 / ${fail} 项失败`);
 console.log("=================================================================");

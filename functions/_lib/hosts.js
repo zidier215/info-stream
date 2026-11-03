@@ -75,8 +75,8 @@ export const HOSTS = {
     descEn: "AI intelligence: model releases, chips, AI applications and funding, daily papers — from first-tier international sources.",
     tagline: "只谈 AI · 大模型 · 算力 · 论文",
     taglineEn: "AI only · Models · Chips · Papers",
-    briefing: "【AI 专题导读】聚焦基础大模型迭代、GPU/ASIC 算力架构、AI 商业投融资及 ArXiv / Hugging Face 每日前沿论文，严选一手技术信源；支持前往 <a href=\"/papers\">AI 论文档案专区</a> 查阅 7 天深度学术归档与实验指标。",
-    briefingEn: "AI Intelligence Briefing: Curated tracking of foundation model releases, semiconductor compute architectures, AI venture funding, and daily ArXiv / Hugging Face research papers. Visit our <a href=\"/papers\">AI Paper Archive</a> for weekly in-depth experimental telemetry.",
+    briefing: "【AI 专题导读】聚焦基础大模型迭代、GPU/ASIC 算力架构、AI 商业投融资及 ArXiv / Hugging Face 每日前沿论文，严选一手技术信源；支持前往 <a href=\"/papers\">AI 论文档案专区</a> 查阅深度学术归档与前往 <a href=\"/models\">大模型编年史</a> 对照历年跑分评测。",
+    briefingEn: "AI Intelligence Briefing: Curated tracking of foundation model releases, compute architectures, venture funding, and research papers. Visit our <a href=\"/papers\">AI Paper Archive</a> and <a href=\"/models\">Model Almanac</a> for comprehensive benchmark evaluations.",
     defaultLang: "zh",
     // 只声明前端真的会渲染的语言。app.js 的 LANGS + I18N 是唯一的「能渲染」定义，
     // 往这里加一个前端没有的码，?lang=xx 会过服务端校验、前端回落中文，

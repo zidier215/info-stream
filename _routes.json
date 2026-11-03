@@ -11,6 +11,8 @@
     "/history/*",
     "/games",
     "/games/*",
+    "/models",
+    "/models/*",
     "/api/*"
   ],
   "exclude": [

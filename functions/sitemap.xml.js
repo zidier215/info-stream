@@ -68,7 +68,26 @@ export async function onRequest(context) {
     // AI 垂直站收录专属于本域的 AI 论文档案专区首页与 2026 全年周刊档案 (W01-W44)
     urls.push(
       { loc: `https://${cfg.host}/papers`, changefreq: "daily", priority: "0.9", lastmod: now },
+      { loc: `https://${cfg.host}/models`, changefreq: "daily", priority: "0.9", lastmod: now },
     );
+
+    // AI 大模型编年史历年专区 (2023-2026) 与核心前沿实验室索引
+    for (let my = 2026; my >= 2023; my--) {
+      urls.push({
+        loc: `https://${cfg.host}/models?year=${my}`,
+        changefreq: my === 2026 ? "daily" : "monthly",
+        priority: my === 2026 ? "0.8" : "0.7",
+        lastmod: now,
+      });
+    }
+    for (const org of ["OpenAI", "Anthropic", "DeepSeek", "Google DeepMind", "Meta"]) {
+      urls.push({
+        loc: `https://${cfg.host}/models?org=${encodeURIComponent(org)}`,
+        changefreq: "weekly",
+        priority: "0.8",
+        lastmod: now,
+      });
+    }
 
     // 查询 D1 数据库获取全部已收录周次；若环境无 D1 则回落到 2026-W01~W44 预设周
     let d1Weeks = [];

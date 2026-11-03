@@ -98,3 +98,4 @@ console.log("\n===== 测试 4: Clean URL 落地页 /history 渲染 =====");
 
 console.log("\n" + (fail === 0 ? "全部通过" : `✗ 存在 ${fail} 项失败`));
 if (fail > 0) process.exit(1);
+
