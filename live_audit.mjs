@@ -3,7 +3,7 @@ import { execSync } from "child_process";
 
 let proxyFlag = "";
 try {
-  execSync(`curl.exe -x http://127.0.0.1:7890 -sI --connect-timeout 1 "https://www.myinfostream.com/"`, { stdio: "ignore" });
+  execSync(`curl.exe -x http://127.0.0.1:7890 -sI --connect-timeout 4 "https://www.google.com"`, { stdio: "ignore" });
   proxyFlag = "-x http://127.0.0.1:7890";
 } catch {
   proxyFlag = "";
@@ -228,6 +228,15 @@ ok(papersApi.items && papersApi.items.length > 0, "AI 论文档案 API 正常响
 ok(papersApi.total >= 40, "AI 论文档案数据储备充足 (总数=" + papersApi.total + ")");
 ok(Array.isArray(papersApi.daily) && papersApi.daily.length > 0, "AI 论文档案 API 包含每日分布统计指标");
 ok(papersApi.stats && papersApi.stats.sources >= 10, "AI 论文档案信源覆盖丰富 (信源数=" + papersApi.stats?.sources + ")");
+
+const weeksApiRaw = curl("https://ai.myinfostream.com/api/papers?weeks_overview=1");
+const weeksApi = JSON.parse(weeksApiRaw);
+ok(weeksApi.success === true && weeksApi.weeks?.length >= 40, "AI 论文 2026 全年周刊档案覆盖完整 (可用周数=" + weeksApi.weeks?.length + ")");
+
+const w44ApiRaw = curl("https://ai.myinfostream.com/api/papers?week=2026-W44&pageSize=10");
+const w44Api = JSON.parse(w44ApiRaw);
+ok(w44Api.stats?.mode === "week" && w44Api.daily?.length === 7, "单周查询返回完整 7 天分布走势 (W44 论文数=" + w44Api.total + ")");
+
 
 console.log("\n=================================================================");
 console.log(`   全景审计汇总: ${pass} 项全绿通过 / ${fail} 项失败`);

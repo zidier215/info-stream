@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="google-adsense-account" content="ca-pub-1130777358854864" />
-<title>AI 论文档案库 · 最近 7 天 · 信息河 InfoStream</title>
-<meta name="description" content="AI 论文档案库：汇聚 Google DeepMind、OpenAI、Anthropic、Meta、Epoch AI 等全球顶尖实验室与高校近期前沿研究，包含实验结论精炼中文要点、中英标题对照与每日趋势透视。" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI 论文档案库 · 2026 全年周刊归档与前沿研究编年史 | 信息河</title>
+<meta name="description" content="汇聚全球顶尖 AI 实验室、学者预印本与产业前沿研究报告，按 2026 年第 01 周至第 44+ 周周度归档编排。中英双语对照、200字核心实验要点、Cloudflare D1 边缘持久化存储与回溯检索。" />
 <link rel="canonical" href="https://ai.myinfostream.com/papers" />
+<meta name="google-adsense-account" content="ca-pub-1130777358854864" />
+<meta name="theme-color" content="#1d4ed8" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="stylesheet" href="/assets/styles.css" />
-<!-- Google AdSense -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1130777358854864" crossorigin="anonymous"></script>
-<!-- Google Analytics 4 (gtag.js) -->
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-JBQYPMLVHR"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -33,6 +31,18 @@
   --paper-cyan: #0ea5e9;
   --paper-shadow: 0 1px 2px rgba(16,52,96,.05), 0 8px 24px -14px rgba(16,52,96,.26);
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+[data-theme="dark"] {
+  --paper-bg: #0b1324;
+  --paper-card: #111d33;
+  --paper-line: #1c2e4f;
+  --paper-line2: #253d68;
+  --paper-ink: #f0f6fc;
+  --paper-ink2: #94a9c9;
+  --paper-ink3: #5c7599;
+  --paper-blue: #3b82f6;
+  --paper-cyan: #38bdf8;
+  --paper-shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -14px rgba(0,0,0,.6);
 }
 body {
   margin: 0;
@@ -81,7 +91,7 @@ body {
 .nav-btn:hover { border-color: var(--paper-blue); color: var(--paper-blue); }
 
 /* 头部 Hero */
-.hero { padding: 20px 0 8px; }
+.hero { padding: 12px 0 8px; }
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -105,18 +115,101 @@ body {
 }
 h1 {
   margin: 16px 0 10px;
-  font-size: clamp(28px, 4.5vw, 40px);
-  line-height: 1.2;
+  font-size: clamp(26px, 4.2vw, 38px);
+  line-height: 1.25;
   font-weight: 800;
   background: linear-gradient(96deg, var(--paper-ink) 0%, var(--paper-blue) 62%, var(--paper-cyan) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
-.lede { margin: 0; max-width: 720px; color: var(--paper-ink2); font-size: 15px; }
+.lede { margin: 0; max-width: 760px; color: var(--paper-ink2); font-size: 15px; }
 
-/* 指标卡片 */
-.stats { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+/* 2026 周刊导航与控制台卡片 */
+.nav-box {
+  margin-top: 24px;
+  background: var(--paper-card);
+  border: 1px solid var(--paper-line);
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: var(--paper-shadow);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.mode-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--paper-bg);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--paper-line);
+}
+.m-tab {
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--paper-ink2);
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all .18s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.m-tab.active {
+  background: var(--paper-card);
+  color: var(--paper-blue);
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.w-btn {
+  background: var(--paper-bg);
+  border: 1px solid var(--paper-line);
+  color: var(--paper-ink);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.w-btn:hover:not(:disabled) {
+  border-color: var(--paper-blue);
+  color: var(--paper-blue);
+}
+.w-btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+.week-select {
+  background: var(--paper-bg);
+  border: 1px solid var(--paper-line);
+  color: var(--paper-ink);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  max-width: 270px;
+}
+.week-select:focus { border-color: var(--paper-blue); }
+
+/* 四格指标看板 */
+.stats { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
 .stat {
   flex: 1 1 160px;
   min-width: 140px;
@@ -137,12 +230,12 @@ h1 {
   opacity: .9;
 }
 .stat .k { font: 600 11px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--paper-ink3); }
-.stat .v { font-size: 24px; font-weight: 750; letter-spacing: -.02em; margin-top: 4px; }
+.stat .v { font-size: 23px; font-weight: 750; letter-spacing: -.02em; margin-top: 4px; }
 .stat .v small { font-size: 13px; font-weight: 600; color: var(--paper-ink2); margin-left: 2px; }
-.stat .v.wide { font-size: 16px; letter-spacing: -.01em; padding-top: 5px; font-family: var(--mono); }
+.stat .v.wide { font-size: 15px; letter-spacing: -.01em; padding-top: 5px; font-family: var(--mono); }
 .stat .s { font-size: 12px; color: var(--paper-ink3); margin-top: 2px; }
 
-/* 每日柱状图 Sparkbar */
+/* 动态柱状图 Sparkbar */
 .spark {
   margin-top: 14px;
   background: var(--paper-card);
@@ -152,8 +245,8 @@ h1 {
   box-shadow: var(--paper-shadow);
   display: flex;
   align-items: flex-end;
-  gap: 10px;
-  height: 104px;
+  gap: 12px;
+  height: 110px;
 }
 .spark .cap {
   font: 600 10.5px/1.3 var(--mono);
@@ -166,9 +259,18 @@ h1 {
   align-items: center;
   padding-bottom: 14px;
 }
-.dbar { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-width: 0; }
+.dbar {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  min-width: 0;
+  cursor: default;
+}
 .db-col { width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
-.db-n { font: 700 10.5px/1 var(--mono); color: var(--paper-blue); margin-bottom: 4px; }
+.db-n { font: 700 10px/1 var(--mono); color: var(--paper-blue); margin-bottom: 4px; }
 .db-fill {
   width: 100%;
   max-width: 44px;
@@ -176,8 +278,9 @@ h1 {
   border-radius: 5px 5px 2px 2px;
   transition: filter .2s, height .4s ease;
 }
-.dbar:hover .db-fill { filter: brightness(1.15); }
-.db-l { font: 600 10.5px/1 var(--mono); color: var(--paper-ink3); margin-top: 6px; }
+.dbar:hover .db-fill { filter: brightness(1.2); }
+.db-l { font: 600 10.5px/1 var(--mono); color: var(--paper-ink); margin-top: 6px; }
+.db-sub { font: 500 9.5px/1 var(--mono); color: var(--paper-ink3); margin-top: 3px; }
 
 /* 过滤器与工具栏 */
 .toolbar {
@@ -185,7 +288,7 @@ h1 {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  margin: 28px 0 20px;
+  margin: 26px 0 20px;
   padding: 12px 16px;
   background: var(--paper-card);
   border: 1px solid var(--paper-line);
@@ -217,6 +320,11 @@ h1 {
   background: var(--paper-blue);
   color: #fff;
   border-color: var(--paper-blue);
+}
+.filter-count {
+  margin-left: auto;
+  font: 600 12px/1 var(--mono);
+  color: var(--paper-ink3);
 }
 
 /* 时间轴 */
@@ -259,94 +367,148 @@ h1 {
   padding: 4px 9px;
 }
 
-.entry { display: grid; grid-template-columns: 96px minmax(0,1fr); gap: 16px; }
-.rail { position: relative; padding-top: 18px; }
+.entry { display: grid; grid-template-columns: 96px minmax(0,1fr); gap: 16px; padding: 8px 0 16px; }
+.rail { position: relative; padding-top: 14px; text-align: right; }
 .dot {
   position: absolute;
-  left: 9px;
-  top: 23px;
-  width: 14px;
-  height: 14px;
+  right: -23px;
+  top: 22px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--paper-card);
-  border: 2.5px solid var(--paper-blue);
-  z-index: 2;
-  transition: all .2s;
+  border: 2px solid var(--paper-ink3);
+  z-index: 1;
 }
-.entry:hover .dot { background: var(--paper-blue); transform: scale(1.15); box-shadow: 0 0 0 5px rgba(37,99,235,.14); }
-.when { position: absolute; left: 32px; top: 19px; font: 600 11.5px/1 var(--mono); color: var(--paper-ink3); }
+.when { font: 600 11px/1 var(--mono); color: var(--paper-ink3); }
 
-/* 卡片 */
 .card {
   background: var(--paper-card);
   border: 1px solid var(--paper-line);
-  border-radius: 15px;
-  padding: 16px 19px 14px;
-  margin-bottom: 14px;
+  border-radius: 14px;
+  padding: 18px 20px 16px;
   box-shadow: var(--paper-shadow);
-  transition: transform .2s, border-color .2s, box-shadow .2s;
+  transition: transform .2s ease, border-color .2s ease;
 }
 .card:hover {
   transform: translateY(-2px);
-  border-color: rgba(37,99,235,.4);
-  box-shadow: 0 4px 12px rgba(16,52,96,.08);
+  border-color: rgba(37,99,235,.35);
 }
-.chead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.chead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
 .idx {
-  font: 700 12px/1 var(--mono);
-  color: var(--paper-blue);
-  background: rgba(37,99,235,.08);
-  border: 1px solid rgba(37,99,235,.18);
-  border-radius: 6px;
-  padding: 4px 7px;
+  font: 700 11px/1 var(--mono);
+  color: var(--paper-ink3);
+  background: rgba(120,148,180,.12);
+  padding: 4px 6px;
+  border-radius: 4px;
 }
-.idx::before { content: "#"; }
-.badge { font: 600 11.5px/1 var(--sans); padding: 4px 9px; border-radius: 999px; }
-.b-official { color: #1d4ed8; background: rgba(37,99,235,.09); }
-.b-lab { color: #0e7490; background: rgba(14,165,233,.10); }
-.b-media { color: #475569; background: rgba(100,116,139,.10); }
-.b-x { color: var(--paper-ink); background: rgba(15,33,56,.06); }
-.b-community { color: #6d28d9; background: rgba(124,58,237,.09); }
-.star {
-  font: 700 10.5px/1 var(--sans);
-  color: #b45309;
-  background: rgba(245,158,11,.14);
-  border: 1px solid rgba(245,158,11,.3);
-  border-radius: 999px;
+.badge {
+  font: 700 11px/1 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .06em;
   padding: 4px 8px;
+  border-radius: 5px;
 }
-.ago { margin-left: auto; font: 600 11px/1 var(--mono); color: var(--paper-ink3); }
-.ctitle { margin: 0; font-size: 16.5px; line-height: 1.5; font-weight: 700; }
-.ctitle a { color: inherit; text-decoration: none; }
+.b-lab { background: rgba(37,99,235,.1); color: var(--paper-blue); }
+.b-official { background: rgba(14,165,233,.12); color: var(--paper-cyan); }
+.b-community { background: rgba(16,185,129,.12); color: #059669; }
+.b-media { background: rgba(245,158,11,.12); color: #d97706; }
+.star {
+  font: 700 10.5px/1 var(--mono);
+  color: #ea580c;
+  background: rgba(234,88,12,.1);
+  border: 1px solid rgba(234,88,12,.22);
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+.ago {
+  margin-left: auto;
+  font: 500 11.5px/1 var(--mono);
+  color: var(--paper-ink3);
+}
+
+.ctitle {
+  margin: 0 0 6px;
+  font-size: 16.5px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+.ctitle a {
+  color: var(--paper-ink);
+  text-decoration: none;
+  transition: color .2s;
+}
 .ctitle a:hover { color: var(--paper-blue); }
-.orig { margin: 5px 0 0; font-size: 12px; color: var(--paper-ink3); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.csum { margin: 8px 0 0; color: var(--paper-ink2); font-size: 14px; line-height: 1.7; }
+.orig {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--paper-ink3);
+  font-style: italic;
+  font-family: var(--mono);
+}
+.csum {
+  margin: 0 0 12px;
+  font-size: 13.8px;
+  line-height: 1.68;
+  color: var(--paper-ink2);
+}
 .cfoot {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 12px;
   padding-top: 10px;
   border-top: 1px dashed var(--paper-line);
+  font-size: 12.5px;
 }
-.link { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 650; color: var(--paper-blue); text-decoration: none; }
-.link:hover { color: var(--paper-cyan); }
-.stamp { font: 500 11px/1 var(--mono); color: var(--paper-ink3); }
+.cfoot .link {
+  color: var(--paper-blue);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.cfoot .link:hover { text-decoration: underline; }
+.cfoot .stamp { font: 500 11.5px/1 var(--mono); color: var(--paper-ink3); }
 
-/* 底部与回到顶部 */
+/* 底部周次导航栏 */
+.bottom-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 32px 0 12px;
+  padding: 14px 18px;
+  background: var(--paper-card);
+  border: 1px solid var(--paper-line);
+  border-radius: 12px;
+}
+.b-label {
+  font: 600 13px/1 var(--mono);
+  color: var(--paper-ink2);
+}
+
+/* 底部通告与页脚 */
 .notice {
   margin-top: 36px;
   padding: 14px 18px;
-  border-radius: 12px;
+  background: rgba(37,99,235,.05);
+  border: 1px solid rgba(37,99,235,.15);
+  border-radius: 10px;
   font-size: 12.5px;
-  line-height: 1.7;
   color: var(--paper-ink2);
-  background: rgba(37,99,235,.04);
-  border: 1px solid rgba(37,99,235,.12);
+  line-height: 1.6;
 }
 .page-foot {
-  margin-top: 24px;
+  margin-top: 30px;
   padding-top: 18px;
   border-top: 1px solid var(--paper-line);
   display: flex;
@@ -388,15 +550,18 @@ h1 {
   .rail { padding-top: 0; display: flex; align-items: center; gap: 8px; margin: 0 0 6px 1px; }
   .dot { position: static; width: 9px; height: 9px; }
   .when { position: static; font-size: 11px; }
+  .nav-box { flex-direction: column; align-items: stretch; }
+  .week-nav { justify-content: space-between; }
+  .week-select { max-width: 100%; flex: 1; }
 }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <!-- 简易顶栏导航 -->
+  <!-- 顶栏导航 -->
   <nav class="top-nav">
     <a class="brand-link" href="https://ai.myinfostream.com/">
-      <span>🌊 信息河 · AI 情报站</span>
+      <span>🌊 信息河 · AI 前沿情报</span>
     </a>
     <div class="nav-actions">
       <a class="nav-btn" href="https://myinfostream.com/">← 主站</a>
@@ -407,53 +572,83 @@ h1 {
 
   <!-- 头部 Hero -->
   <header class="hero">
-    <span class="eyebrow"><i></i>AI Paper Archive · D1 Persistent</span>
-    <h1 id="pageTitle">AI 论文档案库 · 最近 7 天</h1>
+    <span class="eyebrow"><i></i>AI Paper Archive · 2026 Weekly Almanac · D1 Persistent</span>
+    <h1 id="pageTitle">AI 论文档案库 · 2026 年第 44 周刊</h1>
     <p class="lede" id="pageLede">
-      汇聚全球顶级人工智能实验室、学者预印本与产业前沿研究报告，按发布时间倒序编排。提取中英双语结论要点与实验指标，支持基于 Cloudflare D1 的自动增量归档与回溯。
+      汇聚全球顶级人工智能实验室、学者预印本与产业前沿研究报告，按 2026 年周度编排。提取中英双语结论要点与实验指标，支持基于 Cloudflare D1 的边缘全量持久化归档与长程回溯。
     </p>
+
+    <!-- 2026 周度导航控制面板 -->
+    <div class="nav-box">
+      <div class="mode-tabs">
+        <button class="m-tab active" id="tabModeWeek">📅 2026 周刊归档</button>
+        <button class="m-tab" id="tabModeRolling">⏱ 滚动窗口</button>
+      </div>
+
+      <!-- 周次切换器 (周刊模式下展示) -->
+      <div class="week-nav" id="weekNavArea">
+        <button class="w-btn" id="prevWeekBtn" title="上一周">‹ 上一周</button>
+        <select id="weekSelect" class="week-select" aria-label="选择 2026 周次">
+          <option value="latest">正在加载周刊目录…</option>
+        </select>
+        <button class="w-btn" id="nextWeekBtn" title="下一周">下一周 ›</button>
+      </div>
+
+      <!-- 滚动天数选择器 (滚动模式下展示，默认隐藏) -->
+      <div id="rollingNavArea" style="display:none; align-items:center; gap:8px;">
+        <select id="daysSelect" class="week-select">
+          <option value="7">最近 7 天滚动流</option>
+          <option value="14">最近 14 天滚动流</option>
+          <option value="30">最近 30 天滚动流</option>
+          <option value="all">2026 全年所有收录</option>
+        </select>
+      </div>
+    </div>
 
     <!-- 四格指标看板 -->
     <div class="stats">
-      <div class="stat"><div class="k">Time Window</div><div class="v" id="statWindow">7 <small>天</small></div><div class="s">滚动统计窗口</div></div>
-      <div class="stat"><div class="k">Papers</div><div class="v" id="statTotal">-- <small>篇</small></div><div class="s" id="statStarredDesc">含 -- 篇编辑精选</div></div>
-      <div class="stat"><div class="k">Sources</div><div class="v" id="statSources">-- <small>个</small></div><div class="s">官方 / 实验室 / 媒体 / 社区</div></div>
-      <div class="stat"><div class="k">Coverage</div><div class="v wide" id="statCoverage">-- → --</div><div class="s">最早与最晚发文日</div></div>
+      <div class="stat"><div class="k">归档周期</div><div class="v" id="statWindow">第 44 周</div><div class="s" id="statWindowSub">2026-W44 周刊</div></div>
+      <div class="stat"><div class="k">收录篇数</div><div class="v" id="statTotal">-- <small>篇</small></div><div class="s" id="statStarredDesc">含 -- 篇编辑精选</div></div>
+      <div class="stat"><div class="k">前沿机构</div><div class="v" id="statSources">-- <small>所</small></div><div class="s">DeepMind / OpenAI / 预印本</div></div>
+      <div class="stat"><div class="k">时间跨度</div><div class="v wide" id="statCoverage">-- → --</div><div class="s" id="statCoverageSub">自然周一至周日全覆盖</div></div>
     </div>
 
     <!-- 动态每日柱状图 Sparkbar -->
     <div class="spark" id="sparkWrap">
-      <span class="cap">Daily</span>
+      <span class="cap" id="sparkCap">Weekly</span>
       <div id="sparkBars" style="display:flex; flex:1; height:100%; align-items:flex-end; gap:8px;"></div>
     </div>
   </header>
 
   <!-- 过滤与搜索工具栏 -->
   <div class="toolbar">
-    <input type="text" class="search-input" id="paperSearch" placeholder="搜索论文标题、机构、模型 (如 Gemini / Claude / Agent) 或实验结论…" />
+    <input type="text" class="search-input" id="paperSearch" placeholder="搜索论文标题、原标题、机构、模型 (如 Gemini / Claude / DeepSeek) 或实验指标…" />
     <div class="filter-tabs">
       <button class="f-btn active" data-filter="all">全部</button>
       <button class="f-btn" data-filter="starred">⭐ 编辑精选</button>
     </div>
-    <select id="daysSelect" class="f-btn" style="cursor:pointer">
-      <option value="7">最近 7 天</option>
-      <option value="14">最近 14 天</option>
-      <option value="30">最近 30 天</option>
-    </select>
+    <span class="filter-count" id="filterCount">已加载 -- 篇</span>
   </div>
 
   <!-- 时间轴内容主体 -->
   <main class="timeline" id="timelineList">
-    <div style="text-align:center; padding:40px 0; color:var(--paper-ink3);">正在从 Cloudflare D1 持久化存储加载论文档案…</div>
+    <div style="text-align:center; padding:40px 0; color:var(--paper-ink3);">正在从 Cloudflare D1 边缘数据库加载论文档案…</div>
   </main>
+
+  <!-- 底部周次快速跳转 -->
+  <div class="bottom-nav" id="bottomNav">
+    <button class="w-btn" id="bPrevWeekBtn">‹ 前往上一周</button>
+    <span class="b-label" id="bCurrentWeekLabel">2026 年第 44 周刊</span>
+    <button class="w-btn" id="bNextWeekBtn">前往下一周 ›</button>
+  </div>
 
   <!-- 底部说明与状态 -->
   <div class="notice">
-    <strong>档案说明：</strong>本专区数据持久化存储于 Cloudflare D1 边缘关系型数据库中，并支持从 Hugging Face Daily Papers、arXiv 及前沿实验室研究源进行自动增量同步；每篇论文提取 200 字以内的实验指标中文摘要。点击论文标题可直达官方原文或预印本。
+    <strong>周刊档案说明：</strong>本专区完整收录 2026 年第 01 周起全球发布的人工智能前沿论文，持久化存储于 Cloudflare D1 边缘关系型数据库中，并持续从 Hugging Face Daily Papers、arXiv (cs.AI / cs.LG) 与顶级实验室自动增量同步；每篇论文提取 200 字以内的实验指标中文精要，点击标题可直接跳转原文。
   </div>
 
   <footer class="page-foot">
-    <span><b>AI 论文档案专区</b> · Cloudflare D1 边缘持久化支撑</span>
+    <span><b>AI 论文档案专区</b> · 2026 全年周刊编年史 · Cloudflare D1 原生支撑</span>
     <span id="footStatus">数据同步状态：连接中…</span>
   </footer>
 </div>
@@ -463,9 +658,12 @@ h1 {
 <script>
 (function() {
   let allPapers = [];
+  let availableWeeks = [];
+  let currentMode = "week"; // "week" 或 "rolling"
+  let currentWeek = "2026-W44";
+  let currentDays = 7;
   let currentFilter = "all";
   let searchKeyword = "";
-  let currentDays = 7;
 
   // 主题切换记忆
   const themeBtn = document.getElementById("themeBtn");
@@ -482,7 +680,6 @@ h1 {
     } catch {}
   }
 
-  // 格式化相对时间
   function relTime(ms) {
     const s = (Date.now() - ms) / 1000;
     if (s < 60) return "刚刚";
@@ -491,28 +688,30 @@ h1 {
     return Math.floor(s / 86400) + " 天前";
   }
 
-  // 渲染每日柱状图
+  function escapeHtml(s) {
+    if (!s) return "";
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // 渲染柱状图
   function renderSparkbar(daily) {
     const box = document.getElementById("sparkBars");
     if (!box || !Array.isArray(daily) || !daily.length) return;
     const max = Math.max(...daily.map(d => d.count), 1);
     box.innerHTML = daily.map(d => {
       const pct = Math.max(8, Math.round((d.count / max) * 100));
+      const subLabel = d.dayName ? `<span class="db-sub">${escapeHtml(d.dayName)}</span>` : "";
       return `
-        <div class="dbar" title="${escapeHtml(d.fullDate || d.date)} · ${d.count} 篇">
+        <div class="dbar" title="${escapeHtml(d.fullDate || d.date)} ${d.dayName || ''} · ${d.count} 篇论文">
           <div class="db-col">
             <span class="db-n">${d.count}</span>
             <span class="db-fill" style="height:${pct}%"></span>
           </div>
           <span class="db-l">${escapeHtml(d.date)}</span>
+          ${subLabel}
         </div>
       `;
     }).join("");
-  }
-
-  function escapeHtml(s) {
-    if (!s) return "";
-    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
   // 渲染时间轴
@@ -520,8 +719,11 @@ h1 {
     const timeline = document.getElementById("timelineList");
     if (!timeline) return;
 
+    const countEl = document.getElementById("filterCount");
+    if (countEl) countEl.textContent = `已展示 ${papers.length} / ${allPapers.length} 篇`;
+
     if (!papers || !papers.length) {
-      timeline.innerHTML = '<div style="text-align:center; padding:50px 0; color:var(--paper-ink3);">未找到符合条件的论文记录</div>';
+      timeline.innerHTML = '<div style="text-align:center; padding:50px 0; color:var(--paper-ink3);">本期暂无符合筛选条件的论文记录</div>';
       return;
     }
 
@@ -552,9 +754,9 @@ h1 {
       for (const it of list) {
         globalCounter++;
         const idxStr = String(globalCounter).padStart(2, "0");
-        const bClass = "b-" + (it.badge_type || "media");
+        const bClass = "b-" + (it.badge_type || "lab");
         const origTitle = it.orig_title ? `<p class="orig" title="原标题">${escapeHtml(it.orig_title)}</p>` : "";
-        const starBadge = it.is_starred ? '<span class="star" title="编辑精选">精选</span>' : '';
+        const starBadge = it.is_starred ? '<span class="star" title="编辑精选">⭐ 精选</span>' : '';
         const timeStr = it.stamp ? it.stamp.split(" ")[1] || "精要" : "发布";
 
         html += `
@@ -565,7 +767,7 @@ h1 {
             </div>
             <div class="card">
               <header class="chead">
-                <span class="idx">${idxStr}</span>
+                <span class="idx">#${idxStr}</span>
                 <span class="badge ${bClass}">${escapeHtml(it.source)}</span>
                 ${starBadge}
                 <span class="ago">${relTime(it.ts)}</span>
@@ -574,7 +776,7 @@ h1 {
               ${origTitle}
               <p class="csum">${escapeHtml(it.summary)}</p>
               <footer class="cfoot">
-                <a class="link" href="${escapeHtml(it.url)}" target="_blank" rel="noopener noreferrer">阅读原文 ↗</a>
+                <a class="link" href="${escapeHtml(it.url)}" target="_blank" rel="noopener noreferrer">阅读论文 / 报告 ↗</a>
                 <span class="stamp">${escapeHtml(it.stamp || it.pub_date)}</span>
               </footer>
             </div>
@@ -586,7 +788,6 @@ h1 {
     timeline.innerHTML = html;
   }
 
-  // 综合筛选刷新
   function applyFilter() {
     let result = allPapers.slice();
     if (currentFilter === "starred") {
@@ -604,43 +805,199 @@ h1 {
     renderTimeline(result);
   }
 
-  // 加载数据
+  // 加载周刊概览目录
+  async function loadWeeksOverview() {
+    try {
+      const res = await fetch("/api/papers?weeks_overview=1");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data || !Array.isArray(data.weeks)) return;
+      availableWeeks = data.weeks;
+
+      const sel = document.getElementById("weekSelect");
+      if (!sel) return;
+
+      // 按季度分组渲染 <optgroup>
+      const groups = { Q4: [], Q3: [], Q2: [], Q1: [] };
+      for (const w of availableWeeks) {
+        const q = w.quarter || "Q4";
+        if (!groups[q]) groups[q] = [];
+        groups[q].push(w);
+      }
+
+      let optHtml = "";
+      for (const [q, list] of Object.entries(groups)) {
+        if (!list.length) continue;
+        const qTitle = `2026 第${q === "Q4" ? "四" : (q === "Q3" ? "三" : (q === "Q2" ? "二" : "一"))}季度 (${q})`;
+        optHtml += `<optgroup label="${qTitle}">`;
+        for (const it of list) {
+          optHtml += `<option value="${escapeHtml(it.week)}">${escapeHtml(it.label)} · ${it.count}篇</option>`;
+        }
+        optHtml += `</optgroup>`;
+      }
+      sel.innerHTML = optHtml;
+
+      // 默认选中第一项 (最新周)
+      if (availableWeeks.length) {
+        // 如果 URL 带 ?week= 则优先使用
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlWeek = urlParams.get("week");
+        if (urlWeek && availableWeeks.some(w => w.week === urlWeek)) {
+          currentWeek = urlWeek;
+        } else {
+          currentWeek = availableWeeks[0].week;
+        }
+        sel.value = currentWeek;
+        updateNavButtons();
+      }
+    } catch (e) {
+      console.warn("loadWeeksOverview error:", e);
+    }
+  }
+
+  function updateNavButtons() {
+    const idx = availableWeeks.findIndex(w => w.week === currentWeek);
+    const prevBtn = document.getElementById("prevWeekBtn");
+    const nextBtn = document.getElementById("nextWeekBtn");
+    const bPrevBtn = document.getElementById("bPrevWeekBtn");
+    const bNextBtn = document.getElementById("bNextWeekBtn");
+    const bLabel = document.getElementById("bCurrentWeekLabel");
+
+    // 注意 availableWeeks 按倒序排列，idx + 1 为更早的一周，idx - 1 为更新的一周
+    const hasOlder = idx >= 0 && idx < availableWeeks.length - 1;
+    const hasNewer = idx > 0;
+
+    if (prevBtn) prevBtn.disabled = !hasOlder;
+    if (bPrevBtn) bPrevBtn.disabled = !hasOlder;
+    if (nextBtn) nextBtn.disabled = !hasNewer;
+    if (bNextBtn) bNextBtn.disabled = !hasNewer;
+
+    if (bLabel && idx >= 0) {
+      bLabel.textContent = availableWeeks[idx].label || currentWeek;
+    }
+  }
+
+  // 加载论文数据
   async function loadData() {
     try {
-      const res = await fetch(`/api/papers?days=${currentDays}&pageSize=60`);
+      let reqUrl = "";
+      if (currentMode === "week") {
+        reqUrl = `/api/papers?week=${encodeURIComponent(currentWeek)}&pageSize=100`;
+      } else {
+        reqUrl = `/api/papers?days=${encodeURIComponent(currentDays)}&pageSize=100`;
+      }
+
+      const res = await fetch(reqUrl);
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
       allPapers = data.items || [];
 
-      // 更新指标
+      // 更新页面标题与指标
       const stats = data.stats || {};
-      document.getElementById("statWindow").innerHTML = `${stats.days || currentDays} <small>天</small>`;
+      if (currentMode === "week") {
+        const wParts = currentWeek.split("-W");
+        const wNum = wParts[1] || "44";
+        document.getElementById("pageTitle").textContent = `AI 论文档案库 · 2026 年第 ${wNum} 周刊`;
+        document.getElementById("statWindow").textContent = `第 ${wNum} 周`;
+        document.getElementById("statWindowSub").textContent = `${currentWeek} 周刊归档`;
+        document.getElementById("sparkCap").textContent = "Weekly";
+      } else {
+        const dText = currentDays === "all" ? "2026 全年" : `最近 ${currentDays} 天`;
+        document.getElementById("pageTitle").textContent = `AI 论文档案库 · ${dText}`;
+        document.getElementById("statWindow").innerHTML = currentDays === "all" ? "2026 全年" : `${currentDays} <small>天</small>`;
+        document.getElementById("statWindowSub").textContent = "滚动统计窗口";
+        document.getElementById("sparkCap").textContent = "Daily";
+      }
+
       document.getElementById("statTotal").innerHTML = `${stats.total || allPapers.length} <small>篇</small>`;
       document.getElementById("statStarredDesc").textContent = `含 ${stats.starred || 0} 篇编辑精选`;
-      document.getElementById("statSources").innerHTML = `${stats.sources || 0} <small>个</small>`;
+      document.getElementById("statSources").innerHTML = `${stats.sources || 0} <small>所</small>`;
       document.getElementById("statCoverage").textContent = stats.coverage || "--";
-      document.getElementById("pageTitle").textContent = `AI 论文档案库 · 最近 ${currentDays} 天`;
 
-      // 渲染柱状图
       renderSparkbar(data.daily || []);
-
-      // 渲染列表
       applyFilter();
 
-      // 存储来源标示
       const footStatus = document.getElementById("footStatus");
       if (footStatus) {
         footStatus.textContent = data.storage === "d1" 
           ? "存储引擎：Cloudflare D1 (已持久化同步)" 
-          : "存储引擎：种子快照 (D1 待绑定自动同步)";
+          : "存储引擎：种子快照模式";
       }
+
+      updateNavButtons();
     } catch (e) {
       document.getElementById("timelineList").innerHTML = 
         `<div style="text-align:center; padding:50px 0; color:#ef4444;">加载失败: ${escapeHtml(e.message)}，请检查网络或刷新重试。</div>`;
     }
   }
 
-  // 绑定事件
+  // 模式切换事件
+  const tabModeWeek = document.getElementById("tabModeWeek");
+  const tabModeRolling = document.getElementById("tabModeRolling");
+  const weekNavArea = document.getElementById("weekNavArea");
+  const rollingNavArea = document.getElementById("rollingNavArea");
+
+  if (tabModeWeek && tabModeRolling) {
+    tabModeWeek.addEventListener("click", () => {
+      tabModeWeek.classList.add("active");
+      tabModeRolling.classList.remove("active");
+      currentMode = "week";
+      weekNavArea.style.display = "flex";
+      rollingNavArea.style.display = "none";
+      loadData();
+    });
+
+    tabModeRolling.addEventListener("click", () => {
+      tabModeRolling.classList.add("active");
+      tabModeWeek.classList.remove("active");
+      currentMode = "rolling";
+      weekNavArea.style.display = "none";
+      rollingNavArea.style.display = "flex";
+      loadData();
+    });
+  }
+
+  // 周刊下拉选择切换
+  const weekSelect = document.getElementById("weekSelect");
+  if (weekSelect) {
+    weekSelect.addEventListener("change", () => {
+      currentWeek = weekSelect.value;
+      loadData();
+    });
+  }
+
+  // 上一周 / 下一周跳转
+  function jumpWeek(delta) {
+    const idx = availableWeeks.findIndex(w => w.week === currentWeek);
+    const targetIdx = idx + delta;
+    if (targetIdx >= 0 && targetIdx < availableWeeks.length) {
+      currentWeek = availableWeeks[targetIdx].week;
+      if (weekSelect) weekSelect.value = currentWeek;
+      loadData();
+      window.scrollTo({ top: 120, behavior: "smooth" });
+    }
+  }
+
+  const prevBtn = document.getElementById("prevWeekBtn");
+  const nextBtn = document.getElementById("nextWeekBtn");
+  const bPrevBtn = document.getElementById("bPrevWeekBtn");
+  const bNextBtn = document.getElementById("bNextWeekBtn");
+
+  if (prevBtn) prevBtn.addEventListener("click", () => jumpWeek(1)); // 更早一周
+  if (bPrevBtn) bPrevBtn.addEventListener("click", () => jumpWeek(1));
+  if (nextBtn) nextBtn.addEventListener("click", () => jumpWeek(-1)); // 更晚一周
+  if (bNextBtn) bNextBtn.addEventListener("click", () => jumpWeek(-1));
+
+  // 滚动天数切换
+  const daysSelect = document.getElementById("daysSelect");
+  if (daysSelect) {
+    daysSelect.addEventListener("change", () => {
+      currentDays = daysSelect.value;
+      loadData();
+    });
+  }
+
+  // 搜索框
   const searchInput = document.getElementById("paperSearch");
   if (searchInput) {
     let timer = null;
@@ -653,6 +1010,7 @@ h1 {
     });
   }
 
+  // 筛选 Tab
   document.querySelectorAll(".filter-tabs .f-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".filter-tabs .f-btn").forEach(b => b.classList.remove("active"));
@@ -662,29 +1020,24 @@ h1 {
     });
   });
 
-  const daysSelect = document.getElementById("daysSelect");
-  if (daysSelect) {
-    daysSelect.addEventListener("change", () => {
-      currentDays = parseInt(daysSelect.value, 10) || 7;
-      loadData();
-    });
-  }
-
-  // 回到顶部按钮
+  // 回到顶部
   const topBtn = document.getElementById("toTop");
   if (topBtn) {
     window.addEventListener("scroll", () => {
-      topBtn.classList.toggle("show", window.scrollY > 500);
+      topBtn.classList.toggle("show", window.scrollY > 400);
     }, { passive: true });
     topBtn.addEventListener("click", () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
   }
 
-  // 初始化拉取
-  loadData();
+  // 初始化加载
+  async function init() {
+    await loadWeeksOverview();
+    await loadData();
+  }
+  init();
 })();
 </script>
 </body>
 </html>
-

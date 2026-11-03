@@ -9,13 +9,16 @@ CREATE TABLE IF NOT EXISTS ai_papers (
   badge_type TEXT DEFAULT 'media',
   is_starred INTEGER DEFAULT 0,
   pub_date TEXT NOT NULL,
+  stamp TEXT,
   ts INTEGER NOT NULL,
+  year_week TEXT,
   created_at INTEGER DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_ai_papers_pub_date ON ai_papers(pub_date);
 CREATE INDEX IF NOT EXISTS idx_ai_papers_ts ON ai_papers(ts DESC);
 CREATE INDEX IF NOT EXISTS idx_ai_papers_starred ON ai_papers(is_starred);
+CREATE INDEX IF NOT EXISTS idx_ai_papers_week ON ai_papers(year_week);
 
 -- 初始 50 篇高质量精选论文种子数据 (Seed Data)
 INSERT OR IGNORE INTO ai_papers (id, title, orig_title, url, summary, source, badge_type, is_starred, pub_date, ts) VALUES ('paper_1a31ef5d4a3c', 'Talos 分析 VOLTA 窃密木马：用 LLM 给受害者按变现价值排序', 'Malware uses LLMs to rank victims by how much they''re worth', 'https://blog.talosintelligence.com/appraisal-by-ai-model-driven-victim-prioritization-in-the-volta-infostealer/', 'Cisco Talos 分析自删除式 Windows 窃密木马 VOLTA-AUTODOXER，它在窃取凭据、会话和加密钱包后，将结构化证据包通过 OpenRouter 发给 LLM（默认 anthropic/claude-opus-4.6。', 'Hacker News', 'media', 0, '2026-11-01', 1793467538876);

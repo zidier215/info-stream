@@ -35,7 +35,25 @@ const dataStar = await resStar.json();
 check(dataStar.items.every(p => p.is_starred === 1), "全部返回精选论文");
 check(dataStar.total === 15, "精选论文总数匹配 15 篇", String(dataStar.total));
 
-console.log("\n===== 测试 4: Clean URL 落地页 /papers 渲染 =====");
+console.log("\n===== 测试 4: 2026 全年周刊概览与单周查询 (Weekly Almanac) =====");
+const reqWeeks = new Request("https://ai.myinfostream.com/api/papers?weeks_overview=1");
+const resWeeks = await papersGet({ request: reqWeeks, env: {} });
+check(resWeeks.status === 200, "周概览 HTTP 200");
+const dataWeeks = await resWeeks.json();
+check(dataWeeks.success === true, "周概览 success=true");
+check(Array.isArray(dataWeeks.weeks) && dataWeeks.weeks.length > 0, "返回有效周刊列表", `总周数: ${dataWeeks.weeks?.length}`);
+check(dataWeeks.weeks.some(w => w.week === "2026-W44"), "周刊列表包含 2026-W44");
+
+const reqW44 = new Request("https://ai.myinfostream.com/api/papers?week=2026-W44");
+const resW44 = await papersGet({ request: reqW44, env: {} });
+check(resW44.status === 200, "单周查询 HTTP 200");
+const dataW44 = await resW44.json();
+check(dataW44.stats && dataW44.stats.mode === "week", "模式为 week 模式");
+check(dataW44.stats && dataW44.stats.week === "2026-W44", "周标记匹配 2026-W44");
+check(Array.isArray(dataW44.daily) && dataW44.daily.length === 7, "单周包含完整 7 天柱状图 (周一至周日)", String(dataW44.daily?.length));
+check(dataW44.daily.every(d => d.dayName && d.fullDate), "柱状图每日包含星期与完整日期");
+
+console.log("\n===== 测试 5: Clean URL 落地页 /papers 渲染 =====");
 const rawHtml = readFileSync(new URL("./papers.html", import.meta.url), "utf8");
 const mockEnv = {
   ASSETS: {
