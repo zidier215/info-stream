@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Epic 喜加一历史总账本 · 历年免费大作通鉴 | 游戏站</title>
+  <meta name="description" content="Epic Games Store 历年免费游戏全记录与白嫖总价值统计，按年份、3A殿堂大作、圣诞神秘喜加一多维检索，涵盖原价、赠送起止时间、DLC 包含情况与深度特色导读。" />
+  <link rel="canonical" href="https://game.myinfostream.com/history" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="theme-color" content="#121217" />
+  <!-- Google AdSense 验证代码 -->
+  <meta name="google-adsense-account" content="ca-pub-1130777358854864" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1130777358854864" crossorigin="anonymous"></script>
+  <!-- GA4 测量代码 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JBQYPMLVHR"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-JBQYPMLVHR');
+  </script>
+  <!-- Schema.org 结构化数据 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Epic 喜加一历史总账本 · 历年免费大作通鉴",
+    "description": "Epic Games Store 历年免费赠送游戏全记录与白嫖总价值统计",
+    "url": "https://game.myinfostream.com/history",
+    "publisher": {
+      "@type": "Organization",
+      "name": "InfoStream 游戏站",
+      "url": "https://game.myinfostream.com"
+    }
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #0d0f12;
+      --card-bg: #15181e;
+      --card-border: #262a34;
+      --text-main: #f0f3f8;
+      --text-muted: #8b949e;
+      --accent: #9333ea;
+      --accent-hover: #a855f7;
+      --accent-rgb: 147, 51, 234;
+      --gold: #f59e0b;
+      --green: #10b981;
+      --blue: #3b82f6;
+      --nav-bg: rgba(13, 15, 18, 0.85);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #7c3aed;
+      --accent-hover: #6d28d9;
+      --nav-bg: rgba(248, 250, 252, 0.9);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { color: inherit; text-decoration: none; }
+    
+    /* Topbar */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0.75rem 1.5rem;
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      color: #fff;
+      font-size: 1.1rem;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .btn-link {
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-link:hover {
+      color: var(--text-main);
+      border-color: var(--accent);
+    }
+
+    /* Hero & Metrics */
+    .hero {
+      max-width: 1200px;
+      margin: 1.5rem auto 1rem;
+      padding: 0 1.5rem;
+    }
+    .hero-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-bottom: 1.25rem;
+    }
+    .hero-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--text-main), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .m-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .m-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: var(--accent);
+      opacity: 0.8;
+    }
+    .m-card.gold::before { background: var(--gold); }
+    .m-card.green::before { background: var(--green); }
+    .m-card.blue::before { background: var(--blue); }
+    .m-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .m-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .m-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Sparkbars Chart */
+    .chart-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .chart-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .bars-wrap {
+      display: flex;
+      align-items: flex-end;
+      height: 100px;
+      gap: 1.5%;
+      padding-top: 10px;
+    }
+    .bar-col {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .bar-col:hover { opacity: 0.85; }
+    .bar-fill {
+      width: 100%;
+      background: linear-gradient(180deg, var(--accent-hover), var(--accent));
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      position: relative;
+    }
+    .bar-count {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .bar-label {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      max-width: 1200px;
+      margin: 0 auto 1.5rem;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .f-select {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.45rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+    .f-select:focus { border-color: var(--accent); }
+    .tag-btn {
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tag-btn.active, .tag-btn:hover {
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .search-input {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      outline: none;
+      min-width: 240px;
+    }
+    .search-input:focus { border-color: var(--accent); }
+
+    /* Games Grid */
+    .main-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem 2rem;
+      flex: 1;
+    }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .g-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      position: relative;
+    }
+    .g-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .g-cover-box {
+      width: 100%;
+      height: 160px;
+      position: relative;
+      background: #111;
+      overflow: hidden;
+    }
+    .g-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    .g-card:hover .g-cover {
+      transform: scale(1.05);
+    }
+    .badge-off {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #10b981;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .badge-aaa {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #f59e0b;
+      color: #000;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .badge-mystery {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(147, 51, 234, 0.9);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .g-info {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .g-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.2rem;
+      line-height: 1.35;
+    }
+    .g-orig-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .g-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+    }
+    .g-price-orig {
+      font-size: 0.85rem;
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+    .g-price-free {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #10b981;
+    }
+    .g-brief {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+    .g-meta-row {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .g-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-bottom: 0.85rem;
+    }
+    .g-tag {
+      font-size: 0.7rem;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+    .g-action {
+      display: block;
+      text-align: center;
+      background: rgba(147, 51, 234, 0.12);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.5rem 0;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .g-action:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+    .page-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .page-btn:not(:disabled):hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .page-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Back to top */
+    #toTop {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      border: none;
+      z-index: 99;
+    }
+    #toTop.show { display: flex; }
+
+    @media (max-width: 768px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .search-input { min-width: 100%; }
+      .filter-bar { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="nav-inner">
+      <a href="/" class="brand">
+        <span class="brand-logo">🎮</span>
+        <span>游戏站 · Epic 喜加一通鉴</span>
+      </a>
+      <div class="nav-actions">
+        <a href="https://myinfostream.com/" class="btn-link">信息河主站</a>
+        <a href="/" class="btn-link">本周限免</a>
+        <button id="themeToggleBtn" class="btn-link">🌓 主题</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="hero">
+    <div class="hero-title-wrap">
+      <h1 class="hero-title">Epic Games 历年免费大作历史总账本</h1>
+      <p class="hero-sub">记录 2019 年至今 Epic 赠送的全部免费大作、3A 殿堂经典与圣诞神秘连送，实时统计累计白嫖估值</p>
+    </div>
+
+    <!-- 4 大白嫖价值指标看板 -->
+    <div class="metrics-grid">
+      <div class="m-card gold">
+        <span class="m-label">累计白嫖总估值</span>
+        <span class="m-val" id="statUsd">$2,219+</span>
+        <span class="m-sub" id="statRmb">折合人民币约 ¥9,400+</span>
+      </div>
+      <div class="m-card green">
+        <span class="m-label">累计免费游戏数</span>
+        <span class="m-val" id="statGames">54 款</span>
+        <span class="m-sub">每周持续同步入库中</span>
+      </div>
+      <div class="m-card blue">
+        <span class="m-label">3A 殿堂级大作</span>
+        <span class="m-val" id="statAaa">39 款</span>
+        <span class="m-sub">高规格豪华阵容全收录</span>
+      </div>
+      <div class="m-card">
+        <span class="m-label">历年归档跨度</span>
+        <span class="m-val">2019 - 2026</span>
+        <span class="m-sub">8 年喜加一完整年鉴</span>
+      </div>
+    </div>
+
+    <!-- 历年走势分布图 -->
+    <div class="chart-box">
+      <div class="chart-head">
+        <span>📊 历年赠送游戏数量与金额走势 (点击柱子快速切年)</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">单位：款 / 美元</span>
+      </div>
+      <div class="bars-wrap" id="sparkBars">
+        <!-- 动态生成柱状图 -->
+      </div>
+    </div>
+  </main>
+
+  <!-- 交互控制条 -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <select id="yearSelect" class="f-select">
+        <option value="all">📅 全部历年 (2019-2026)</option>
+        <option value="2026" selected>2026 年</option>
+        <option value="2025">2025 年</option>
+        <option value="2024">2024 年</option>
+        <option value="2023">2023 年</option>
+        <option value="2022">2022 年</option>
+        <option value="2021">2021 年</option>
+        <option value="2020">2020 年</option>
+        <option value="2019">2019 年</option>
+      </select>
+
+      <button class="tag-btn active" data-tag="all">全部</button>
+      <button class="tag-btn" data-tag="aaa">★ 3A 殿堂大作</button>
+      <button class="tag-btn" data-tag="mystery">🎁 圣诞/神秘连送</button>
+      <button class="tag-btn" data-tag="dlc">💎 豪华/含DLC</button>
+    </div>
+
+    <div class="filter-group">
+      <select id="sortSelect" class="f-select">
+        <option value="date">⏱ 按赠送时间 (最新优先)</option>
+        <option value="price">💰 按原价值 (从高到低)</option>
+        <option value="date_asc">⏳ 按最早赠送时间</option>
+      </select>
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜索游戏名 / 发行商 / 标签..." />
+    </div>
+  </div>
+
+  <!-- 游戏卡片容器 -->
+  <div class="main-wrap">
+    <div class="games-grid" id="gamesList">
+      <!-- 动态卡片 -->
+    </div>
+
+    <div class="pagination">
+      <button id="prevBtn" class="page-btn" disabled>‹ 上一页</button>
+      <span class="page-info" id="pageInfo">第 1 / 1 页 (共 0 款)</span>
+      <button id="nextBtn" class="page-btn" disabled>下一页 ›</button>
+    </div>
+  </div>
+
+  <button id="toTop" title="回到顶部">↑</button>
+
+  <footer>
+    <div class="footer-links">
+      <a href="https://myinfostream.com/about">关于我们</a>
+      <a href="https://myinfostream.com/privacy">隐私政策</a>
+      <a href="https://myinfostream.com/editorial">编辑准则</a>
+      <a href="https://myinfostream.com/contact">联系合作</a>
+      <a href="https://myinfostream.com/terms">服务条款</a>
+    </div>
+    <p>© 2026 InfoStream 游戏站 · 专注 Epic 喜加一福利与高品质游戏情报</p>
+  </footer>
+
+  <script>
+    let currentYear = "2026";
+    let currentTag = "all";
+    let currentSort = "date";
+    let searchKeyword = "";
+    let currentPage = 1;
+    let totalPages = 1;
+
+    // 主题切换
+    const themeBtn = document.getElementById("themeToggleBtn");
+    if (themeBtn) {
+      themeBtn.addEventListener("click", () => {
+        const cur = document.documentElement.getAttribute("data-theme") || "dark";
+        const next = cur === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        try { localStorage.setItem("infostream_theme", next); } catch {}
+      });
+      try {
+        const saved = localStorage.getItem("infostream_theme");
+        if (saved) document.documentElement.setAttribute("data-theme", saved);
+      } catch {}
+    }
+
+    // 回到顶部
+    const toTopBtn = document.getElementById("toTop");
+    window.addEventListener("scroll", () => {
+      toTopBtn.classList.toggle("show", window.scrollY > 300);
+    }, { passive: true });
+    toTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
+    // 加载总览统计
+    async function loadOverview() {
+      try {
+        const res = await fetch("/api/games?overview=1");
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById("statUsd").textContent = `$${data.total_value_usd.toLocaleString()}+`;
+          document.getElementById("statRmb").textContent = `折合人民币约 ¥${data.total_value_rmb.toLocaleString()}+`;
+          document.getElementById("statGames").textContent = `${data.total_games} 款`;
+          document.getElementById("statAaa").textContent = `${data.aaa_count} 款`;
+
+          renderSparkbars(data.years || []);
+        }
+      } catch (e) {
+        console.warn("loadOverview error:", e);
+      }
+    }
+
+    function renderSparkbars(years) {
+      const container = document.getElementById("sparkBars");
+      if (!container || !years.length) return;
+      const sorted = [...years].sort((a, b) => a.year - b.year);
+      const maxCount = Math.max(...sorted.map(y => y.count), 1);
+
+      container.innerHTML = sorted.map(y => {
+        const pct = Math.max(12, Math.round((y.count / maxCount) * 100));
+        return `
+          <div class="bar-col" data-year="${y.year}" title="${y.year} 年赠送 ${y.count} 款游戏，总值 $${y.total_usd}">
+            <div class="bar-fill" style="height: ${pct}%;">
+              <span class="bar-count">${y.count}</span>
+            </div>
+            <span class="bar-label">${y.year}</span>
+          </div>
+        `;
+      }).join("");
+
+      container.querySelectorAll(".bar-col").forEach(col => {
+        col.addEventListener("click", () => {
+          const y = col.dataset.year;
+          document.getElementById("yearSelect").value = y;
+          currentYear = y;
+          currentPage = 1;
+          syncUrl();
+          loadGames();
+        });
+      });
+    }
+
+    // 加载游戏列表
+    async function loadGames() {
+      const listEl = document.getElementById("gamesList");
+      listEl.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">正在加载史诗级白嫖账本...</div>`;
+
+      const params = new URLSearchParams({
+        year: currentYear,
+        tag: currentTag,
+        sort: currentSort,
+        page: currentPage,
+        pageSize: 16
+      });
+      if (searchKeyword) params.set("q", searchKeyword);
+
+      try {
+        const res = await fetch(`/api/games?${params.toString()}`);
+        const data = await res.json();
+        if (!data.success || !data.items.length) {
+          listEl.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">未找到符合条件的游戏记录，换个搜索词试试吧~</div>`;
+          document.getElementById("pageInfo").textContent = `第 0 / 0 页`;
+          document.getElementById("prevBtn").disabled = true;
+          document.getElementById("nextBtn").disabled = true;
+          return;
+        }
+
+        totalPages = data.totalPages;
+        document.getElementById("pageInfo").textContent = `第 ${data.page} / ${data.totalPages} 页 (共 ${data.total} 款)`;
+        document.getElementById("prevBtn").disabled = data.page <= 1;
+        document.getElementById("nextBtn").disabled = data.page >= data.totalPages;
+
+        listEl.innerHTML = data.items.map(g => {
+          const tagsHtml = (g.tags || []).map(t => `<span class="g-tag">${t}</span>`).join("");
+          const rmbStr = g.price_rmb ? ` (约 ¥${g.price_rmb})` : "";
+          const origPriceStr = g.price_usd ? `$${g.price_usd}${rmbStr}` : "付费大作";
+          return `
+            <article class="g-card">
+              <div class="g-cover-box">
+                <img src="${g.cover_url || '/favicon.svg'}" alt="${g.title_cn}" class="g-cover" loading="lazy" />
+                <span class="badge-off">100% OFF</span>
+                ${g.is_aaa ? '<span class="badge-aaa">★ 3A殿堂</span>' : ''}
+                ${g.is_mystery ? '<span class="badge-mystery">🎁 圣诞/神秘连送</span>' : ''}
+              </div>
+              <div class="g-info">
+                <h3 class="g-title">${g.title_cn}</h3>
+                <div class="g-orig-title">${g.title}</div>
+                <div class="g-price-row">
+                  <span class="g-price-orig">${origPriceStr}</span>
+                  <span class="g-price-free">免费入库</span>
+                </div>
+                <p class="g-brief">${g.brief || "Epic Games Store 经典限免福利大作。"}</p>
+                <div class="g-meta-row">
+                  <span>📅 赠送周期：${g.giveaway_start} 至 ${g.giveaway_end}</span>
+                  ${g.rating ? `<span>⭐ 玩家评价：${g.rating}</span>` : ''}
+                  ${g.developer ? `<span>🏢 研发团队：${g.developer}</span>` : ''}
+                </div>
+                <div class="g-tags">${tagsHtml}</div>
+                <a href="${g.store_url}" target="_blank" rel="noopener noreferrer" class="g-action">前往 Epic 商店详情 ↗</a>
+              </div>
+            </article>
+          `;
+        }).join("");
+      } catch (e) {
+        console.error("loadGames error:", e);
+        listEl.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #ef4444;">加载失败，请检查网络后重试。</div>`;
+      }
+    }
+
+    function syncUrl() {
+      try {
+        const u = new URL(window.location);
+        if (currentYear !== "all") u.searchParams.set("year", currentYear);
+        else u.searchParams.delete("year");
+        window.history.replaceState({}, "", u);
+      } catch {}
+    }
+
+    // 筛选联动
+    document.getElementById("yearSelect").addEventListener("change", (e) => {
+      currentYear = e.target.value;
+      currentPage = 1;
+      syncUrl();
+      loadGames();
+    });
+
+    document.querySelectorAll(".tag-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tag-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentTag = btn.dataset.tag;
+        currentPage = 1;
+        loadGames();
+      });
+    });
+
+    document.getElementById("sortSelect").addEventListener("change", (e) => {
+      currentSort = e.target.value;
+      currentPage = 1;
+      loadGames();
+    });
+
+    let searchTimer = null;
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        searchKeyword = e.target.value.trim();
+        currentPage = 1;
+        loadGames();
+      }, 250);
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        loadGames();
+        window.scrollTo({ top: 400, behavior: "smooth" });
+      }
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        loadGames();
+        window.scrollTo({ top: 400, behavior: "smooth" });
+      }
+    });
+
+    // 初始化
+    async function init() {
+      const u = new URL(window.location);
+      const urlYear = u.searchParams.get("year");
+      if (urlYear && (urlYear === "all" || /^\d{4}$/.test(urlYear))) {
+        currentYear = urlYear;
+        const sel = document.getElementById("yearSelect");
+        if (sel) sel.value = currentYear;
+      }
+      await loadOverview();
+      await loadGames();
+    }
+    init();
+  </script>
+</body>
+</html>

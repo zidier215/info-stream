@@ -139,8 +139,8 @@ export const HOSTS = {
     descEn: "Epic Games Store giveaways: live this week, coming soon and kept forever — sorted by claim deadline, with price and expiry at a glance.",
     tagline: "白嫖 Epic · 每周三款 · 别领过期",
     taglineEn: "Free Epic games · Three a week · Don't miss the window",
-    briefing: "【游戏福利导读】实时同步 Epic Games Store 官方限免接口，按「本周可领 · 即将开放 · 长期免费」三态分类，清晰标注原价、DLC 包含情况与领取截止倒计时。",
-    briefingEn: "Free Games Briefing: Real-time tracking of official Epic Games Store giveaways, organized by Live Now, Upcoming, and Free-to-Keep — complete with retail valuation, DLC bundle details, and claim expiration countdowns.",
+    briefing: "【游戏福利导读】实时同步 Epic Games Store 官方限免接口，按「本周可领 · 即将开放 · 长期免费」三态分类，清晰标注原价、DLC 包含情况与领取截止倒计时；支持前往 <a href=\"/history\">Epic 喜加一历史总账本</a> 查阅 2019-2026 历年白嫖估值与 3A 大作通鉴。",
+    briefingEn: "Free Games Briefing: Real-time tracking of official Epic Games Store giveaways, organized by Live Now, Upcoming, and Free-to-Keep — complete with retail valuation and DLC bundle details. Visit our <a href=\"/history\">Epic Free Games Archive</a> for 2019-2026 historical valuation and AAA blockbusters.",
     defaultLang: "zh",
     // 与 ai 站同一批语言：Epic 的 title/desc 是英文原文，站点形态是中文，
     // 两种都需要。游戏内容本身不随 srcLang 变化，所以不设语言过滤。

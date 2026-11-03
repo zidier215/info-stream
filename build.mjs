@@ -51,6 +51,7 @@ const ENTRIES = [
   "editorial.html",
   "terms.html",
   "papers.html",
+  "games.html",
   "data"
 ];
 

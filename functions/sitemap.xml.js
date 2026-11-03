@@ -111,6 +111,19 @@ export async function onRequest(context) {
         });
       }
     }
+  } else if (cfg.key === "game") {
+    // 游戏站收录专属的 Epic 喜加一历史总账本与历年年鉴 (2019-2026)
+    urls.push(
+      { loc: `https://${cfg.host}/history`, changefreq: "daily", priority: "0.9", lastmod: now },
+    );
+    for (let y = 2026; y >= 2019; y--) {
+      urls.push({
+        loc: `https://${cfg.host}/history?year=${y}`,
+        changefreq: y === 2026 ? "daily" : "monthly",
+        priority: y === 2026 ? "0.8" : "0.7",
+        lastmod: now,
+      });
+    }
   }
 
   const body = urls

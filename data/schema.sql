@@ -20,6 +20,36 @@ CREATE INDEX IF NOT EXISTS idx_ai_papers_ts ON ai_papers(ts DESC);
 CREATE INDEX IF NOT EXISTS idx_ai_papers_starred ON ai_papers(is_starred);
 CREATE INDEX IF NOT EXISTS idx_ai_papers_week ON ai_papers(year_week);
 
+-- =========================================================================
+-- Cloudflare D1 Schema for Epic Free Games Archive (Epic 喜加一历史总账本)
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS epic_games_history (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  title_cn TEXT,
+  developer TEXT,
+  publisher TEXT,
+  price_usd REAL DEFAULT 0,
+  price_rmb REAL DEFAULT 0,
+  giveaway_start TEXT NOT NULL,
+  giveaway_end TEXT NOT NULL,
+  giveaway_year INTEGER NOT NULL,
+  is_aaa INTEGER DEFAULT 0,
+  is_mystery INTEGER DEFAULT 0,
+  has_dlc INTEGER DEFAULT 0,
+  tags TEXT,
+  rating TEXT,
+  cover_url TEXT,
+  store_url TEXT,
+  brief TEXT,
+  created_at INTEGER DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_epic_games_year ON epic_games_history(giveaway_year);
+CREATE INDEX IF NOT EXISTS idx_epic_games_price ON epic_games_history(price_usd DESC);
+CREATE INDEX IF NOT EXISTS idx_epic_games_start ON epic_games_history(giveaway_start DESC);
+CREATE INDEX IF NOT EXISTS idx_epic_games_aaa ON epic_games_history(is_aaa);
+
 -- 初始 50 篇高质量精选论文种子数据 (Seed Data)
 INSERT OR IGNORE INTO ai_papers (id, title, orig_title, url, summary, source, badge_type, is_starred, pub_date, ts) VALUES ('paper_1a31ef5d4a3c', 'Talos 分析 VOLTA 窃密木马：用 LLM 给受害者按变现价值排序', 'Malware uses LLMs to rank victims by how much they''re worth', 'https://blog.talosintelligence.com/appraisal-by-ai-model-driven-victim-prioritization-in-the-volta-infostealer/', 'Cisco Talos 分析自删除式 Windows 窃密木马 VOLTA-AUTODOXER，它在窃取凭据、会话和加密钱包后，将结构化证据包通过 OpenRouter 发给 LLM（默认 anthropic/claude-opus-4.6。', 'Hacker News', 'media', 0, '2026-11-01', 1793467538876);
 INSERT OR IGNORE INTO ai_papers (id, title, orig_title, url, summary, source, badge_type, is_starred, pub_date, ts) VALUES ('paper_66004c5277a8', 'Google DeepMind 论文：模拟环境中 RL 训练让 Gemini 3.1 Flash-Lite 更胜任精神科问诊', 'New Google DeepMind paper shows that training a model with RL on simulated patients made it a better psychiatric intake interviewer, as j...', 'https://x.com/rohanpaul_ai/status/2116551519034048861', 'Google DeepMind 论文用多轮 RL 在模拟病人环境中训练 Gemini 3.1 Flash-Lite，提升其精神科问诊能力。32 名精神科医生扮演病人、15 名盲评转录，训练后模型在 60 组配对案例中 76.7% 胜过同提示的基线模型；256 个对抗案例中急性风险漏升级率从 30.5% 降至 12.9%，但约 1/8 的对抗性危机仍未升级。', 'X · Rohan Paul', 'x', 0, '2026-10-31', 1793461602750);

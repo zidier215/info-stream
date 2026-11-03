@@ -7,6 +7,10 @@
     "/sitemap.xml",
     "/papers",
     "/papers/*",
+    "/history",
+    "/history/*",
+    "/games",
+    "/games/*",
     "/api/*"
   ],
   "exclude": [

@@ -240,6 +240,34 @@ const w44Api = JSON.parse(w44ApiRaw);
 ok(w44Api.stats?.mode === "week" && w44Api.daily?.length === 7, "单周查询返回完整 7 天分布走势 (W44 论文数=" + w44Api.total + ")");
 
 
+// ---------------- 第七层：Epic 喜加一历史总账本与 D1 边缘存储 ----------------
+console.log("\n【第七层：Epic 喜加一历史总账本 (Epic Free Games Archive) 与 D1 边缘存储】");
+const gamesPageHtml = curl("https://game.myinfostream.com/history");
+ok(gamesPageHtml.includes('rel="canonical" href="https://game.myinfostream.com/history"'), "游戏历史总账本 (/history) Canonical 正确指向本域落地页");
+ok(gamesPageHtml.includes('ca-pub-1130777358854864'), "游戏历史总账本落地页正确部署 Google AdSense 账号代码");
+ok(gamesPageHtml.includes('G-JBQYPMLVHR'), "游戏历史总账本落地页正确部署 GA4 测量代码");
+ok(gamesPageHtml.includes('id="statGames"'), "游戏历史总账本落地页包含累计白嫖款数看板 (id=statGames)");
+ok(gamesPageHtml.includes('id="statUsd"'), "游戏历史总账本落地页包含累计美元价值看板 (id=statUsd)");
+ok(gamesPageHtml.includes('id="sparkBars"'), "游戏历史总账本落地页包含历年分布走势柱状图容器 (id=sparkBars)");
+ok(gamesPageHtml.includes('id="gamesList"'), "游戏历史总账本落地页包含精美游戏卡片流容器 (id=gamesList)");
+
+const gamesApiOverviewRaw = curl("https://game.myinfostream.com/api/games?overview=1");
+const gamesApiOverview = JSON.parse(gamesApiOverviewRaw);
+ok(gamesApiOverview.success === true, "Epic 游戏历史 API overview 成功响应");
+ok(gamesApiOverview.storage === "d1", "Epic 游戏历史 API 真实接入 Cloudflare D1 边缘数据库 (storage=d1)");
+ok(gamesApiOverview.total_games >= 50, "Epic 游戏历史收录大作数充足 (总数=" + gamesApiOverview.total_games + ")");
+ok(gamesApiOverview.total_value_usd > 2000, "Epic 游戏累计白嫖总值 > $2,000 USD (总值=$" + gamesApiOverview.total_value_usd + ")");
+ok(gamesApiOverview.aaa_count >= 30, "Epic 游戏 3A 殿堂大作数充足 (3A数=" + gamesApiOverview.aaa_count + ")");
+ok(Array.isArray(gamesApiOverview.years) && gamesApiOverview.years.length >= 8, "Epic 游戏覆盖 2019-2026 完整 8 年 (覆盖年数=" + gamesApiOverview.years?.length + ")");
+
+const gamesApi2026Raw = curl("https://game.myinfostream.com/api/games?year=2026");
+const gamesApi2026 = JSON.parse(gamesApi2026Raw);
+ok(gamesApi2026.success === true && gamesApi2026.items?.length >= 10, "Epic 游戏 2026 年份专区正常查询 (2026收录=" + gamesApi2026.items?.length + "款)");
+
+const gameSitemap = curl("https://game.myinfostream.com/sitemap.xml");
+ok(gameSitemap.includes("https://game.myinfostream.com/history"), "游戏子域 sitemap.xml 完整收录 /history 历史总账本主入口");
+ok(gameSitemap.includes("https://game.myinfostream.com/history?year=2026"), "游戏子域 sitemap.xml 完整收录历年年鉴索引 URL");
+
 console.log("\n=================================================================");
 console.log(`   全景审计汇总: ${pass} 项全绿通过 / ${fail} 项失败`);
 console.log("=================================================================");
