@@ -334,3 +334,4 @@ function fallbackQuery({ yearParam, categoryParam, isToday, impactParam, q, sort
     items: paged,
   });
 }
+

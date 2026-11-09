@@ -620,3 +620,4 @@ const events = [
 
 fs.writeFileSync("data/hot-events-archive.json", JSON.stringify(events, null, 2), "utf8");
 console.log(`✓ Successfully generated data/hot-events-archive.json with ${events.length} viral hot events!`);
+

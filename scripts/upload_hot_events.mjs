@@ -47,3 +47,4 @@ try {
 } catch (e) {
   console.error("Verification error:", e.message);
 }
+
