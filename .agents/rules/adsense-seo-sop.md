@@ -1,6 +1,7 @@
 ---
+trigger: glob
 description: Google AdSense and SEO Audit & Compliance SOP
-globs: ["**/*.html", "**/_headers", "**/_routes.json", "**/wrangler.toml", "**/robots.txt", "**/sitemap.xml", "**/ads.txt"]
+globs: "**/*.html, **/_headers, **/_routes.json, **/wrangler.toml, **/robots.txt, **/sitemap.xml, **/ads.txt"
 ---
 
 # Google AdSense & SEO Audit SOP Rule
