@@ -186,8 +186,7 @@ for (const lang of LANGS) {
     ok(doc.lang === lang && doc.dir === "ltr", `${lang}/${tab} <html lang=${lang} dir=ltr>`,
       `实际 lang=${doc.lang} dir=${doc.dir}`);
 
-    // ---- ③ 子站定位纯化：热搜站不该有主站的小组件和条目区 ----
-    ok(await p.locator("#widgetsWrap").isHidden(), `${lang}/${tab} #widgetsWrap 已隐藏`);
+    // ---- ③ 子站定位纯化：热搜站不该有主站的条目区 ----
     ok(await p.locator("#entries").isHidden(), `${lang}/${tab} #entries 已隐藏`);
 
     // 只截首屏一屏，不截整列长图。

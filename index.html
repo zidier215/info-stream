@@ -152,40 +152,6 @@
     </div>
   </section>
 
-  <!-- 常驻看板：只有主站渲染（reloadWidgets 里 if (!IS_MAIN) return） -->
-  <section class="widgets-wrap" id="widgetsWrap">
-    <h2 class="section-title" data-i18n="widgetsTitle">常驻看板</h2>
-    <div class="widgets">
-      <!-- 天气 -->
-      <div class="widget" id="w-weather">
-        <div class="widget-head">
-          <span class="widget-title" data-i18n="weather">天气</span>
-          <div class="widget-tools">
-            <input id="cityInput" class="mini-input" type="text" data-i18n-ph="cityPlaceholder" placeholder="输入城市" />
-            <button id="cityGo" class="mini-btn">→</button>
-            <button id="geoBtn" class="mini-btn" data-i18n="myLocation" title="我的位置">📍</button>
-          </div>
-        </div>
-        <div class="widget-body" id="weatherBody"></div>
-      </div>
-      <!-- 游戏 -->
-      <div class="widget" id="w-games">
-        <div class="widget-head">
-          <span class="widget-title" data-i18n="games">游戏</span>
-          <button class="mini-btn w-refresh" data-widget="游戏">⟳</button>
-        </div>
-        <div class="widget-body" id="gamesBody"></div>
-      </div>
-      <!-- AI -->
-      <div class="widget" id="w-ai">
-        <div class="widget-head">
-          <span class="widget-title" data-i18n="ai">AI</span>
-          <button class="mini-btn w-refresh" data-widget="AI">⟳</button>
-        </div>
-        <div class="widget-body" id="aiBody"></div>
-      </div>
-    </div>
-  </section>
 
   <!-- 私有工具区：默认隐藏。地址栏带 ?key=你的密钥 才显示（见 README「只给自己用」） -->
   <section class="discover-wrap" id="discoverWrap" hidden>

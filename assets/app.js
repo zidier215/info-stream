@@ -293,12 +293,7 @@ const langSel = document.getElementById("lang");
 const translateBtn = document.getElementById("translateBtn");
 const autoBtn = document.getElementById("autoBtn");
 const refreshBtn = document.getElementById("refreshBtn");
-const cityInput = document.getElementById("cityInput");
-const cityGo = document.getElementById("cityGo");
-const geoBtn = document.getElementById("geoBtn");
-const weatherBody = document.getElementById("weatherBody");
-const gamesBody = document.getElementById("gamesBody");
-const aiBody = document.getElementById("aiBody");
+
 const discoverInput = document.getElementById("discoverInput");
 const discoverResults = document.getElementById("discoverResults");
 const discoverWrap = document.getElementById("discoverWrap");
@@ -1053,108 +1048,8 @@ function resetFeed(force) {
   bootstrapFeed(force);
 }
 
-// ---------- 固定部件 ----------
-// 固定看板（天气 / 游戏 / AI）使用独立的数据源，避免跨类目污染
-const WIDGET_SRC_TAB = { 天气: "weather", 游戏: "games", AI: "ai" };
-const WIDGET_CATS = {
-  天气: ["天气"],
-  游戏: ["游戏", "游戏·本周", "游戏·即将", "游戏·长期"],
-  AI: ["AI", "AI 快讯", "AI 产品", "AI 商业", "大模型", "AI 论文", "科技前沿", "开源热榜"],
-};
-
-async function loadWidget(cat, opts, force) {
-  const body = cat === "天气" ? weatherBody : cat === "游戏" ? gamesBody : aiBody;
-  if (!body) return;
-  body.innerHTML = `<div class="w-loading">…</div>`;
-  if (opts && opts.city !== undefined) setWeatherCtx(opts);
-  const want = WIDGET_CATS[cat] || [];
-  const isMatch = (it) => {
-    if (!it || !it.category) return false;
-    return want.some((w) => it.category === w || it.category.startsWith(w));
-  };
-
-  if (isLocal()) {
-    renderWidget(body, DEMO_ALL.filter(isMatch).slice(0, 6));
-    return;
-  }
-  try {
-    const q = new URLSearchParams();
-    q.set("tab", WIDGET_SRC_TAB[cat] || "brief");
-    q.set("lang", currentLang);
-    if (weatherCtx.city) q.set("city", weatherCtx.city);
-    if (weatherCtx.lat != null) q.set("lat", String(weatherCtx.lat));
-    if (weatherCtx.lon != null) q.set("lon", String(weatherCtx.lon));
-    const data = await fetchFeed(q, force);
-    const items = (data.items || []).filter(isMatch);
-    if (items.length) {
-      renderWidget(body, items.slice(0, 6));
-    } else {
-      // 容灾保底：严禁跨类目填充无关内容，使用该类目专用的演示数据兜底
-      const fallback = DEMO_ALL.filter(isMatch);
-      if (fallback.length) renderWidget(body, fallback.slice(0, 6));
-      else body.innerHTML = `<div class="w-loading">-</div>`;
-    }
-  } catch (e) {
-    const fallback = DEMO_ALL.filter(isMatch);
-    if (fallback.length) renderWidget(body, fallback.slice(0, 6));
-    else body.innerHTML = `<div class="w-loading">⚠️</div>`;
-  }
-}
-function setWeatherCtx(opts) {
-  if (!opts) return;
-  if (opts.city !== undefined) weatherCtx.city = opts.city || "";
-  if (opts.lat != null) weatherCtx.lat = opts.lat;
-  if (opts.lon != null) weatherCtx.lon = opts.lon;
-}
-function renderWidget(body, items) {
-  if (!items || !items.length) { body.innerHTML = `<div class="w-loading">-</div>`; return; }
-  const rows = items.slice(0, 6);
-  body.innerHTML = rows.map((it) => widgetItem(it, true)).join("");
-  // 部件内标题翻译（异步回填）
-  if (translateOn()) {
-    const nodes = body.querySelectorAll(".w-item a, .w-item span");
-    rows.forEach((it, i) => {
-      if (it.lang && it.lang !== currentLang) {
-        translateText(it.title, srcCode(it.lang), langCode(currentLang)).then((t) => {
-          const node = nodes[i]; if (node && t && t !== it.title) node.textContent = t;
-        });
-      }
-    });
-  }
-}
-// 只有主站有常驻看板：ai / news 站的内容本身就是这些主题，
-// 再挂一块「游戏」看板只会稀释站点定位。
-// 不只是不发请求 —— 整段（含标题）必须 hidden，否则子站页面上会留一个
-// 空标题和三个空框，比不显示更像出故障。
-function reloadWidgets(force) {
-  const wrap = document.getElementById("widgetsWrap");
-  if (wrap) wrap.hidden = !IS_MAIN;
-  if (!IS_MAIN) return;
-  loadWidget("天气", undefined, force);
-  loadWidget("游戏", undefined, force);
-  loadWidget("AI", undefined, force);
-}
-
-// 天气：城市搜索（浏览器直连 Open-Meteo 地理编码，已开启 CORS）
-// 定位结果写进 weatherCtx 而不是只传给一次请求 —— v2.4 的取数入口是 /api/feed?tab=，
-// 主信息流和天气部件共用这条链路，两边都要拿到城市。
-async function weatherByCity(name) {
-  if (!name) return;
-  try {
-    const g = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1`, { cache: "no-store" });
-    const d = await g.json();
-    const r = d.results && d.results[0];
-    if (r) loadWidget("天气", { city: r.name, lat: r.latitude, lon: r.longitude });
-    else loadWidget("天气", { city: name });
-  } catch (e) { loadWidget("天气", { city: name }); }
-}
-function weatherByGeo() {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(
-    (pos) => loadWidget("天气", { city: "本地", lat: pos.coords.latitude, lon: pos.coords.longitude }),
-    () => loadWidget("天气")
-  );
-}
+// ---------- 常驻看板（已按需求彻底移除，聚焦核心数据库与精选资讯） ----------
+function reloadWidgets() {}
 
 // ---------- 接口发现（仅开发者模式） ----------
 async function loadDiscover(q) {
@@ -1280,14 +1175,7 @@ if (translateBtn) translateBtn.addEventListener("click", () => {
   // 重新渲染以应用/取消翻译
   resetFeed(); reloadWidgets();
 });
-if (cityGo) cityGo.addEventListener("click", () => weatherByCity(cityInput.value.trim()));
-if (cityInput) cityInput.addEventListener("keydown", (e) => { if (e.key === "Enter") weatherByCity(cityInput.value.trim()); });
-if (geoBtn) geoBtn.addEventListener("click", weatherByGeo);
-// force=true 是必须的：用户明确点了刷新，就该真的打一次网络，
-// 不能被上面 fetchFeed 的 15 秒复用挡掉，否则按钮看着像坏了。
-document.querySelectorAll(".w-refresh").forEach((b) =>
-  b.addEventListener("click", () => loadWidget(b.dataset.widget || "AI", undefined, true))
-);
+
 if (discoverInput) discoverInput.addEventListener("input", () => { clearTimeout(discoverInput._t); discoverInput._t = setTimeout(() => loadDiscover(discoverInput.value.trim()), 300); });
 if (feed) {
   feed.addEventListener("mouseenter", () => (hovering = true));

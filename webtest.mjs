@@ -100,18 +100,6 @@ for (let i = 0; i < tabs.length; i++) {
   ok(r.n > 0, `tab「${name}」出 ${r.n} 条`, `${r.ms} ms${tag}`);
 }
 
-// --- 看板（主站常驻）---
-const widgets = await p.evaluate(() => {
-  const wrap = document.getElementById("widgetsWrap");
-  if (!wrap || wrap.hidden) return null;
-  return {
-    weather: !!document.querySelector("#w-weather")?.textContent.trim(),
-    games: !!document.querySelector("#w-games")?.textContent.trim(),
-    ai: !!document.querySelector("#w-ai")?.textContent.trim(),
-  };
-});
-if (widgets) ok(widgets.weather && widgets.games, "看板有内容（天气 / 游戏）", JSON.stringify(widgets));
-
 // --- 入口卡片（仅主站）---
 const entries = await p.locator("#entries .entry-card").count();
 ok(entries > 0, `主站入口卡片 ${entries} 个`);
