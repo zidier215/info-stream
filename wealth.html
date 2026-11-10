@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>人类商业变现与财富杠杆演进通鉴 (百年之前至2026 AI时代) · InfoStream</title>
+  <meta name="description" content="穷尽拆解人类千年商业变现与赚钱方法的底层逻辑：按「百年之前(<1926)、近百年现代期(1926-2015)、近十年移动算法期(2016-2023)、最近三年生成式AI与超级个体期(2024-2026)」四大历史纪元 ×「时间技能、信息套利、流量注意力、产品代码、资本风险、稀缺收租」六大财富杠杆，构建24宫格全息商业模式图谱。" />
+  <meta name="keywords" content="商业模式全图谱,赚钱底层逻辑,财富杠杆,纳瓦尔杠杆,一人公司,Micro-SaaS,AI Agent变现,跨境出海,信息差套利,被动收入,商业史通鉴" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://myinfostream.com/wealth" />
+  <meta name="google-adsense-account" content="ca-pub-1130777358854864" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JBQYPMLVHR"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-JBQYPMLVHR');
+  </script>
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1130777358854864" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --bg-card: #131822;
+      --bg-card-hover: #1a2230;
+      --bg-subtle: #18202c;
+      --border: #263142;
+      --border-focus: #f59e0b;
+      --text: #f3f6fa;
+      --text-muted: #94a3b8;
+      --accent: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.22);
+      --gold-grad: linear-gradient(135deg, #f59e0b 0%, #10b981 100%);
+      --era-ancient: #a855f7;
+      --era-century: #3b82f6;
+      --era-decade: #ec4899;
+      --era-recent3: #10b981;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #fefce8;
+      --bg-subtle: #f1f5f9;
+      --border: #e2e8f0;
+      --border-focus: #d97706;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #d97706;
+      --accent-glow: rgba(217, 119, 6, 0.14);
+      --gold-grad: linear-gradient(135deg, #d97706 0%, #059669 100%);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.65;
+      padding-bottom: 60px;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* Top Nav */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      background: rgba(11, 14, 20, 0.88);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    [data-theme="light"] .top-nav {
+      background: rgba(248, 250, 252, 0.9);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .brand-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-link {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 13px;
+      border-radius: 20px;
+      font-size: 0.84rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-link:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 20px;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 28px 16px 32px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: var(--gold-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      max-width: 860px;
+      margin: 0 auto 18px;
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    .formula-banner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      border-radius: 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.92rem;
+      color: var(--accent);
+    }
+
+    /* Metrics */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .m-label { font-size: 0.84rem; color: var(--text-muted); }
+    .m-val { font-size: 1.75rem; font-weight: 800; color: var(--text); }
+    .m-sub { font-size: 0.8rem; color: var(--accent); }
+
+    /* Methodology Critique Section */
+    .critique-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 28px;
+    }
+    .critique-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .critique-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    .critique-item {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 0.9rem;
+    }
+    .critique-item strong {
+      color: var(--accent);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* 4x6 Matrix Table */
+    .matrix-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 28px;
+      overflow-x: auto;
+    }
+    .matrix-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      min-width: 820px;
+    }
+    .matrix-table th, .matrix-table td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .matrix-table th {
+      background: var(--bg-subtle);
+      font-weight: 700;
+      color: var(--text);
+    }
+    .matrix-cell {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .matrix-cell:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent);
+    }
+
+    /* Filter Toolbar */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .f-select, .search-input {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .f-select:focus, .search-input:focus {
+      border-color: var(--accent);
+    }
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+    }
+    .btn-toggle {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 15px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-toggle.active {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: #10b981;
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    /* Era Quick Pills */
+    .era-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .era-pill {
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .era-pill.active, .era-pill:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(245, 158, 11, 0.14);
+      font-weight: 600;
+    }
+
+    /* Cards Grid */
+    .wealth-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .w-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .w-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .w-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .w-era-tag {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent);
+    }
+    .w-era-tag.era-ancient { background: rgba(168, 85, 247, 0.16); color: #c084fc; }
+    .w-era-tag.era-century { background: rgba(59, 130, 246, 0.16); color: #60a5fa; }
+    .w-era-tag.era-decade { background: rgba(236, 72, 153, 0.16); color: #f472b6; }
+    .w-era-tag.era-recent3 { background: rgba(16, 185, 129, 0.18); color: #34d399; }
+    .w-lev-tag {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .w-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .w-formula {
+      background: var(--bg-subtle);
+      border-left: 3px solid var(--accent);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      color: var(--accent);
+      overflow-x: auto;
+    }
+    .w-essence {
+      font-size: 0.92rem;
+      color: var(--text);
+      opacity: 0.92;
+    }
+    .w-sec-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .ex-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .ex-chip {
+      font-size: 0.8rem;
+      padding: 3px 9px;
+      border-radius: 6px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .w-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+      font-size: 0.84rem;
+    }
+    .m-k { color: var(--text-muted); }
+    .m-v.stars { color: #f59e0b; letter-spacing: 1px; }
+    .w-risk {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.22);
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    .w-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 4px;
+    }
+    .w-badge {
+      font-size: 0.78rem;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .w-badge.solo {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .w-badge.corp {
+      background: rgba(148, 163, 184, 0.14);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    @media (max-width: 900px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .critique-grid { grid-template-columns: 1fr; }
+      .wealth-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <a href="https://myinfostream.com/">信息河 · InfoStream</a>
+      <span style="color:var(--text-muted); font-size:0.86rem; font-weight:400;">/ 人类商业变现与财富杠杆通鉴</span>
+    </div>
+    <div class="nav-actions">
+      <a href="https://myinfostream.com/" class="btn-link">🏠 返回主站</a>
+      <a href="https://ai.myinfostream.com/papers" class="btn-link">📄 AI 论文库</a>
+      <a href="https://ai.myinfostream.com/models" class="btn-link">🧠 大模型编年史</a>
+      <a href="https://game.myinfostream.com/history" class="btn-link">🎮 游戏总账本</a>
+      <a href="https://hot.myinfostream.com/history" class="btn-link">🔥 破圈大事件</a>
+      <button id="themeToggleBtn" class="btn-link">🌓 切换主题</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="hero">
+      <span class="hero-badge">MECE 穷尽式商业研究档案 · 4 大历史技术纪元 × 6 大底层价值捕获杠杆</span>
+      <h1>人类商业变现与财富杠杆演进通鉴</h1>
+      <p>从公元前丝绸漕运、晋商票号，到现代工业流水线、PC 搜索广告，再到近十年移动算法自媒体与最近三年生成式 AI 超级个体——剥离千变万化的时代包装，穷尽提取人类合法创造与获取财富的全部母范式。</p>
+      <div class="formula-banner">
+        💡 终极财富万有公式：净财富 = [ (单客终端价值 - 边际交付成本) × 杠杆放大倍率(代码 / 媒介 / 资本 / 团队) × 交易频次 ] ^ 时间复利
+      </div>
+    </header>
+
+    <!-- 4 Key Metrics -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <span class="m-label">📚 穷尽提炼母范式</span>
+        <span class="m-val" id="statTotal">36 种</span>
+        <span class="m-sub">涵盖上千种细分落地项目</span>
+      </div>
+      <div class="metric-card">
+        <span class="m-label">🧭 二维正交分类矩阵</span>
+        <span class="m-val">4 × 6 宫格</span>
+        <span class="m-sub">4大历史纪元 × 6大底层杠杆</span>
+      </div>
+      <div class="metric-card">
+        <span class="m-label">👤 适合个体/一人公司起步</span>
+        <span class="m-val" id="statSolo">27 种</span>
+        <span class="m-sub">无需重资本与牌照即可冷启动</span>
+      </div>
+      <div class="metric-card">
+        <span class="m-label">🚀 5星指数级复利模式</span>
+        <span class="m-val" id="statScale">21 种</span>
+        <span class="m-sub">代码 / IP / 算法媒介 / 资本杠杆</span>
+      </div>
+    </section>
+
+    <!-- 分类方法论反思与修正说明 -->
+    <section class="critique-box">
+      <div class="critique-title">🧐 分类方法论校准：为什么原方案「仅按 100年前 / 100年后 / 近10年 / 最近3年」存在 4 处逻辑盲区？</div>
+      <div class="critique-grid">
+        <div class="critique-item">
+          <strong>1. 区间包含重叠与“100年之后”语意歧义</strong>
+          中文里“100年之后”易被误读为未来（2126年），且“近100年”在数学上包含了“近10年”与“最近3年”。本档案将其精确校准为四个<strong>互不重叠的生产力代际</strong>：<code>百年之前(&lt;1926 农商古典期)</code> → <code>近百年现代期(1926–2015 工业与PC期)</code> → <code>近十年移动期(2016–2023 算法与出海期)</code> → <code>最近三年 AI 期(2024–2026 智能体与超级个体)</code>。
+        </div>
+        <div class="critique-item">
+          <strong>2. 仅按“时间维”无法穷尽，混淆了“时代载体”与“赚钱本质”</strong>
+          太阳底下无新事：古代“牙行居间”、2005年“淘宝客导购”与2025年“TikTok达人切片分销”，表象跨越千年，底层都是同一种赚钱逻辑（信息差与流量撮合）。只有引入正交的第2维度——<strong>六大底层价值捕获杠杆（时间技能 / 信息套利 / 流量注意力 / 产品代码 / 资本风险 / 稀缺收租）</strong>，组成 <code>4 × 6 = 24 宫格</code>，才能真正做到不重不漏（MECE 穷尽）。
+        </div>
+        <div class="critique-item">
+          <strong>3. 缺乏“启动门槛”与“个体可复制性”刻度</strong>
+          把“洛克菲勒石油垄断/银行牌照”与“AI 独立开发 Micro-SaaS”混为一谈，对个体决策毫无指导意义。因此每个赚钱范式均新增了<strong>准入门槛、复利天花板（1~5星）与「是否适合个体/一人公司起步」</strong>硬核标签。
+        </div>
+        <div class="critique-item">
+          <strong>4. 剔除“灰黑产与零和博弈偏门”，坚守长青复利</strong>
+          真正的财富积累建立在帕累托改进（创造真实社会价值）之上。那些写在刑法里的灰黑产、庞氏资金盘或违背平台规则的短期偏门，盈亏同源且无法享受时间复利，本档案一律剔除，专注正道商业模式。
+        </div>
+      </div>
+    </section>
+
+    <!-- 4x6 全息速查矩阵 -->
+    <section class="matrix-box">
+      <div class="matrix-head">
+        <strong>🗺️ 人类赚钱方法 4×6 全息穷尽矩阵（点击任意单元格可精准筛选下方卡片）</strong>
+        <button id="resetMatrixBtn" class="btn-link">重置矩阵筛选</button>
+      </div>
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th style="width:14%">历史技术纪元 \ 底层杠杆</th>
+            <th style="width:14%">🛠️ 时间与专业技能<br><small style="color:var(--text-muted)">出卖工时/手艺/顾问</small></th>
+            <th style="width:14%">⚖️ 信息差与跨界套利<br><small style="color:var(--text-muted)">低买高卖/居间撮合</small></th>
+            <th style="width:14%">📢 注意力与流量分发<br><small style="color:var(--text-muted)">眼球聚集/广告带货</small></th>
+            <th style="width:15%">🚀 产品、代码与IP复利<br><small style="color:var(--text-muted)">标准制造/软件/版权</small></th>
+            <th style="width:14%">🏦 资本、利差与风险<br><small style="color:var(--text-muted)">信贷/风投/量化对冲</small></th>
+            <th style="width:15%">🏰 稀缺资源与基建收租<br><small style="color:var(--text-muted)">土地/牌照/平台/算力</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>🏛️ 百年之前 (&lt;1926)<br><small style="color:var(--text-muted)">农商与古典工业期</small></th>
+            <td class="matrix-cell" data-era="ancient" data-lev="labor">名医/讼师/铁木工坊/师徒行会</td>
+            <td class="matrix-cell" data-era="ancient" data-lev="arbitrage">丝路漕运大宗行商、牙行经纪与通商买办</td>
+            <td class="matrix-cell" data-era="ancient" data-lev="attention">京剧名角戏班、茶馆评书、近代《申报》广告</td>
+            <td class="matrix-cell" data-era="ancient" data-lev="product">老字号成药秘方、雕版印书、淘金热卖牛仔裤/铁锹</td>
+            <td class="matrix-cell" data-era="ancient" data-lev="capital">典当行绝当暴利、山西票号汇兑、家族银行主权放贷</td>
+            <td class="matrix-cell" data-era="ancient" data-lev="rent">地主田租佃租、盐铁专卖牌照、铁路与石油托拉斯</td>
+          </tr>
+          <tr>
+            <th>🏭 近百年现代期 (1926-2015)<br><small style="color:var(--text-muted)">大工业、金融与PC互联网</small></th>
+            <td class="matrix-cell" data-era="century" data-lev="labor">红圈律所/四大审计/投行FA/猎头顾问合伙人</td>
+            <td class="matrix-cell" data-era="century" data-lev="arbitrage">淘宝/天猫/京东货架电商、华强北/义乌内外贸差价</td>
+            <td class="matrix-cell" data-era="century" data-lev="attention">央视标王+全国经销、PC门户与Google AdSense站群</td>
+            <td class="matrix-cell" data-era="century" data-lev="product">珠三角OEM代工、PC商业软件/端游、畅销书与音乐版税</td>
+            <td class="matrix-cell" data-era="century" data-lev="capital">城市化按揭买房杠杆、美股/指数复利、硅谷VC/PE股权投资</td>
+            <td class="matrix-cell" data-era="century" data-lev="rent">麦当劳/奶茶连锁加盟体系、商业写字楼与物流园收租</td>
+          </tr>
+          <tr>
+            <th>📱 近十年移动期 (2016-2023)<br><small style="color:var(--text-muted)">移动互联、算法与跨境出海</small></th>
+            <td class="matrix-cell" data-era="decade" data-lev="labor">Upwork远程美元接单、美团/滴滴灵活用工、收纳/陪诊</td>
+            <td class="matrix-cell" data-era="decade" data-lev="arbitrage">Amazon FBA、TikTok Shop与Shopify独立站汇率差出海</td>
+            <td class="matrix-cell" data-era="decade" data-lev="attention">抖音/YouTube/小红书算法自媒体、直播带货与微信私域</td>
+            <td class="matrix-cell" data-era="decade" data-lev="product">云端SaaS订阅制(ARR)、小程序流量主、知识付费训练营</td>
+            <td class="matrix-cell" data-era="decade" data-lev="capital">加密资产周期囤币、期现资金费率套利与链上量化做市</td>
+            <td class="matrix-cell" data-era="decade" data-lev="rent">双边交易平台抽佣、MCN机构达人签约分成、纯外卖幽灵厨房</td>
+          </tr>
+          <tr>
+            <th>🤖 最近三年 AI 期 (2024-2026)<br><small style="color:var(--text-muted)">生成式AI、算力与超级个体</small></th>
+            <td class="matrix-cell" data-era="recent3" data-lev="labor">企业AI Agent自动化工作流代搭建、银发经济适老康养服务</td>
+            <td class="matrix-cell" data-era="recent3" data-lev="arbitrage">时光机理论：短剧/小游戏/二手新能源车跨洲降维出海</td>
+            <td class="matrix-cell" data-era="recent3" data-lev="attention">AIGC多语种Faceless频道矩阵、数字人24h本地团购直播</td>
+            <td class="matrix-cell" data-era="recent3" data-lev="product">Cursor赋能一人公司Micro-SaaS、情绪价值潮玩/谷子/AI硬件</td>
+            <td class="matrix-cell" data-era="recent3" data-lev="capital">杠铃型资本配置(高股息垄断底仓 + 全球AI算力科技龙头)</td>
+            <td class="matrix-cell" data-era="recent3" data-lev="rent">GPU算力调度租赁、博士级RLHF合成数据交付、API路由网关</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Era Quick Pills -->
+    <div class="era-pills" id="eraPills">
+      <button class="era-pill active" data-era="">🌐 全部历史纪元 (36)</button>
+      <button class="era-pill" data-era="recent3">🤖 最近三年 AI 与超级个体期 (2024-2026)</button>
+      <button class="era-pill" data-era="decade">📱 近十年移动与算法期 (2016-2023)</button>
+      <button class="era-pill" data-era="century">🏭 近百年现代工业与 PC 期 (1926-2015)</button>
+      <button class="era-pill" data-era="ancient">🏛️ 百年之前古典农商期 (&lt;1926)</button>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <section class="toolbar">
+      <select id="levSelect" class="f-select">
+        <option value="">全部 6 大底层财富杠杆</option>
+        <option value="product">🚀 产品、代码与 IP 复利 (零边际成本)</option>
+        <option value="attention">📢 注意力与流量分发 (媒介杠杆)</option>
+        <option value="arbitrage">⚖️ 信息差与跨界套利 (渠道杠杆)</option>
+        <option value="labor">🛠️ 时间与专业技能 (人力/专家杠杆)</option>
+        <option value="capital">🏦 资本、利差与风险定价 (金融杠杆)</option>
+        <option value="rent">🏰 稀缺资源与基建收租 (垄断/产权杠杆)</option>
+      </select>
+
+      <select id="sortSelect" class="f-select">
+        <option value="era_desc">⏱ 按时代由近及远 (优先看最近三年)</option>
+        <option value="scale">🚀 按规模复利天花板 (从高到低)</option>
+        <option value="era_asc">📜 按历史演进顺序 (从古至今)</option>
+      </select>
+
+      <button id="soloToggle" class="btn-toggle">👤 仅看适合普通人/一人公司起步</button>
+
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜索赚钱模式、盈利公式、SaaS、AdSense、跨境、套利..." />
+    </section>
+
+    <!-- Cards Container (SSR populated by functions/wealth.js, hydrated by client JS) -->
+    <section class="wealth-grid" id="wealthList"></section>
+
+    <footer style="margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; font-size: 0.85rem; color: var(--text-muted);">
+      <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 8px;">
+        <a href="https://myinfostream.com/about">关于我们</a><span>·</span>
+        <a href="https://myinfostream.com/privacy">隐私政策</a><span>·</span>
+        <a href="https://myinfostream.com/editorial">编辑准则</a><span>·</span>
+        <a href="https://myinfostream.com/contact">联系合作</a><span>·</span>
+        <a href="https://myinfostream.com/terms">服务条款</a>
+      </div>
+      <p>© 2026 InfoStream 信息河 · 人类商业变现与财富杠杆演进通鉴（仅供商业史与经济学模式研究，不构成任何投资建议）</p>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      let currentEra = "";
+      let currentLev = "";
+      let onlySolo = false;
+      let currentSort = "era_desc";
+      let searchQ = "";
+      let allItems = [];
+
+      const wealthList = document.getElementById("wealthList");
+      const levSelect = document.getElementById("levSelect");
+      const sortSelect = document.getElementById("sortSelect");
+      const soloToggle = document.getElementById("soloToggle");
+      const searchInput = document.getElementById("searchInput");
+      const eraPills = document.querySelectorAll(".era-pill");
+      const matrixCells = document.querySelectorAll(".matrix-cell");
+      const resetMatrixBtn = document.getElementById("resetMatrixBtn");
+      const themeToggleBtn = document.getElementById("themeToggleBtn");
+
+      // Theme toggle
+      const savedTheme = localStorage.getItem("infostream_theme") || "dark";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      themeToggleBtn.addEventListener("click", () => {
+        const cur = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", cur);
+        localStorage.setItem("infostream_theme", cur);
+      });
+
+      function escapeHtml(s) {
+        return String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function renderCards(items) {
+        if (!items.length) {
+          wealthList.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted);">未匹配到符合当前筛选条件的商业变现模式，请尝试重置筛选条件。</div>`;
+          return;
+        }
+        wealthList.innerHTML = items.map((it) => {
+          const stars = "★".repeat(it.scalability) + "☆".repeat(5 - it.scalability);
+          const soloBadge = it.solo_friendly
+            ? `<span class="w-badge solo">👤 适合个体/一人公司起步</span>`
+            : `<span class="w-badge corp">🏢 需机构/重资本/牌照运作</span>`;
+          const exHtml = (it.examples || []).map((ex) => `<span class="ex-chip">${escapeHtml(ex)}</span>`).join("");
+          return `
+            <article class="w-card">
+              <div class="w-card-top">
+                <span class="w-era-tag era-${escapeHtml(it.era)}">${escapeHtml(it.era_label)} · ${escapeHtml(it.period)}</span>
+                <span class="w-lev-tag">${escapeHtml(it.leverage_label)}</span>
+              </div>
+              <h3 class="w-title">${escapeHtml(it.title)}</h3>
+              <div class="w-formula"><code>📐 盈利公式：${escapeHtml(it.formula)}</code></div>
+              <p class="w-essence">${escapeHtml(it.essence)}</p>
+              <div class="w-examples">
+                <div class="w-sec-label">📌 典型落地业态与实操载体：</div>
+                <div class="ex-wrap">${exHtml}</div>
+              </div>
+              <div class="w-meta-grid">
+                <div><span class="m-k">准入门槛：</span><span class="m-v">${escapeHtml(it.barrier)}</span></div>
+                <div><span class="m-k">规模复利上限：</span><span class="m-v stars">${stars}</span></div>
+              </div>
+              <div class="w-risk">⚠️ <strong>周期风险与避坑：</strong>${escapeHtml(it.risk_pitfall)}</div>
+              <div class="w-foot">${soloBadge}</div>
+            </article>`;
+        }).join("");
+      }
+
+      async function loadData() {
+        const params = new URLSearchParams();
+        if (currentEra) params.set("era", currentEra);
+        if (currentLev) params.set("leverage", currentLev);
+        if (onlySolo) params.set("solo", "1");
+        if (currentSort) params.set("sort", currentSort);
+        if (searchQ) params.set("q", searchQ);
+        try {
+          const res = await fetch(`/api/wealth?${params.toString()}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data && Array.isArray(data.items)) {
+            renderCards(data.items);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      eraPills.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          eraPills.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentEra = btn.getAttribute("data-era") || "";
+          loadData();
+        });
+      });
+
+      matrixCells.forEach((cell) => {
+        cell.addEventListener("click", () => {
+          currentEra = cell.getAttribute("data-era") || "";
+          currentLev = cell.getAttribute("data-lev") || "";
+          levSelect.value = currentLev;
+          eraPills.forEach((b) => {
+            b.classList.toggle("active", (b.getAttribute("data-era") || "") === currentEra);
+          });
+          loadData();
+          wealthList.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+
+      resetMatrixBtn.addEventListener("click", () => {
+        currentEra = "";
+        currentLev = "";
+        onlySolo = false;
+        searchQ = "";
+        levSelect.value = "";
+        searchInput.value = "";
+        soloToggle.classList.remove("active");
+        eraPills.forEach((b) => b.classList.toggle("active", (b.getAttribute("data-era") || "") === ""));
+        loadData();
+      });
+
+      levSelect.addEventListener("change", () => {
+        currentLev = levSelect.value;
+        loadData();
+      });
+
+      sortSelect.addEventListener("change", () => {
+        currentSort = sortSelect.value;
+        loadData();
+      });
+
+      soloToggle.addEventListener("click", () => {
+        onlySolo = !onlySolo;
+        soloToggle.classList.toggle("active", onlySolo);
+        loadData();
+      });
+
+      let timer = null;
+      searchInput.addEventListener("input", () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          searchQ = searchInput.value.trim();
+          loadData();
+        }, 220);
+      });
+
+      // Only fetch if URL has era query or if SSR list is empty
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("era")) {
+        currentEra = urlParams.get("era");
+        eraPills.forEach((b) => b.classList.toggle("active", b.getAttribute("data-era") === currentEra));
+      }
+      if (!wealthList.children.length) {
+        loadData();
+      }
+    })();
+  </script>
+</body>
+</html>
