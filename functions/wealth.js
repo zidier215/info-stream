@@ -12,14 +12,28 @@ export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
 
+  // 1. 规范化重定向：若访问带有尾部斜杠 (/wealth/)，301 重定向至 /wealth 保持唯一 Canonical
+  if (url.pathname.length > 1 && url.pathname.endsWith("/")) {
+    const cleanUrl = new URL(url.toString());
+    cleanUrl.pathname = cleanUrl.pathname.replace(/\/+$/, "");
+    return Response.redirect(cleanUrl.toString(), 301);
+  }
+
+  // 2. 跨子域访问重定向：商业通鉴为 InfoStream 全球主站核心数据库，子域访问 301 回归主站
+  const { host, cfg } = resolveHost(request);
+  const hostCfg = cfg || HOSTS[MAIN_HOST];
+  if (host !== MAIN_HOST && host !== `www.${MAIN_HOST}` && !host.endsWith(".pages.dev") && host !== "localhost" && host !== "127.0.0.1") {
+    const mainUrl = new URL(url.toString());
+    mainUrl.hostname = MAIN_HOST;
+    return Response.redirect(mainUrl.toString(), 301);
+  }
+
   const tplRes = await env.ASSETS.fetch(new Request(new URL("/wealth.html", url.origin)));
   if (!tplRes.ok) {
     return new Response("404 Not Found", { status: 404 });
   }
 
   let html = await tplRes.text();
-  const { cfg } = resolveHost(request);
-  const hostCfg = cfg || HOSTS[MAIN_HOST];
 
   const eraParam = url.searchParams.get("era");
   const validEras = ["ancient", "century", "decade", "recent3"];

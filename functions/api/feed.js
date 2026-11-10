@@ -143,11 +143,15 @@ export async function onRequest(context) {
   // 这里回落到主站配置，保证预览环境也有数据可看。
   const conf = cfg || HOSTS[MAIN_HOST];
 
-  // ---- tab 解析：未知 tab 回落本站第一个 tab，而不是「全部类目」 ----
+  // ---- tab 解析：支持看板专用独立 tab (weather / games) 与站点声明的 tabs ----
+  const SPECIAL_TABS = {
+    weather: { id: "weather", sources: ["weather"] },
+    games: { id: "games", sources: ["games"] },
+  };
   const wantTab = url.searchParams.get("tab") || "";
   const force = url.searchParams.get("force") === "1" || url.searchParams.get("force") === "true";
   const tabs = conf.tabs || [];
-  const tab = tabs.find((t) => t.id === wantTab) || tabs[0] || { id: "default", sources: [] };
+  const tab = tabs.find((t) => t.id === wantTab) || SPECIAL_TABS[wantTab] || tabs[0] || { id: "default", sources: [] };
 
   // ---- 内容语言过滤（srcLang）与界面语言（lang）是两件事 ----
   // lang   只影响前端渲染文案，不参与取数
@@ -202,10 +206,16 @@ export async function onRequest(context) {
       items = await fetchBySources(tab.sources, opts, {
         topic: conf.key === "main" ? "main" : conf.key,
       });
-      // 容灾与内容充实度兜底：若获取到的内容不足（例如上游部分源波动导致条目数 < 35），从内置静态资产快照合并补全
-      if ((!items || items.length < 35) && env && env.ASSETS) {
+      // 容灾与内容充实度兜底：若获取到的内容不足，从内置静态资产快照合并补全
+      const minExpected = tab.id === "weather" ? 6 : tab.id === "games" ? 4 : 35;
+      if ((!items || items.length < minExpected) && env && env.ASSETS) {
         try {
-          const snapReq = new Request(new URL(`/data/feed-${tab.id}.json`, url.origin), { method: "GET" });
+          const snapFile = tab.id === "weather"
+            ? "/data/feed-weather.json"
+            : tab.id === "games"
+            ? "/data/feed-games.json"
+            : `/data/feed-${tab.id}.json`;
+          const snapReq = new Request(new URL(snapFile, url.origin), { method: "GET" });
           const snapRes = await env.ASSETS.fetch(snapReq);
           if (snapRes && snapRes.ok) {
             const snapData = await snapRes.json();

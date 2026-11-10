@@ -24,8 +24,13 @@ import { crc32 } from "node:zlib";
 const SRC = process.argv[2] || fileURLToPath(new URL(".", import.meta.url)).replace(/[\\/]$/, "");
 const OUT = process.argv[3] || join(SRC, "..", "hao-feed.zip");
 
-// 顶层固定收这几个；其余三个目录整棵收；*.mjs 收在根但排除 probe-*
-const TOP = ["index.html", "favicon.svg", "wrangler.toml", "_routes.json", "README.md", ".gitignore"];
+// 顶层固定收这几个；其余目录整棵收；*.mjs 收在根但排除 probe-*
+const TOP = [
+  "index.html", "favicon.svg", "wrangler.toml", "_routes.json", "_headers", "ads.txt",
+  "404.html", "about.html", "privacy.html", "contact.html", "editorial.html", "terms.html",
+  "papers.html", "games.html", "models.html", "trends.html", "wealth.html",
+  "README.md", ".gitignore"
+];
 const DIRS = ["assets", "functions", "public", "data"];
 
 const files = [...TOP];

@@ -30,6 +30,14 @@ export async function onRequest(context) {
   // 「访问 /index.html 拿到未改写的模板」这种 SEO 重复内容漏洞
   if (pathname === "/index.html" || pathname === "/index.htm") pathname = "/";
   if (pathname !== "/" && pathname !== "") {
+    // 专题落地页规范化：若访问带尾部斜杠的专题路由，自动 301 重定向至规范无斜杠路径
+    const cleanPaths = ["/wealth", "/papers", "/models", "/trends", "/games", "/history"];
+    if (cleanPaths.includes(pathname) && url.pathname !== pathname) {
+      const redirectUrl = new URL(url.toString());
+      redirectUrl.pathname = pathname;
+      return Response.redirect(redirectUrl.toString(), 301);
+    }
+
     // 带扩展名或静态子路径交给 ASSETS；未找到的补充 X-Robots-Tag: noindex 并返回 404 页面
     const assetRes = await env.ASSETS.fetch(request);
     if (assetRes.status === 404) {

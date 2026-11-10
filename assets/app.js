@@ -1054,10 +1054,13 @@ function resetFeed(force) {
 }
 
 // ---------- 固定部件 ----------
-// v2.4：旧的 ?cat=天气 端点没有了，部件改为「拉当前 tab 的数据，再按 category 挑」。
-// 这样部件和主信息流共用同一条链路，也就不会出现部件还停留在旧类目体系的问题。
-const WIDGET_SRC_TAB = { 天气: "brief", 游戏: "brief", AI: "ai" };
-const WIDGET_CATS = { 天气: ["天气"], 游戏: ["游戏"], AI: ["AI", "AI 快讯", "AI 产品", "AI 商业", "大模型", "AI 论文"] };
+// 固定看板（天气 / 游戏 / AI）使用独立的数据源，避免跨类目污染
+const WIDGET_SRC_TAB = { 天气: "weather", 游戏: "games", AI: "ai" };
+const WIDGET_CATS = {
+  天气: ["天气"],
+  游戏: ["游戏", "游戏·本周", "游戏·即将", "游戏·长期"],
+  AI: ["AI", "AI 快讯", "AI 产品", "AI 商业", "大模型", "AI 论文", "科技前沿", "开源热榜"],
+};
 
 async function loadWidget(cat, opts, force) {
   const body = cat === "天气" ? weatherBody : cat === "游戏" ? gamesBody : aiBody;
@@ -1065,24 +1068,35 @@ async function loadWidget(cat, opts, force) {
   body.innerHTML = `<div class="w-loading">…</div>`;
   if (opts && opts.city !== undefined) setWeatherCtx(opts);
   const want = WIDGET_CATS[cat] || [];
+  const isMatch = (it) => {
+    if (!it || !it.category) return false;
+    return want.some((w) => it.category === w || it.category.startsWith(w));
+  };
+
   if (isLocal()) {
-    renderWidget(body, DEMO_ALL.filter((it) => want.includes(it.category)).slice(0, 6));
+    renderWidget(body, DEMO_ALL.filter(isMatch).slice(0, 6));
     return;
   }
   try {
     const q = new URLSearchParams();
-    q.set("tab", WIDGET_SRC_TAB[cat] || activeTab);
+    q.set("tab", WIDGET_SRC_TAB[cat] || "brief");
     q.set("lang", currentLang);
     if (weatherCtx.city) q.set("city", weatherCtx.city);
     if (weatherCtx.lat != null) q.set("lat", String(weatherCtx.lat));
     if (weatherCtx.lon != null) q.set("lon", String(weatherCtx.lon));
     const data = await fetchFeed(q, force);
-    const items = (data.items || []).filter((x) => want.includes(x.category));
-    // tab 里没有这个类目（比如 brief tab 恰好没拉到天气）时退回 tab 全量，
-    // 宁可显示别的内容，也不要给用户一个永远转圈的框。
-    renderWidget(body, items.length ? items : (data.items || []).slice(0, 6));
+    const items = (data.items || []).filter(isMatch);
+    if (items.length) {
+      renderWidget(body, items.slice(0, 6));
+    } else {
+      // 容灾保底：严禁跨类目填充无关内容，使用该类目专用的演示数据兜底
+      const fallback = DEMO_ALL.filter(isMatch);
+      if (fallback.length) renderWidget(body, fallback.slice(0, 6));
+      else body.innerHTML = `<div class="w-loading">-</div>`;
+    }
   } catch (e) {
-    if (isLocal()) renderWidget(body, DEMO_ALL.filter((it) => want.includes(it.category)).slice(0, 6));
+    const fallback = DEMO_ALL.filter(isMatch);
+    if (fallback.length) renderWidget(body, fallback.slice(0, 6));
     else body.innerHTML = `<div class="w-loading">⚠️</div>`;
   }
 }

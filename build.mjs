@@ -103,6 +103,17 @@ for (const e of ENTRIES) {
   console.log(`  ✓ 静态资源版本指纹注入: styles.css?v=${cssHash}, app.js?v=${jsHash}`);
 }
 
+// 为各独立专题生成目录镜像 (如 /wealth/index.html)，确保无论是否带尾部斜杠均 100% 正确命中
+const CLEAN_PAGES = ["wealth", "papers", "models", "games", "trends", "about", "privacy", "contact", "editorial", "terms"];
+for (const pName of CLEAN_PAGES) {
+  const htmlSrc = join(OUT, `${pName}.html`);
+  if (existsSync(htmlSrc)) {
+    const dirTarget = join(OUT, pName);
+    mkdirSync(dirTarget, { recursive: true });
+    writeFileSync(join(dirTarget, "index.html"), readFileSync(htmlSrc, "utf8"), "utf8");
+  }
+}
+
 walk(OUT);
 console.log(`✓ 构建完成 -> public/`);
 console.log(`  ${files} 个文件, ${(bytes / 1024).toFixed(1)} KB`);
