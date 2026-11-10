@@ -100,8 +100,42 @@
   <!-- 顶部 Tab：由 app.js 按 __HOST_CONFIG__.tabs 渲染（每个站自己的 tab 组合不同） -->
   <nav id="tabs" class="tabs" aria-label="内容分区" hidden></nav>
 
-  <!-- 主站入口卡片（portal 模式）：跳向 ai / news 子站。只有主站渲染，子站整段 hidden -->
-  <section id="entries" class="entries" hidden></section>
+  <!-- 主站入口卡片（深度档案与垂直分站）：直达核心数据库与分站 -->
+  <section id="entries" class="entries">
+    <h2 class="section-title">精选深度档案与特色数据库</h2>
+    <div class="entry-grid">
+      <a class="entry-card" href="https://ai.myinfostream.com/papers">
+        <span class="entry-name">📑 AI 论文档案周刊</span>
+        <span class="entry-desc">收录 2026 全年前沿顶会论文与技术报告，中英双语指标速览与 D1 持久化存储</span>
+        <span class="entry-go">立即查阅 →</span>
+      </a>
+      <a class="entry-card" href="https://ai.myinfostream.com/models">
+        <span class="entry-name">🤖 AI 大模型演进编年史</span>
+        <span class="entry-desc">48 款划时代基座模型、LMSYS Arena 盲测跑分、上下文窗口与开源协议对比</span>
+        <span class="entry-go">立即查阅 →</span>
+      </a>
+      <a class="entry-card" href="https://game.myinfostream.com/history">
+        <span class="entry-name">🎮 Epic 喜加一历史总账本</span>
+        <span class="entry-desc">8 年喜加一完整年鉴，54 款 3A 与独立名作，累计白嫖价值超 $2,200 美元</span>
+        <span class="entry-go">立即查阅 →</span>
+      </a>
+      <a class="entry-card" href="https://hot.myinfostream.com/history">
+        <span class="entry-name">🔥 互联网破圈大事件通鉴</span>
+        <span class="entry-desc">2020-2026 全网现象级热搜大事记、科技重大突破与历史上的今天溯源</span>
+        <span class="entry-go">立即查阅 →</span>
+      </a>
+      <a class="entry-card" href="https://ai.myinfostream.com/">
+        <span class="entry-name">⚡ AI 动态情报站</span>
+        <span class="entry-desc">大模型发布、芯片算力、投融资与每日论文，直连全球顶尖一手信源</span>
+        <span class="entry-go">进入子站 →</span>
+      </a>
+      <a class="entry-card" href="https://news.myinfostream.com/">
+        <span class="entry-name">🌐 国际新闻站</span>
+        <span class="entry-desc">英、西、法、阿、俄五语种严肃媒体聚合，客观呈现全球地缘与财经要闻</span>
+        <span class="entry-go">进入子站 →</span>
+      </a>
+    </div>
+  </section>
 
   <!-- 常驻看板：只有主站渲染（reloadWidgets 里 if (!IS_MAIN) return） -->
   <section class="widgets-wrap" id="widgetsWrap">
@@ -168,15 +202,15 @@
 
   <footer class="foot">
     <div class="foot-links">
-      <a href="/about" class="policy-trigger" data-tab="about" data-i18n="footAbout">关于本站</a>
+      <a href="/about" data-i18n="footAbout">关于本站</a>
       <span class="sep">·</span>
-      <a href="/editorial" class="policy-trigger" data-tab="editorial" data-i18n="footEditorial">编辑准则</a>
+      <a href="/editorial" data-i18n="footEditorial">编辑准则</a>
       <span class="sep">·</span>
-      <a href="/privacy" class="policy-trigger" data-tab="privacy" data-i18n="footPrivacy">隐私政策</a>
+      <a href="/privacy" data-i18n="footPrivacy">隐私政策</a>
       <span class="sep">·</span>
-      <a href="/terms" class="policy-trigger" data-tab="terms" data-i18n="footTerms">服务条款</a>
+      <a href="/terms" data-i18n="footTerms">服务条款</a>
       <span class="sep">·</span>
-      <a href="/contact" class="policy-trigger" data-tab="contact" data-i18n="footContact">联系我们</a>
+      <a href="/contact" data-i18n="footContact">联系我们</a>
       <span class="sep">·</span>
       <a href="https://github.com/zidier215/info-stream" target="_blank" rel="noopener" data-i18n="footGithub">GitHub 源码</a>
     </div>

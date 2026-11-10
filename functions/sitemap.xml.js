@@ -51,19 +51,19 @@ export async function onRequest(context) {
     },
   ];
 
-  // 仅主站收录 5 大合规落地页（其 Canonical 均指向主站 myinfostream.com）及子站入口，
-  // 杜绝子站 Sitemap 收录非本域 Canonical 页面而在 GSC 触发告警
+  // 主站收录 5 大合规落地页及本域四大深度数据库落地页，杜绝混入跨子域 URL
   if (cfg.isMain) {
     urls.push(
+      { loc: `https://${cfg.host}/papers`, changefreq: "daily", priority: "0.9", lastmod: now },
+      { loc: `https://${cfg.host}/models`, changefreq: "daily", priority: "0.9", lastmod: now },
+      { loc: `https://${cfg.host}/games`, changefreq: "daily", priority: "0.9", lastmod: now },
+      { loc: `https://${cfg.host}/trends`, changefreq: "daily", priority: "0.9", lastmod: now },
       { loc: `https://${cfg.host}/about`, changefreq: "monthly", priority: "0.5", lastmod: now },
       { loc: `https://${cfg.host}/privacy`, changefreq: "monthly", priority: "0.5", lastmod: now },
       { loc: `https://${cfg.host}/editorial`, changefreq: "monthly", priority: "0.5", lastmod: now },
       { loc: `https://${cfg.host}/contact`, changefreq: "monthly", priority: "0.5", lastmod: now },
       { loc: `https://${cfg.host}/terms`, changefreq: "monthly", priority: "0.4", lastmod: now },
     );
-    for (const s of cfg.siblings || []) {
-      urls.push({ loc: `https://${s}/`, changefreq: "hourly", priority: "0.8", lastmod: now });
-    }
   } else if (cfg.key === "ai") {
     // AI 垂直站收录专属于本域的 AI 论文档案专区首页与 2026 全年周刊档案 (W01-W44)
     urls.push(
