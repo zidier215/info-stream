@@ -174,8 +174,12 @@ export function renderHostHTML(html, hostCfg, opt = {}) {
     );
   }
 
-  // 子站页脚的 5 大合规链接统一指向主站规范 URL（避免子站产生重复法律页非规范索引）
+  // 子站页脚的 5 大合规链接统一指向主站规范 URL（避免子站产生重复法律页非规范索引），同时隐藏仅主站展示的 #entries 矩阵
   if (!hostCfg.isMain) {
+    out = out.replace(
+      /<section id="entries" class="entries">[\s\S]*?<\/section>/i,
+      '<section id="entries" class="entries" hidden></section>',
+    );
     for (const p of ["about", "editorial", "privacy", "terms", "contact"]) {
       const re = new RegExp(`href="/${p}"`, "g");
       out = out.replace(re, `href="https://myinfostream.com/${p}"`);

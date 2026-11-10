@@ -966,8 +966,10 @@ export const SOURCES = {
   "ai-biz": aiBiz,
   "ai-intl": aiIntl,
   "ai-papers": async (opts, defs) => {
-    const [c, a, b] = await Promise.all([curatedPapers(defs), hfPapers(defs), arxiv(opts, defs)]);
-    return c.concat(a).concat(b);
+    const [a, b] = await Promise.all([hfPapers(defs), arxiv(opts, defs)]);
+    if (!a.length && !b.length) return [];
+    const c = await curatedPapers(defs);
+    return a.concat(b).concat(c);
   },
   // news 站：一个 tab 一个源，语种由 opts.lang 控制（不传则五语种全出）
   "news-top": newsTop,

@@ -141,6 +141,14 @@ const UI_I18N = {
   tabHotBaidu: { zh: "百度", "zh-Hant": "百度", en: "Baidu", es: "Baidu", fr: "Baidu", ja: "百度", de: "Baidu", ru: "Baidu", ar: "بايدو", pt: "Baidu" },
   tabHotBilibili: { zh: "B站", "zh-Hant": "B站", en: "Bilibili", es: "Bilibili", fr: "Bilibili", ja: "ビリビリ", de: "Bilibili", ru: "Bilibili", ar: "بيليبيلي", pt: "Bilibili" },
   tabHotDouyin: { zh: "抖音", "zh-Hant": "抖音", en: "Douyin", es: "Douyin", fr: "Douyin", ja: "抖音", de: "Douyin", ru: "Douyin", ar: "دوين", pt: "Douyin" },
+  entryPapers: { zh: "📄 AI 论文周刊档案库", "zh-Hant": "📄 AI 論文週刊檔案庫", en: "📄 AI Paper Archive", es: "📄 Archivo de Papers IA", fr: "📄 Archives Articles IA", ja: "📄 AI論文アーカイブ", de: "📄 KI-Paper-Archiv", ru: "📄 Архив статей ИИ", ar: "📄 أرشيف أوراق الذكاء الاصطناعي", pt: "📄 Arquivo de Artigos IA" },
+  entryModels: { zh: "🧠 AI 大模型编年史", "zh-Hant": "🧠 AI 大模型編年史", en: "🧠 AI Model Almanac", es: "🧠 Almanaque de Modelos IA", fr: "🧠 Almanach des Modèles IA", ja: "🧠 AIモデル年鑑", de: "🧠 KI-Modell-Almanach", ru: "🧠 Альманах моделей ИИ", ar: "🧠 تقويم نماذج الذكاء الاصطناعي", pt: "🧠 Almanaque de Modelos IA" },
+  entryGamesDb: { zh: "🎮 Epic 喜加一总账本", "zh-Hant": "🎮 Epic 喜加一總帳本", en: "🎮 Epic Free Games Archive", es: "🎮 Archivo Juegos Gratis Epic", fr: "🎮 Archives Jeux Epic Gratuits", ja: "🎮 Epic無料ゲーム台帳", de: "🎮 Epic Gratis-Spiele-Archiv", ru: "🎮 Архив бесплатных игр Epic", ar: "🎮 أرشيف ألعاب Epic المجانية", pt: "🎮 Arquivo Jogos Grátis Epic" },
+  entryTrendsDb: { zh: "🔥 互联网破圈大事件通鉴", "zh-Hant": "🔥 網際網路破圈大事件通鑑", en: "🔥 Viral Trends Almanac", es: "🔥 Almanaque de Tendencias", fr: "🔥 Almanach des Tendances", ja: "🔥 ネット歴史的事件年鑑", de: "🔥 Almanach viraler Trends", ru: "🔥 Летопись интернет-событий", ar: "🔥 سجل الأحداث الفيروسية", pt: "🔥 Almanaque de Tendências" },
+  entryPapersDesc: { zh: "2026 全年 45 周 750+ 篇前沿论文中文精要与架构解析", "zh-Hant": "2026 全年 45 週 750+ 篇前沿論文精要與架構解析", en: "750+ frontier AI papers across 45 weeks with deep summaries", es: "Más de 750 papers de IA en 45 semanas con resúmenes", fr: "750+ articles IA sur 45 semaines avec synthèses", ja: "2026年全45週・750本以上の最先端AI論文要約", de: "750+ KI-Paper aus 45 Wochen mit Zusammenfassungen", ru: "750+ передовых статей ИИ за 45 недель с разбором", ar: "أكثر من 750 ورقة بحثية في 45 أسبوعًا مع ملخصات", pt: "750+ artigos de IA em 45 semanas com resumos" },
+  entryModelsDesc: { zh: "70+ 款里程碑模型 MMLU / Arena ELO 跑分与上下文评测档案", "zh-Hant": "70+ 款里程碑模型 MMLU / Arena ELO 跑分與評測檔案", en: "70+ milestone models with MMLU, Arena ELO & context benchmarks", es: "70+ modelos clave con benchmarks MMLU y Arena ELO", fr: "70+ modèles phares avec scores MMLU et Arena ELO", ja: "70以上の主要モデルのMMLU・Arena ELOベンチマーク", de: "70+ Meilenstein-Modelle mit MMLU & Arena ELO Benchmarks", ru: "70+ знаковых моделей с тестами MMLU и Arena ELO", ar: "أكثر من 70 نموذجًا رائدًا مع اختبارات MMLU و Arena ELO", pt: "70+ modelos históricos com benchmarks MMLU e Arena ELO" },
+  entryGamesDbDesc: { zh: "2019–2026 累计 85+ 款限免大作、价值逾 $2,600 历史全记录", "zh-Hant": "2019–2026 累計 85+ 款限免大作、價值逾 $2,600 歷史全記錄", en: "85+ free AAA & indie titles ($2,600+ value) from 2019 to 2026", es: "85+ juegos gratis ($2,600+ en valor) de 2019 a 2026", fr: "85+ jeux gratuits (valeur 2 600 $+) de 2019 à 2026", ja: "2019〜2026年の無料配布85作以上（総額$2,600超）の記録", de: "85+ Gratis-Spiele (über 2.600 $ Wert) von 2019 bis 2026", ru: "85+ бесплатных игр (на сумму >$2600) с 2019 по 2026 год", ar: "أكثر من 85 لعبة مجانية (بقيمة تفوق 2600 دولار) منذ 2019", pt: "85+ jogos grátis (mais de US$ 2.600) de 2019 a 2026" },
+  entryTrendsDbDesc: { zh: "2020–2026 年度现象级全网热搜记忆与时代印记深度归档", "zh-Hant": "2020–2026 年度現象級全網熱搜記憶與時代印記深度歸檔", en: "2020–2026 defining internet moments and viral cultural milestones", es: "Hitos culturales y momentos virales de internet 2020–2026", fr: "Moments viraux et jalons culturels d'internet 2020–2026", ja: "2020〜2026年のネット象徴的トレンドと歴史的記録", de: "Prägende Internet-Momente und virale Meilensteine 2020–2026", ru: "Главные интернет-события и феномены 2020–2026 годов", ar: "أبرز الأحداث والظواهر الرقمية من 2020 إلى 2026", pt: "Momentos marcantes e fenômenos da internet 2020–2026" },
   entryAi: { zh: "AI 情报站", "zh-Hant": "AI 情報站", en: "AI Intelligence", es: "Inteligencia IA", fr: "Veille IA", ja: "AI インテリジェンス", de: "KI-Intelligence", ru: "ИИ-разведка", ar: "استخبارات الذكاء الاصطناعي", pt: "Inteligência de IA" },
   entryNews: { zh: "国际新闻站", "zh-Hant": "國際新聞站", en: "World News", es: "Noticias Mundiales", fr: "Actualités Internationales", ja: "国際ニュース", de: "Weltnachrichten", ru: "Мировые новости", ar: "أخبار العالم", pt: "Notícias Mundiais" },
   entryGame: { zh: "游戏站", "zh-Hant": "遊戲站", en: "Free Games", es: "Juegos Gratis", fr: "Jeux Gratuits", ja: "ゲーム無料", de: "Gratis-Spiele", ru: "Бесплатные игры", ar: "ألعاب مجانية", pt: "Jogos Gratuitos" },
@@ -652,9 +660,11 @@ function renderEntries() {
     `<h2 class="section-title">${uiText("hubTitle")}</h2>` +
     `<div class="entry-grid">` +
     list.map((e) => {
-      const name = (en && e.fallbackEn) || e.fallback || uiText(e.i18n);
+      const i18nName = e.i18n ? uiText(e.i18n) : "";
+      const name = (i18nName && i18nName !== e.i18n) ? i18nName : ((en && e.fallbackEn) || e.fallback || i18nName);
       const desc = uiText((e.i18n || "") + "Desc");
-      return `<a class="entry-card" href="https://${escapeHtml(e.host)}/">
+      const href = e.url || `https://${escapeHtml(e.host)}${escapeHtml(e.path || "/")}`;
+      return `<a class="entry-card" href="${href}">
         <span class="entry-name">${escapeHtml(name)}</span>
         <span class="entry-desc">${escapeHtml(desc)}</span>
         <span class="entry-go">${uiText("entryGo")} →</span>

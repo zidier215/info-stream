@@ -116,11 +116,13 @@ const sitemap = curl("https://www.myinfostream.com/sitemap.xml");
 ok(sitemap.includes("https://myinfostream.com/"), "sitemap.xml 包含主站根地址");
 const trustCleanUrls = ["/about", "/privacy", "/editorial", "/contact", "/terms"];
 ok(trustCleanUrls.every((p) => sitemap.includes(p)), "sitemap.xml 收录全部 5 大 Clean URL 落地页");
+ok(["/papers", "/models", "/games", "/trends"].every((p) => sitemap.includes(`https://myinfostream.com${p}`)), "主站 sitemap.xml 完整收录本域 4 大深度数据库落地页 (/papers, /models, /games, /trends)");
+ok(!sitemap.includes("ai.myinfostream.com"), "主站 sitemap.xml 严守 RFC 规范，不包含跨子域 URL");
 ok(!sitemap.includes(".html"), "sitemap.xml 杜绝带 .html 的 308 重定向地址，纯净度 100%");
 const aiSitemap = curl("https://ai.myinfostream.com/sitemap.xml");
 ok(aiSitemap.includes("https://ai.myinfostream.com/") && !aiSitemap.includes("/about"), "子域名 sitemap.xml 仅收录本域 Canonical 根地址，杜绝跨站非 Canonical 冲突");
 ok(aiSitemap.includes("https://ai.myinfostream.com/papers"), "AI 子域 sitemap.xml 完整收录 AI 论文档案专区落地页");
-ok(aiSitemap.includes("https://ai.myinfostream.com/papers?week=2026-W44"), "AI 子域 sitemap.xml 完整收录 2026 全年周刊归档 URL (?week=2026-W44)");
+ok(aiSitemap.includes("https://ai.myinfostream.com/papers?week=2026-W45"), "AI 子域 sitemap.xml 完整收录最新 2026-W45 周刊归档 URL");
 
 // 5. 独立 GDPR / Cookie / DoubleClick 隐私政策
 const privacyHtml = curl("https://www.myinfostream.com/privacy");
@@ -161,6 +163,9 @@ ok(mainHtml.includes('"sameAs"') && mainHtml.includes("https://calcguide.tech") 
 
 // 页脚闭环信任链接与 5 大合规弹窗面板完整性
 ok(trustCleanUrls.every((u) => mainHtml.includes(`href="${u}"`)), "首页页脚无缝闭环直达 5 大 Clean URL 信任落地页");
+ok(!/class="[^"]*policy-trigger[^"]*"[^>]*href="\/(about|privacy|editorial|contact|terms)"/.test(mainHtml), "首页页脚 5 大合规链接无 JS 弹窗拦截，点击真实跳转独立落地页");
+ok((mainHtml.match(/<p class="desc">/g) || []).length >= 10, "主站首屏 SSR 直出 >= 10 条带完整深度摘要的卡片（杜绝纯短标题列表）");
+ok(mainHtml.includes('href="https://ai.myinfostream.com/papers"') && mainHtml.includes('href="https://ai.myinfostream.com/models"'), "主站首屏 #entries 导航直出 4 大原创数据库入口（杜绝孤岛页）");
 const modalPanes = ["policyTab-privacy", "policyTab-editorial", "policyTab-terms", "policyTab-about", "policyTab-contact"];
 ok(modalPanes.every((id) => mainHtml.includes(`id="${id}"`)), "首页合规模态窗完整包含全部 5 大内容面板（含编辑准则）");
 
@@ -221,6 +226,9 @@ console.log("\n【第六层：AI 论文档案专区 (Papers Archive) 与持久�
 const papersPageHtml = curl("https://ai.myinfostream.com/papers");
 ok(papersPageHtml.includes('rel="canonical" href="https://ai.myinfostream.com/papers"'), "AI 论文档案专区 (/papers) Canonical 正确指向本域落地页");
 ok(papersPageHtml.includes('ca-pub-1130777358854864'), "AI 论文档案落地页正确部署 Google AdSense 账号代码");
+ok(papersPageHtml.includes("pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1130777358854864"), "AI 论文档案落地页部署 AdSense 异步加载脚本 (adsbygoogle.js)");
+ok(papersPageHtml.includes('<article class="paper-card"'), "AI 论文档案落地页 SSR 直出真实论文卡片（无「正在加载」空壳）");
+ok(trustCleanUrls.every((u) => papersPageHtml.includes(u)), "AI 论文档案落地页页脚包含完整 5 大合规信任链接");
 ok(papersPageHtml.includes('id="sparkBars"'), "AI 论文档案落地页包含每日统计动态柱状图容器");
 ok(papersPageHtml.includes('id="timelineList"'), "AI 论文档案落地页包含时间轴流容器");
 
@@ -244,8 +252,11 @@ ok(w44Api.stats?.mode === "week" && w44Api.daily?.length === 7, "单周查询返
 console.log("\n【第七层：Epic 喜加一历史总账本 (Epic Free Games Archive) 与 D1 边缘存储】");
 const gamesPageHtml = curl("https://game.myinfostream.com/history");
 ok(gamesPageHtml.includes('rel="canonical" href="https://game.myinfostream.com/history"'), "游戏历史总账本 (/history) Canonical 正确指向本域落地页");
+const mainGamesHtml = curl("https://www.myinfostream.com/games");
+ok(mainGamesHtml.includes('rel="canonical" href="https://myinfostream.com/games"'), "主站 /games 路径 Canonical 正确自引用为 https://myinfostream.com/games");
 ok(gamesPageHtml.includes('ca-pub-1130777358854864'), "游戏历史总账本落地页正确部署 Google AdSense 账号代码");
 ok(gamesPageHtml.includes('G-JBQYPMLVHR'), "游戏历史总账本落地页正确部署 GA4 测量代码");
+ok(gamesPageHtml.includes('<article class="game-card"'), "游戏历史总账本落地页 SSR 直出真实游戏卡片（消除「共 0 款」空壳）");
 ok(gamesPageHtml.includes('id="statGames"'), "游戏历史总账本落地页包含累计白嫖款数看板 (id=statGames)");
 ok(gamesPageHtml.includes('id="statUsd"'), "游戏历史总账本落地页包含累计美元价值看板 (id=statUsd)");
 ok(gamesPageHtml.includes('id="sparkBars"'), "游戏历史总账本落地页包含历年分布走势柱状图容器 (id=sparkBars)");
@@ -274,6 +285,8 @@ const modelsPageHtml = curl("https://ai.myinfostream.com/models");
 ok(modelsPageHtml.includes('rel="canonical" href="https://ai.myinfostream.com/models"'), "大模型编年史 (/models) Canonical 正确指向本域落地页");
 ok(modelsPageHtml.includes('ca-pub-1130777358854864'), "大模型编年史落地页正确部署 Google AdSense 账号代码");
 ok(modelsPageHtml.includes('G-JBQYPMLVHR'), "大模型编年史落地页正确部署 GA4 测量代码");
+ok(modelsPageHtml.includes('<article class="model-card"'), "大模型编年史落地页 SSR 直出真实模型卡片（消除「共 0 款」空壳）");
+ok(trustCleanUrls.every((u) => modelsPageHtml.includes(u)), "大模型编年史落地页页脚包含完整 5 大合规信任链接");
 ok(modelsPageHtml.includes('id="statModels"'), "大模型编年史落地页包含收录模型数看板 (id=statModels)");
 ok(modelsPageHtml.includes('id="statElo"'), "大模型编年史落地页包含最高 Arena ELO 看板 (id=statElo)");
 ok(modelsPageHtml.includes('id="sparkBars"'), "大模型编年史落地页包含历年分布走势柱状图容器 (id=sparkBars)");
@@ -303,8 +316,12 @@ ok(aiSitemapModels.includes("https://ai.myinfostream.com/models?org=DeepSeek"), 
 console.log("\n【第九层：互联网破圈大事件历史通鉴 (Hot Events Almanac) 与 D1 边缘存储】");
 const trendsPageHtml = curl("https://hot.myinfostream.com/history");
 ok(trendsPageHtml.includes('rel="canonical" href="https://hot.myinfostream.com/history"'), "热搜大事件通鉴 (/history) Canonical 正确指向本域落地页");
+const mainTrendsHtml = curl("https://www.myinfostream.com/trends");
+ok(mainTrendsHtml.includes('rel="canonical" href="https://myinfostream.com/trends"'), "主站 /trends 路径 Canonical 正确自引用为 https://myinfostream.com/trends");
 ok(trendsPageHtml.includes('ca-pub-1130777358854864'), "热搜大事件通鉴落地页正确部署 Google AdSense 账号代码");
 ok(trendsPageHtml.includes('G-JBQYPMLVHR'), "热搜大事件通鉴落地页正确部署 GA4 测量代码");
+ok(trendsPageHtml.includes('<article class="event-card"'), "热搜大事件通鉴落地页 SSR 直出真实事件卡片（消除「共 0 件」空壳）");
+ok(trustCleanUrls.every((u) => trendsPageHtml.includes(u)), "热搜大事件通鉴落地页页脚包含完整 5 大合规信任链接");
 ok(trendsPageHtml.includes('id="statEvents"'), "热搜大事件通鉴落地页包含收录大事件数看板 (id=statEvents)");
 ok(trendsPageHtml.includes('id="statEpoch"'), "热搜大事件通鉴落地页包含时代历史印记看板 (id=statEpoch)");
 ok(trendsPageHtml.includes('id="sparkBars"'), "热搜大事件通鉴落地页包含历年分布走势柱状图容器 (id=sparkBars)");
