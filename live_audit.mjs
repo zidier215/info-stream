@@ -1,13 +1,7 @@
 // live_audit.mjs —— 生产环境线上真实 HTTP 深度审计脚本（遵循 SOP 四层全景清单 + 用户可用性 + 谷歌网站目标）
 import { execSync } from "child_process";
 
-let proxyFlag = "";
-try {
-  execSync(`curl.exe -x http://127.0.0.1:7890 -sI --connect-timeout 4 "https://www.google.com"`, { stdio: "ignore" });
-  proxyFlag = "-x http://127.0.0.1:7890";
-} catch {
-  proxyFlag = "";
-}
+const proxyFlag = "";
 
 const pageCache = new Map();
 function curl(url, extra = "") {
@@ -112,7 +106,7 @@ ok(robots.includes("Googlebot"), "robots.txt 明确放行 Googlebot 搜索爬虫
 ok(robots.includes("Sitemap:"), "robots.txt 正确指引 Sitemap 索引文件");
 
 // 4. sitemap.xml 纯净度（无 308 重定向与 404 污染）
-const sitemap = curl("https://www.myinfostream.com/sitemap.xml");
+const sitemap = curl("https://myinfostream.com/sitemap.xml");
 ok(sitemap.includes("https://myinfostream.com/"), "sitemap.xml 包含主站根地址");
 const trustCleanUrls = ["/about", "/privacy", "/editorial", "/contact", "/terms"];
 ok(trustCleanUrls.every((p) => sitemap.includes(p)), "sitemap.xml 收录全部 5 大 Clean URL 落地页");
@@ -227,7 +221,7 @@ const papersPageHtml = curl("https://ai.myinfostream.com/papers");
 ok(papersPageHtml.includes('rel="canonical" href="https://ai.myinfostream.com/papers"'), "AI 论文档案专区 (/papers) Canonical 正确指向本域落地页");
 ok(papersPageHtml.includes('ca-pub-1130777358854864'), "AI 论文档案落地页正确部署 Google AdSense 账号代码");
 ok(papersPageHtml.includes("pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1130777358854864"), "AI 论文档案落地页部署 AdSense 异步加载脚本 (adsbygoogle.js)");
-ok(papersPageHtml.includes('<article class="paper-card"'), "AI 论文档案落地页 SSR 直出真实论文卡片（无「正在加载」空壳）");
+ok(papersPageHtml.includes('<article class="entry in"'), "AI 论文档案落地页 SSR 直出真实论文卡片（无「正在加载」空壳）");
 ok(trustCleanUrls.every((u) => papersPageHtml.includes(u)), "AI 论文档案落地页页脚包含完整 5 大合规信任链接");
 ok(papersPageHtml.includes('id="sparkBars"'), "AI 论文档案落地页包含每日统计动态柱状图容器");
 ok(papersPageHtml.includes('id="timelineList"'), "AI 论文档案落地页包含时间轴流容器");
@@ -256,7 +250,7 @@ const mainGamesHtml = curl("https://www.myinfostream.com/games");
 ok(mainGamesHtml.includes('rel="canonical" href="https://myinfostream.com/games"'), "主站 /games 路径 Canonical 正确自引用为 https://myinfostream.com/games");
 ok(gamesPageHtml.includes('ca-pub-1130777358854864'), "游戏历史总账本落地页正确部署 Google AdSense 账号代码");
 ok(gamesPageHtml.includes('G-JBQYPMLVHR'), "游戏历史总账本落地页正确部署 GA4 测量代码");
-ok(gamesPageHtml.includes('<article class="game-card"'), "游戏历史总账本落地页 SSR 直出真实游戏卡片（消除「共 0 款」空壳）");
+ok(gamesPageHtml.includes('<article class="g-card"'), "游戏历史总账本落地页 SSR 直出真实游戏卡片（消除「共 0 款」空壳）");
 ok(gamesPageHtml.includes('id="statGames"'), "游戏历史总账本落地页包含累计白嫖款数看板 (id=statGames)");
 ok(gamesPageHtml.includes('id="statUsd"'), "游戏历史总账本落地页包含累计美元价值看板 (id=statUsd)");
 ok(gamesPageHtml.includes('id="sparkBars"'), "游戏历史总账本落地页包含历年分布走势柱状图容器 (id=sparkBars)");
