@@ -8,9 +8,9 @@ function curl(url, extra = "") {
   const cacheKey = `${url}|${extra}`;
   if (!extra && pageCache.has(cacheKey)) return pageCache.get(cacheKey);
   let lastErr = null;
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= 5; attempt++) {
     try {
-      const res = execSync(`curl.exe -4 ${proxyFlag} --http1.1 --connect-timeout 15 --max-time 40 -f -sL ${extra} "${url}"`, {
+      const res = execSync(`curl.exe -4 ${proxyFlag} --compressed --http1.1 --connect-timeout 15 --max-time 60 -f -sL ${extra} "${url}"`, {
         encoding: "utf8",
         maxBuffer: 10 * 1024 * 1024,
       });
