@@ -705,10 +705,14 @@
         const cur = document.documentElement.getAttribute("data-theme") || "dark";
         const next = cur === "dark" ? "light" : "dark";
         document.documentElement.setAttribute("data-theme", next);
-        try { localStorage.setItem("infostream_theme", next); } catch {}
+        try {
+          localStorage.setItem("theme", next);
+          localStorage.setItem("infostream_theme", next);
+          localStorage.setItem("info_theme", next);
+        } catch {}
       });
       try {
-        const saved = localStorage.getItem("infostream_theme");
+        const saved = localStorage.getItem("theme") || localStorage.getItem("infostream_theme") || localStorage.getItem("info_theme");
         if (saved) document.documentElement.setAttribute("data-theme", saved);
       } catch {}
     }

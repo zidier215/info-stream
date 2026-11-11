@@ -624,8 +624,11 @@
     <footer class="footer-bar">
       <div>© 2026 信息河 InfoStream · 极客生产力与开源精神永存</div>
       <div>
+        <a href="https://myinfostream.com/about">关于我们</a> ·
+        <a href="https://myinfostream.com/editorial">编辑准则</a> ·
+        <a href="https://myinfostream.com/privacy">隐私政策</a> ·
+        <a href="https://myinfostream.com/terms">服务条款</a> ·
         <a href="https://myinfostream.com/contact">反馈建议</a> ·
-        <a href="https://myinfostream.com/wealth">商业变现通鉴</a> ·
         <a href="https://github.com/zidier215/info-stream" target="_blank" rel="noopener">GitHub 源码</a>
       </div>
     </footer>
@@ -633,18 +636,22 @@
 
   <script>
     (function () {
-      // 主题切换
+      // 主题切换（全站统一兼容）
       const themeBtn = document.getElementById("themeToggleBtn");
       if (themeBtn) {
         themeBtn.addEventListener("click", () => {
           const current = document.documentElement.getAttribute("data-theme") || "dark";
           const next = current === "dark" ? "light" : "dark";
           document.documentElement.setAttribute("data-theme", next);
-          try { localStorage.setItem("infostream_theme", next); } catch {}
+          try {
+            localStorage.setItem("theme", next);
+            localStorage.setItem("infostream_theme", next);
+            localStorage.setItem("info_theme", next);
+          } catch {}
         });
       }
       try {
-        const saved = localStorage.getItem("infostream_theme");
+        const saved = localStorage.getItem("theme") || localStorage.getItem("infostream_theme") || localStorage.getItem("info_theme");
         if (saved) document.documentElement.setAttribute("data-theme", saved);
       } catch {}
 

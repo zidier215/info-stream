@@ -67,6 +67,18 @@ export async function onRequest(context) {
     `<!-- SSR_MODELS_MOUNT -->${ssrModels}<!-- /SSR_MODELS_MOUNT -->`
   );
 
+  // 内联初始数据，消除客户端首屏二次 API 请求
+  const seedJson = JSON.stringify({
+    models: PORTFOLIO_MODELS,
+    etfs: ETF_TAX_EFFICIENCY,
+    methodology: FIRE_METHODOLOGY,
+  })
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+  html = html.replace(/<\/head>/i, `<script>window.__FIRE_DATA__ = ${seedJson};</script>\n</head>`);
+
   return new Response(html, {
     status: 200,
     headers: {

@@ -47,7 +47,7 @@
       --danger: #f85149;
       --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
     }
-    html.light {
+    html.light, html[data-theme="light"] {
       --bg: #f6f8fa;
       --surface: #ffffff;
       --surface-hover: #f3f4f6;
@@ -422,29 +422,23 @@
       font-size: 0.84rem;
     }
 
-    /* Ad Banner */
-    .ad-slot-wrap {
-      margin: 40px auto;
-      text-align: center;
-      max-width: 970px;
-      overflow: hidden;
+    .footer-bar {
+      margin-top: 50px;
+      padding-top: 24px;
+      border-top: 1px solid var(--surface-border);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
     }
-
-    /* Toast */
-    #bookmarkToast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: rgba(22, 27, 34, 0.95);
-      border: 1px solid var(--primary);
+    .footer-bar a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .footer-bar a:hover {
       color: var(--text-bright);
-      padding: 12px 18px;
-      border-radius: 8px;
-      font-size: 0.88rem;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-      display: none;
-      z-index: 1000;
-      backdrop-filter: blur(8px);
     }
   </style>
 </head>
@@ -563,32 +557,35 @@
       <!-- /SSR_MODELS_MOUNT -->
     </div>
 
-    <!-- AdSense Slot -->
-    <div class="ad-slot-wrap">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-1130777358854864"
-           data-ad-slot="9012345678"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
+    <footer class="footer-bar">
+      <div>© 2026 信息河 InfoStream · 全球指数化投资与经典资产配置模型通鉴（仅供学术与宏观模型参考，不构成任何投资建议）</div>
+      <div>
+        <a href="https://myinfostream.com/about">关于我们</a> ·
+        <a href="https://myinfostream.com/editorial">编辑准则</a> ·
+        <a href="https://myinfostream.com/privacy">隐私政策</a> ·
+        <a href="https://myinfostream.com/terms">服务条款</a> ·
+        <a href="https://myinfostream.com/contact">联系站长</a>
+      </div>
+    </footer>
   </main>
 
-  <div id="bookmarkToast"></div>
-
-  <script src="/bookmark.js" defer></script>
+  <script src="/assets/bookmark.js" defer></script>
   <script>
-    // 主题切换
+    // 主题切换（全站统一兼容）
     const themeBtn = document.getElementById("themeToggleBtn");
-    const currentTheme = localStorage.getItem("info_theme") || "dark";
-    if (currentTheme === "light") document.documentElement.classList.add("light");
+    const savedTheme = localStorage.getItem("theme") || localStorage.getItem("infostream_theme") || localStorage.getItem("info_theme") || "dark";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    document.documentElement.classList.toggle("light", savedTheme === "light");
     themeBtn.addEventListener("click", () => {
-      document.documentElement.classList.toggle("light");
-      const isLight = document.documentElement.classList.contains("light");
-      localStorage.setItem("info_theme", isLight ? "light" : "dark");
+      const isLight = document.documentElement.getAttribute("data-theme") !== "light";
+      const next = isLight ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      document.documentElement.classList.toggle("light", isLight);
+      try {
+        localStorage.setItem("theme", next);
+        localStorage.setItem("infostream_theme", next);
+        localStorage.setItem("info_theme", next);
+      } catch {}
     });
 
     // FIRE 测算器逻辑
@@ -639,11 +636,15 @@
     });
     updateFireCalc();
 
-    // 前端动态加载与筛选
-    let allData = { models: [], etfs: [], methodology: [] };
+    // 前端动态加载与筛选（优先使用 SSR 内联数据，零二次请求）
+    let allData = window.__FIRE_DATA__ || { models: [], etfs: [], methodology: [] };
     let currentTab = "all";
 
     async function loadData() {
+      if (window.__FIRE_DATA__ && Array.isArray(window.__FIRE_DATA__.models) && window.__FIRE_DATA__.models.length > 0) {
+        renderCards();
+        return;
+      }
       try {
         const res = await fetch("/api/fire?tab=all");
         if (!res.ok) return;

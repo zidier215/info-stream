@@ -67,6 +67,18 @@ export async function onRequest(context) {
     `<!-- SSR_PATTERNS_MOUNT -->${ssrPatterns}<!-- /SSR_PATTERNS_MOUNT -->`
   );
 
+  // 内联初始数据，消除客户端首屏二次 API 请求
+  const seedJson = JSON.stringify({
+    patterns: PROMPT_PATTERNS,
+    agents: AGENT_WORKFLOWS,
+    prompts: SYSTEM_PROMPTS,
+  })
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+  html = html.replace(/<\/head>/i, `<script>window.__PROMPT_DATA__ = ${seedJson};</script>\n</head>`);
+
   return new Response(html, {
     status: 200,
     headers: {

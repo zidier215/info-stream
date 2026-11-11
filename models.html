@@ -689,9 +689,13 @@
         const root = document.documentElement;
         const nextTheme = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
         root.setAttribute("data-theme", nextTheme);
-        localStorage.setItem("theme", nextTheme);
+        try {
+          localStorage.setItem("theme", nextTheme);
+          localStorage.setItem("infostream_theme", nextTheme);
+          localStorage.setItem("info_theme", nextTheme);
+        } catch {}
       });
-      const savedTheme = localStorage.getItem("theme");
+      const savedTheme = localStorage.getItem("theme") || localStorage.getItem("infostream_theme") || localStorage.getItem("info_theme");
       if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
 
       // Back to top

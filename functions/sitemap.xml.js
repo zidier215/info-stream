@@ -51,13 +51,9 @@ export async function onRequest(context) {
     },
   ];
 
-  // 主站收录 5 大合规落地页及本域四大深度数据库落地页，杜绝混入跨子域 URL
+  // 主站收录 5 大合规落地页及本域五大常青树深度数据库落地页，杜绝与垂直子站重复收录
   if (cfg.isMain) {
     urls.push(
-      { loc: `https://${cfg.host}/papers`, changefreq: "daily", priority: "0.9", lastmod: now },
-      { loc: `https://${cfg.host}/models`, changefreq: "daily", priority: "0.9", lastmod: now },
-      { loc: `https://${cfg.host}/games`, changefreq: "daily", priority: "0.9", lastmod: now },
-      { loc: `https://${cfg.host}/trends`, changefreq: "daily", priority: "0.9", lastmod: now },
       { loc: `https://${cfg.host}/wealth`, changefreq: "weekly", priority: "0.9", lastmod: now },
       { loc: `https://${cfg.host}/opensource`, changefreq: "weekly", priority: "0.9", lastmod: now },
       { loc: `https://${cfg.host}/ship`, changefreq: "weekly", priority: "0.9", lastmod: now },

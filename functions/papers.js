@@ -20,15 +20,16 @@ export async function onRequest(context) {
 
   let html = await tplRes.text();
   const { cfg } = resolveHost(request);
-  const hostCfg = cfg || HOSTS[MAIN_HOST];
+  const hostCfg = cfg || HOSTS["ai.myinfostream.com"] || HOSTS[MAIN_HOST];
+  const canonicalHost = "ai.myinfostream.com";
 
   const weekParam = url.searchParams.get("week");
   const isWeek = weekParam && /^2026-W\d{2}$/.test(weekParam);
 
-  // 按实际访问的主机与周次动态注入 Canonical 规范链接
+  // 统一指向 AI 情报站主域 Canonical 规范链接，集中 SEO 权重防止跨子域重复收录
   const canonicalUrl = isWeek
-    ? `https://${hostCfg.host}/papers?week=${weekParam}`
-    : `https://${hostCfg.host}/papers`;
+    ? `https://${canonicalHost}/papers?week=${weekParam}`
+    : `https://${canonicalHost}/papers`;
   html = html.replace(/<link rel="canonical" href="[^"]*"/i, `<link rel="canonical" href="${canonicalUrl}"`);
 
   // 若带特定周次，动态优化 title 与 meta 描述，赋能 Googlebot 精准索引

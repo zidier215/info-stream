@@ -1364,7 +1364,7 @@ checkPolicyHash();
 const themeToggleBtn = document.getElementById("themeToggleBtn");
 
 function initTheme() {
-  const saved = localStorage.getItem("theme");
+  const saved = localStorage.getItem("theme") || localStorage.getItem("infostream_theme") || localStorage.getItem("info_theme");
   const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
   const theme = saved || (prefersDark ? "dark" : "light");
   applyTheme(theme);
@@ -1384,7 +1384,11 @@ if (themeToggleBtn) {
   themeToggleBtn.addEventListener("click", () => {
     const cur = document.documentElement.getAttribute("data-theme");
     const next = cur === "dark" ? "light" : "dark";
-    localStorage.setItem("theme", next);
+    try {
+      localStorage.setItem("theme", next);
+      localStorage.setItem("infostream_theme", next);
+      localStorage.setItem("info_theme", next);
+    } catch {}
     applyTheme(next);
   });
 }

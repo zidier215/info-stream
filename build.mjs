@@ -171,8 +171,8 @@ console.log("  ✓ 未泄漏源码/测试脚本");
   const htmlFiles = readdirSync(OUT).filter((f) => f.endsWith(".html"));
   for (const hf of htmlFiles) {
     let content = readFileSync(join(OUT, hf), "utf8");
-    // 剔除 <script> 与 <style> 块，避免将前端 JS 动态拼接的模板字符串误判为静态相对链接
-    content = content.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
+    // 仅剔除 <script> 内部内联代码与 <style> 块，保留 <script src="..."> 标签本身以校验脚本静态路径
+    content = content.replace(/(<script\b[^>]*>)[\s\S]*?(<\/script>)/gi, "$1$2").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
     const attrRe = /\b(?:href|src)=["']([^"'#?]+)["']/gi;
     let m;
     while ((m = attrRe.exec(content)) !== null) {

@@ -542,12 +542,16 @@
     (function () {
       // Theme Toggle
       const themeToggleBtn = document.getElementById("themeToggleBtn");
-      const savedTheme = localStorage.getItem("infostream_theme") || "dark";
+      const savedTheme = localStorage.getItem("theme") || localStorage.getItem("infostream_theme") || localStorage.getItem("info_theme") || "dark";
       document.documentElement.setAttribute("data-theme", savedTheme);
       themeToggleBtn.addEventListener("click", () => {
         const cur = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
         document.documentElement.setAttribute("data-theme", cur);
-        localStorage.setItem("infostream_theme", cur);
+        try {
+          localStorage.setItem("theme", cur);
+          localStorage.setItem("infostream_theme", cur);
+          localStorage.setItem("info_theme", cur);
+        } catch {}
       });
 
       // Category Chips

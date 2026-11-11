@@ -25,11 +25,11 @@ export async function onRequest(context) {
   const yearParam = url.searchParams.get("year");
   const isYear = yearParam && (/^\d{4}$/.test(yearParam) || yearParam === "all");
 
-  // 按实际访问的主机与年份动态注入 Canonical 规范链接
-  const canonicalPath = url.pathname.startsWith("/games") ? "/games" : "/history";
+  // 统一指向游戏站 Canonical 规范链接 (https://game.myinfostream.com/history)，集中 SEO 权重
+  const canonicalBase = "https://game.myinfostream.com/history";
   const canonicalUrl = isYear && yearParam !== "all"
-    ? `https://${hostCfg.host}${canonicalPath}?year=${yearParam}`
-    : `https://${hostCfg.host}${canonicalPath}`;
+    ? `${canonicalBase}?year=${yearParam}`
+    : canonicalBase;
   html = html.replace(/<link rel="canonical" href="[^"]*"/i, `<link rel="canonical" href="${canonicalUrl}"`);
 
   if (isYear && yearParam !== "all") {

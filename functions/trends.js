@@ -34,17 +34,17 @@ export async function onRequest(context) {
     biz: "商业经济",
   };
 
-  // 动态注入 Canonical 规范链接与标题
-  const canonicalPath = url.pathname.startsWith("/trends") ? "/trends" : "/history";
-  let canonicalUrl = `https://${hostCfg.host}${canonicalPath}`;
+  // 统一指向热搜站 Canonical 规范链接 (https://hot.myinfostream.com/history)，集中 SEO 权重
+  const canonicalBase = "https://hot.myinfostream.com/history";
+  let canonicalUrl = canonicalBase;
   if (isYear) {
-    canonicalUrl = `https://${hostCfg.host}${canonicalPath}?year=${yearParam}`;
+    canonicalUrl = `${canonicalBase}?year=${yearParam}`;
     const yearTitle = `${yearParam} 年度互联网破圈大事件全纪录 · 热搜历史通鉴 | ${hostCfg.title}`;
     html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${yearTitle}</title>`);
     const yearDesc = `全面回顾 ${yearParam} 年度中国互联网现象级破圈热搜、科技大突破、文娱高光与时代民生纪实。`;
     html = html.replace(/<meta name="description" content="[^"]*"/i, `<meta name="description" content="${yearDesc}"`);
   } else if (catParam && CAT_NAMES[catParam]) {
-    canonicalUrl = `https://${hostCfg.host}${canonicalPath}?category=${catParam}`;
+    canonicalUrl = `${canonicalBase}?category=${catParam}`;
     const catTitle = `${CAT_NAMES[catParam]}领域历年破圈大事件全景档案 | ${hostCfg.title}`;
     html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${catTitle}</title>`);
   }

@@ -21,21 +21,22 @@ export async function onRequest(context) {
   let html = await tplRes.text();
   const { cfg } = resolveHost(request);
   const hostCfg = cfg || HOSTS["ai.myinfostream.com"] || HOSTS[MAIN_HOST];
+  const canonicalHost = "ai.myinfostream.com";
 
   const yearParam = url.searchParams.get("year");
   const orgParam = url.searchParams.get("org");
   const isYear = yearParam && /^\d{4}$/.test(yearParam);
 
-  // 动态注入 Canonical 规范链接与标题
-  let canonicalUrl = `https://${hostCfg.host}/models`;
+  // 统一指向 AI 情报站主域 Canonical 规范链接与标题，集中 SEO 权重
+  let canonicalUrl = `https://${canonicalHost}/models`;
   if (isYear) {
-    canonicalUrl = `https://${hostCfg.host}/models?year=${yearParam}`;
+    canonicalUrl = `https://${canonicalHost}/models?year=${yearParam}`;
     const yearTitle = `${yearParam} 年度划时代 AI 大模型发布全记录 · 评测编年史 | ${hostCfg.title}`;
     html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${yearTitle}</title>`);
     const yearDesc = `全面收录 ${yearParam} 年度全球顶尖机构发布的里程碑基座大模型，涵盖 LMSYS Chatbot Arena 跑分、上下文窗口与开源协议对比。`;
     html = html.replace(/<meta name="description" content="[^"]*"/i, `<meta name="description" content="${yearDesc}"`);
   } else if (orgParam) {
-    canonicalUrl = `https://${hostCfg.host}/models?org=${encodeURIComponent(orgParam)}`;
+    canonicalUrl = `https://${canonicalHost}/models?org=${encodeURIComponent(orgParam)}`;
     const orgTitle = `${orgParam} 历年 AI 大模型全谱系演进与评测档案 | ${hostCfg.title}`;
     html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${orgTitle}</title>`);
   }
