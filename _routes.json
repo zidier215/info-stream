@@ -23,6 +23,8 @@
     "/ship/*",
     "/prompt",
     "/prompt/*",
+    "/fire",
+    "/fire/*",
     "/api/*"
   ],
   "exclude": [

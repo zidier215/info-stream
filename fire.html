@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>全球指数化投资与经典资产配置模型 (达利欧全天候/永久组合/爱尔兰UCITS/FIRE计算器) · InfoStream</title>
+  <meta name="description" content="不预测市场、不推荐个股的客观常青智库：收录达利欧全天候组合、哈利·布朗永久组合、博格尔三基金组合，爱尔兰注册 UCITS ETF 相比美股 ETF 对非美居民的 15% 股息与遗产税盾优势，以及 Trinity 4% 安全提领率 FIRE 财务自由动态测算器。" />
+  <meta name="keywords" content="资产配置,全天候组合,永久投资组合,博格尔三基金,爱尔兰UCITS,CSPX,VWRA,美股ETF股息税,遗产税,FIRE运动,4%法则,财务自由计算器" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://myinfostream.com/fire" />
+  <meta name="google-adsense-account" content="ca-pub-1130777358854864" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- 全球多国 CDN 与第三方服务连接预热 (DNS-Prefetch & Preconnect) -->
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JBQYPMLVHR"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-JBQYPMLVHR', { send_page_view: true });
+  </script>
+
+  <!-- Google AdSense 异步加载 -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1130777358854864" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-hover: #1f242c;
+      --surface-border: #30363d;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --text-bright: #f0f6fc;
+      --primary: #58a6ff;
+      --primary-rgb: 88, 166, 255;
+      --accent: #e3b341;
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    html.light {
+      --bg: #f6f8fa;
+      --surface: #ffffff;
+      --surface-hover: #f3f4f6;
+      --surface-border: #d0d7de;
+      --text: #24292f;
+      --text-muted: #57606a;
+      --text-bright: #0969da;
+      --primary: #0969da;
+      --primary-rgb: 9, 105, 218;
+      --accent: #b08800;
+      --success: #1a7f37;
+      --warning: #9a6700;
+      --danger: #cf222e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* 顶部导航 */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--surface-border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      backdrop-filter: blur(10px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text-bright);
+    }
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background: #e3b341;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(227, 179, 65, 0.6);
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-link {
+      background: transparent;
+      border: 1px solid var(--surface-border);
+      color: var(--text-muted);
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-link:hover, .btn-link.active {
+      color: var(--text-bright);
+      border-color: var(--primary);
+      background: rgba(var(--primary-rgb), 0.1);
+      text-decoration: none;
+    }
+    .shortcut-kbd {
+      display: inline-block;
+      padding: 1px 4px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--surface-border);
+      border-radius: 3px;
+      margin-left: 3px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 36px 16px 28px;
+      border-bottom: 1px solid var(--surface-border);
+      margin-bottom: 30px;
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(227, 179, 65, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(227, 179, 65, 0.35);
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+      color: var(--text-bright);
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 840px;
+      margin: 0 auto 24px;
+    }
+
+    /* Stats Dashboard */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      text-align: left;
+    }
+    .stat-val {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      font-family: var(--font-mono);
+    }
+    .stat-lbl {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* FIRE Calculator Box */
+    .calc-card {
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 36px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .calc-title {
+      font-size: 1.3rem;
+      color: var(--text-bright);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+    .calc-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .calc-label {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+    .calc-input {
+      background: var(--bg);
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text-bright);
+      font-size: 1rem;
+      font-family: var(--font-mono);
+    }
+    .calc-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(227, 179, 65, 0.2);
+    }
+    .calc-result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      background: rgba(227, 179, 65, 0.08);
+      border: 1px dashed var(--accent);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .calc-res-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .calc-res-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+    .calc-res-lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .tab-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tab-pill {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      color: var(--text-muted);
+      padding: 7px 15px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-pill.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    .search-box {
+      position: relative;
+      min-width: 260px;
+      flex: 1;
+      max-width: 360px;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 8px 12px 8px 34px;
+      color: var(--text);
+      font-size: 0.88rem;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(227, 179, 65, 0.2);
+    }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+    .portfolio-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 12px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .portfolio-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .card-head {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .card-head h3 {
+      font-size: 1.25rem;
+      color: var(--text-bright);
+    }
+    .badge {
+      align-self: flex-start;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-accent {
+      background: rgba(227, 179, 65, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(227, 179, 65, 0.3);
+    }
+    .card-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .highlight-green { color: var(--success); font-weight: 600; }
+    .highlight-red { color: var(--danger); font-weight: 600; }
+    .card-desc {
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .alloc-list {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--surface-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+    }
+    .alloc-list ul {
+      list-style: none;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .alloc-weight {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent);
+      display: inline-block;
+      width: 42px;
+    }
+    .alloc-role {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .info-row {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 8px;
+    }
+
+    /* Tax Shield Table Card */
+    .tax-box {
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+      margin-top: 4px;
+      font-size: 0.84rem;
+    }
+
+    /* Ad Banner */
+    .ad-slot-wrap {
+      margin: 40px auto;
+      text-align: center;
+      max-width: 970px;
+      overflow: hidden;
+    }
+
+    /* Toast */
+    #bookmarkToast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(22, 27, 34, 0.95);
+      border: 1px solid var(--primary);
+      color: var(--text-bright);
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+      backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <nav class="top-nav">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <a href="https://myinfostream.com/">信息河 · InfoStream</a>
+      <span style="color:var(--text-muted); font-size:0.86rem; font-weight:400;">/ 📈 全球资产配置与 FIRE 模型</span>
+    </div>
+    <div class="nav-actions">
+      <a href="https://myinfostream.com/" class="btn-link">🏠 主站</a>
+      <a href="https://ai.myinfostream.com/papers" class="btn-link">📄 AI 论文库</a>
+      <a href="https://ai.myinfostream.com/models" class="btn-link">🧠 大模型编年史</a>
+      <a href="https://game.myinfostream.com/history" class="btn-link">🎮 游戏总账本</a>
+      <a href="https://hot.myinfostream.com/history" class="btn-link">🔥 破圈大事件</a>
+      <a href="https://myinfostream.com/wealth" class="btn-link">💰 商业变现通鉴</a>
+      <a href="https://myinfostream.com/opensource" class="btn-link">🔓 开源与AI替代</a>
+      <a href="https://myinfostream.com/ship" class="btn-link">🚀 出海造筏指南</a>
+      <a href="https://myinfostream.com/prompt" class="btn-link">🧠 提示词与Agent</a>
+      <a href="https://myinfostream.com/fire" class="btn-link active">📈 资产配置与FIRE</a>
+      <a href="https://myinfostream.com/contact" class="btn-link">📬 联系站长</a>
+      <button id="bookmarkBtn" class="btn-link btn-bookmark" style="cursor:pointer;" title="收藏本通鉴 (Ctrl+D / ⌘+D)">⭐ 收藏 <kbd class="shortcut-kbd" id="bookmarkKbd">Ctrl+D</kbd></button>
+      <button id="themeToggleBtn" class="btn-link">🌓 切换主题</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Hero Header -->
+    <header class="hero">
+      <div class="hero-badge">Global Indexing &amp; Classic Asset Allocation Models</div>
+      <h1>全球指数化投资与经典资产配置模型通鉴</h1>
+      <p>不预测市场、不推荐个股的客观常青智库：系统解构达利欧全天候组合、哈利·布朗永久组合、博格尔三基金组合，深度剖析爱尔兰 UCITS 15% 股息与遗产税盾优势，配合 Trinity 4% 安全提领率测算器，助力稳健达成财务自由。</p>
+    </header>
+
+    <!-- Stats Dashboard -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val">4 大传世</div>
+        <div class="stat-lbl">宏观全天候资产配置模型</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">15% 税盾</div>
+        <div class="stat-lbl">爱尔兰 UCITS 离岸分红优惠</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">0 遗产税</div>
+        <div class="stat-lbl">免除美国最高 40% 跨国遗产税</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">4% SWR</div>
+        <div class="stat-lbl">Trinity Study 三十年永续提领法则</div>
+      </div>
+    </section>
+
+    <!-- FIRE Calculator Section -->
+    <section class="calc-card">
+      <div class="calc-title">🔥 FIRE 财务自由倒计时动态测算器</div>
+      <div class="calc-grid">
+        <div class="calc-group">
+          <label class="calc-label" for="calcExpenses">每月基本生活支出 (¥ / $)</label>
+          <input type="number" id="calcExpenses" class="calc-input" value="15000" step="1000" />
+        </div>
+        <div class="calc-group">
+          <label class="calc-label" for="calcNetWorth">当前已累积净资产 (¥ / $)</label>
+          <input type="number" id="calcNetWorth" class="calc-input" value="800000" step="50000" />
+        </div>
+        <div class="calc-group">
+          <label class="calc-label" for="calcMonthlySavings">每月新增储蓄定投 (¥ / $)</label>
+          <input type="number" id="calcMonthlySavings" class="calc-input" value="10000" step="1000" />
+        </div>
+        <div class="calc-group">
+          <label class="calc-label" for="calcSwr">安全提领率 SWR (%)</label>
+          <input type="number" id="calcSwr" class="calc-input" value="4.0" step="0.1" />
+        </div>
+      </div>
+
+      <div class="calc-result-grid">
+        <div class="calc-res-item">
+          <div class="calc-res-val" id="resTargetFund">¥ 4,500,000</div>
+          <div class="calc-res-lbl">目标财务自由本金 (年度开销 ÷ SWR)</div>
+        </div>
+        <div class="calc-res-item">
+          <div class="calc-res-val" id="resCountdown">约 13 年 4 个月</div>
+          <div class="calc-res-lbl">达成 FIRE 倒计时 (以实质年化5%复利测算)</div>
+        </div>
+        <div class="calc-res-item">
+          <div class="calc-res-val" id="resPassiveRatio">17.8%</div>
+          <div class="calc-res-lbl">当前本金安全利息覆盖月开销比例</div>
+        </div>
+        <div class="calc-res-item">
+          <div class="calc-res-val" id="resStatus">稳步积累中 🚀</div>
+          <div class="calc-res-lbl">自由状态评估</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="tab-pills" id="tabPills">
+        <button class="tab-pill active" data-tab="all">全部模型</button>
+        <button class="tab-pill" data-tab="models">🏛️ 经典全天候配置模型</button>
+        <button class="tab-pill" data-tab="etfs">🛡️ 爱尔兰 UCITS 跨境税盾</button>
+        <button class="tab-pill" data-tab="methodology">🔥 FIRE 提领与储蓄法则</button>
+      </div>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="搜索模型、资产配比、爱尔兰ETF..." />
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="cards-grid" id="cardsGrid">
+      <!-- SSR_MODELS_MOUNT -->
+      <!-- /SSR_MODELS_MOUNT -->
+    </div>
+
+    <!-- AdSense Slot -->
+    <div class="ad-slot-wrap">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-1130777358854864"
+           data-ad-slot="9012345678"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </main>
+
+  <div id="bookmarkToast"></div>
+
+  <script src="/bookmark.js" defer></script>
+  <script>
+    // 主题切换
+    const themeBtn = document.getElementById("themeToggleBtn");
+    const currentTheme = localStorage.getItem("info_theme") || "dark";
+    if (currentTheme === "light") document.documentElement.classList.add("light");
+    themeBtn.addEventListener("click", () => {
+      document.documentElement.classList.toggle("light");
+      const isLight = document.documentElement.classList.contains("light");
+      localStorage.setItem("info_theme", isLight ? "light" : "dark");
+    });
+
+    // FIRE 测算器逻辑
+    function updateFireCalc() {
+      const expenses = parseFloat(document.getElementById("calcExpenses").value) || 0;
+      let netWorth = parseFloat(document.getElementById("calcNetWorth").value) || 0;
+      const savings = parseFloat(document.getElementById("calcMonthlySavings").value) || 0;
+      const swr = (parseFloat(document.getElementById("calcSwr").value) || 4.0) / 100;
+
+      const annualExpenses = expenses * 12;
+      const targetFund = swr > 0 ? annualExpenses / swr : 0;
+      document.getElementById("resTargetFund").textContent = "¥ " + Math.round(targetFund).toLocaleString();
+
+      const currentPassiveMonthly = (netWorth * swr) / 12;
+      const coverageRatio = expenses > 0 ? (currentPassiveMonthly / expenses) * 100 : 0;
+      document.getElementById("resPassiveRatio").textContent = coverageRatio.toFixed(1) + "%";
+
+      if (coverageRatio >= 100) {
+        document.getElementById("resCountdown").textContent = "0 年 (已达成 FIRE!) 🎉";
+        document.getElementById("resStatus").textContent = "已实现财务自由 ☕";
+        return;
+      }
+
+      // 假设扣除通胀后的实质实际年化收益率为 5.0%
+      const r = 0.05 / 12;
+      let months = 0;
+      let cur = netWorth;
+      const maxMonths = 1200; // 100年封顶
+
+      while (cur < targetFund && months < maxMonths) {
+        cur = cur * (1 + r) + savings;
+        months++;
+      }
+
+      if (months >= maxMonths) {
+        document.getElementById("resCountdown").textContent = "> 50 年";
+        document.getElementById("resStatus").textContent = "建议提高储蓄率或增加副业杠杆";
+      } else {
+        const y = Math.floor(months / 12);
+        const m = months % 12;
+        document.getElementById("resCountdown").textContent = `${y} 年 ${m} 个月`;
+        document.getElementById("resStatus").textContent = y < 10 ? "极速自由通道 🚀" : "稳步复利累积中 📈";
+      }
+    }
+
+    ["calcExpenses", "calcNetWorth", "calcMonthlySavings", "calcSwr"].forEach(id => {
+      document.getElementById(id).addEventListener("input", updateFireCalc);
+    });
+    updateFireCalc();
+
+    // 前端动态加载与筛选
+    let allData = { models: [], etfs: [], methodology: [] };
+    let currentTab = "all";
+
+    async function loadData() {
+      try {
+        const res = await fetch("/api/fire?tab=all");
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json.success && json.data) {
+          allData = json.data;
+          renderCards();
+        }
+      } catch (err) {
+        console.error("Failed to load fire data", err);
+      }
+    }
+
+    function renderCards() {
+      const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+      const container = document.getElementById("cardsGrid");
+      let html = "";
+
+      // 1. Models
+      if (currentTab === "all" || currentTab === "models") {
+        const list = allData.models.filter(m => !q || m.name.toLowerCase().includes(q) || m.author.toLowerCase().includes(q) || m.thesis.toLowerCase().includes(q));
+        list.forEach(m => {
+          html += `
+            <article class="portfolio-card" id="${m.id}">
+              <div class="card-head">
+                <span class="badge badge-accent">${escapeHtml(m.badge)}</span>
+                <h3>${escapeHtml(m.name)}</h3>
+                <div class="card-subtitle"><b>创立者：</b>${escapeHtml(m.author)} · <b>历史年化：</b><span class="highlight-green">${escapeHtml(m.cagr_historical)}</span> · <b>最大回撤：</b><span class="highlight-red">${escapeHtml(m.max_drawdown)}</span></div>
+              </div>
+              <p class="card-desc">${escapeHtml(m.thesis)}</p>
+              <div class="alloc-list">
+                <b>标准权重配置矩阵：</b>
+                <ul>
+                  ${m.allocations.map(a => `<li><span class="alloc-weight">${escapeHtml(String(a.weight))}%</span> <b>${escapeHtml(a.asset)}</b> — <span class="alloc-role">${escapeHtml(a.role)}</span></li>`).join("")}
+                </ul>
+              </div>
+              <div class="info-row"><b>再平衡机制：</b>${escapeHtml(m.rebalance_rule)}</div>
+              <div class="info-row"><b>适合人群：</b>${escapeHtml(m.best_for)}</div>
+            </article>
+          `;
+        });
+      }
+
+      // 2. ETFs
+      if (currentTab === "all" || currentTab === "etfs") {
+        const list = allData.etfs.filter(e => !q || e.category.toLowerCase().includes(q) || e.us_etf.toLowerCase().includes(q) || e.ucits_etf.toLowerCase().includes(q) || e.ucits_advantage.toLowerCase().includes(q));
+        list.forEach(e => {
+          html += `
+            <article class="portfolio-card" id="${e.id}">
+              <div class="card-head">
+                <span class="badge badge-accent">跨境税盾</span>
+                <h3>${escapeHtml(e.category)}</h3>
+                <div class="card-subtitle"><b>美股对标：</b>${escapeHtml(e.us_etf)} (费率 ${escapeHtml(e.us_expense)})</div>
+              </div>
+              <div class="tax-box">
+                <div style="color:var(--danger); margin-bottom:4px;"><b>美股注册风险：</b>${escapeHtml(e.us_withholding_tax)} · ${escapeHtml(e.us_estate_tax_risk)}</div>
+                <div style="color:var(--success);"><b>爱尔兰 UCITS 优势：</b>${escapeHtml(e.ucits_etf)} (费率 ${escapeHtml(e.ucits_expense)}) · ${escapeHtml(e.ucits_withholding_tax)} · ${escapeHtml(e.ucits_dividend_type)}</div>
+              </div>
+              <div class="info-row"><b>核心架构价值：</b>${escapeHtml(e.ucits_advantage)}</div>
+            </article>
+          `;
+        });
+      }
+
+      // 3. Methodology
+      if (currentTab === "all" || currentTab === "methodology") {
+        const list = allData.methodology.filter(r => !q || r.rule.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q));
+        list.forEach(r => {
+          html += `
+            <article class="portfolio-card">
+              <div class="card-head">
+                <span class="badge badge-accent">FIRE 法则</span>
+                <h3>${escapeHtml(r.rule)}</h3>
+              </div>
+              <p class="card-desc">${escapeHtml(r.desc)}</p>
+              <div class="info-row" style="color:var(--accent); font-weight:600;"><b>核心推论公式：</b>${escapeHtml(r.formula)}</div>
+            </article>
+          `;
+        });
+      }
+
+      if (!html) {
+        html = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-muted);">未找到与 "${escapeHtml(q)}" 相关的配置模型或税盾条目</div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    // Tab 切换事件
+    document.getElementById("tabPills").addEventListener("click", (e) => {
+      const btn = e.target.closest(".tab-pill");
+      if (!btn) return;
+      document.querySelectorAll(".tab-pill").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentTab = btn.getAttribute("data-tab");
+      renderCards();
+    });
+
+    // 搜索事件防抖
+    let searchTimer = null;
+    document.getElementById("searchInput").addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(renderCards, 150);
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
