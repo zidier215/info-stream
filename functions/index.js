@@ -105,10 +105,10 @@ export async function onRequest(context) {
     status: 200,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      // 预览域名完全不缓存；正式域名开启边缘多国节点全局缓存（15分钟），后台异步秒开刷新（24小时）
+      // 预览域名完全不缓存；正式域名开启边缘多国节点极速缓存（60秒），后台异步秒开刷新（24小时）
       "Cache-Control": isPreview
         ? "no-store"
-        : "public, max-age=0, s-maxage=900, stale-while-revalidate=86400",
+        : "public, max-age=0, s-maxage=60, stale-while-revalidate=86400",
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "strict-origin-when-cross-origin",
       // 站点标识，前端与排障都用得上

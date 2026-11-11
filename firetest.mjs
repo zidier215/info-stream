@@ -97,3 +97,4 @@ console.log("=== Testing Subdomain Redirect to Main Host ===");
 }
 
 console.log("\nALL FIRE TESTS PASSED!");
+

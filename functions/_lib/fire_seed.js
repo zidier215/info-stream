@@ -164,3 +164,4 @@ export const FIRE_METHODOLOGY = [
     formula: "储蓄率 10% → 需工作 51 年；储蓄率 30% → 需工作 28 年；储蓄率 50% → 需工作 17 年；储蓄率 70% → 仅需 8.5 年达成 FIRE！"
   }
 ];
+
