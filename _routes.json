@@ -37,6 +37,8 @@
     "/*.jpg",
     "/*.ico",
     "/favicon.svg",
+    "/manifest.webmanifest",
+    "/*.webmanifest",
     "/ads.txt",
     "/404.html",
     "/about.html",

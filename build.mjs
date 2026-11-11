@@ -41,6 +41,7 @@ const ENTRIES = [
   "index.html",
   "assets",
   "favicon.svg",
+  "manifest.webmanifest",
   "_routes.json",
   "_headers",
   "ads.txt",

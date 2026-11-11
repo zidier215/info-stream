@@ -1,0 +1,59 @@
+{
+  "name": "信息河 · InfoStream",
+  "short_name": "信息河",
+  "description": "极速、清洁、无干扰的全球资讯聚合与长青知识智库平台",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0e14",
+  "theme_color": "#0b0e14",
+  "orientation": "portrait-primary",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "48x48 72x72 96x96 128x128 192x192 256x256 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "商业变现通鉴",
+      "short_name": "商业通鉴",
+      "description": "98 种商业变现形态与底层收入结构拆解",
+      "url": "/wealth",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "开源与AI替代",
+      "short_name": "开源替代",
+      "description": "顶级 SaaS 开源自建替代与大模型重构全景",
+      "url": "/opensource",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "出海造筏指南",
+      "short_name": "出海造筏",
+      "description": "一人公司全球收款、合规主体与分发渠道",
+      "url": "/ship",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "高阶提示词与Agent",
+      "short_name": "提示词",
+      "description": "20+ 工业级学术验证 Prompt 架构与 Agent 编排",
+      "url": "/prompt",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "全球资产配置与FIRE",
+      "short_name": "资产配置",
+      "description": "达利欧全天候组合与 4% SWR 财务自由测算器",
+      "url": "/fire",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    }
+  ],
+  "categories": ["news", "productivity", "utilities", "business"]
+}
+

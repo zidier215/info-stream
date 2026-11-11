@@ -111,5 +111,12 @@
       navActions.scrollLeft = Math.max(0, targetLeft);
     }
   } catch {}
+
+  // PWA Service Worker 注册（增强渐进式离线缓存与桌面端/移动端安装能力）
+  if ("serviceWorker" in navigator && window.location.protocol.startsWith("http")) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/assets/sw.js").catch(() => {});
+    });
+  }
 })();
 
