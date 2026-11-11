@@ -279,6 +279,52 @@ body {
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.22);
 }
 
+/* ---------------- 全站统一子站与垂直档案顶部导航栏 ---------------- */
+.subsite-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--line);
+  padding: 6px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.subsite-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.subsite-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.subsite-link:hover {
+  color: var(--text);
+  background: var(--card);
+  border-color: var(--line);
+  text-decoration: none;
+}
+
+.subsite-link.active {
+  color: var(--accent);
+  background: var(--card);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
 /* ---------------- 主站入口卡片（portal 模式） ---------------- */
 .entries {
   padding: 8px 16px 0;
@@ -1243,6 +1289,7 @@ main {
 /* 深色模式特定组件细节适配 */
 [data-theme="dark"] .topbar,
 [data-theme="dark"] .tabs,
+[data-theme="dark"] .subsite-bar,
 [data-theme="dark"] .cookie-banner {
   background: rgba(15, 23, 42, 0.92);
 }
@@ -1250,6 +1297,7 @@ main {
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .topbar,
   :root:not([data-theme="light"]) .tabs,
+  :root:not([data-theme="light"]) .subsite-bar,
   :root:not([data-theme="light"]) .cookie-banner {
     background: rgba(15, 23, 42, 0.92);
   }

@@ -258,3 +258,4 @@ export const WEALTH_SEED = ${JSON.stringify(ITEMS, null, 2)};
 
 writeFileSync("functions/_lib/wealth_seed.js", code, "utf8");
 console.log("Written successfully to functions/_lib/wealth_seed.js");
+

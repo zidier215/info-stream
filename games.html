@@ -89,13 +89,17 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .brand {
       display: flex;
       align-items: center;
       gap: 0.6rem;
       font-weight: 700;
-      font-size: 1.15rem;
+      font-size: 1.05rem;
+      text-decoration: none;
+      color: var(--text-main);
     }
     .brand-logo {
       display: inline-flex;
@@ -111,21 +115,29 @@
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     .btn-link {
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.84rem;
       border: 1px solid var(--card-border);
       background: var(--card-bg);
       color: var(--text-muted);
       cursor: pointer;
+      text-decoration: none;
       transition: all 0.2s;
     }
     .btn-link:hover {
       color: var(--text-main);
       border-color: var(--accent);
+    }
+    .btn-link.active {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(147, 51, 234, 0.16);
+      font-weight: 600;
     }
 
     /* Hero & Metrics */
@@ -552,14 +564,18 @@
 
   <header>
     <div class="nav-inner">
-      <a href="/" class="brand">
+      <a href="https://game.myinfostream.com/" class="brand">
         <span class="brand-logo">🎮</span>
-        <span>游戏站 · Epic 喜加一通鉴</span>
+        <span>信息河 · InfoStream / 🎮 游戏总账本</span>
       </a>
       <div class="nav-actions">
-        <a href="https://myinfostream.com/" class="btn-link">信息河主站</a>
-        <a href="/" class="btn-link">本周限免</a>
-        <button id="themeToggleBtn" class="btn-link">🌓 主题</button>
+        <a href="https://myinfostream.com/" class="btn-link">🏠 返回主站</a>
+        <a href="https://ai.myinfostream.com/papers" class="btn-link">📄 AI 论文库</a>
+        <a href="https://ai.myinfostream.com/models" class="btn-link">🧠 大模型编年史</a>
+        <a href="https://game.myinfostream.com/history" class="btn-link active">🎮 游戏总账本</a>
+        <a href="https://hot.myinfostream.com/history" class="btn-link">🔥 破圈大事件</a>
+        <a href="https://myinfostream.com/wealth" class="btn-link">💰 商业变现通鉴</a>
+        <button id="themeToggleBtn" class="btn-link">🌓 切换主题</button>
       </div>
     </div>
   </header>

@@ -75,6 +75,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     [data-theme="light"] .top-nav {
       background: rgba(255, 248, 248, 0.88);
@@ -83,7 +85,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 700;
     }
     .brand span.live-dot {
@@ -97,22 +99,30 @@
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     .btn-link {
       background: transparent;
       border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 6px 14px;
+      padding: 6px 12px;
       border-radius: 20px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       cursor: pointer;
       transition: all 0.2s;
+      text-decoration: none;
     }
     .btn-link:hover {
       border-color: var(--accent);
       color: var(--text);
       box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .btn-link.active {
+      background: rgba(244, 63, 94, 0.16);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
     }
 
     /* Container */
@@ -524,13 +534,17 @@
   <nav class="top-nav">
     <div class="brand">
       <span class="live-dot"></span>
-      <a href="https://hot.myinfostream.com/">全网热搜榜 · InfoStream</a>
-      <span style="color:var(--text-muted); font-size:0.85rem; font-weight:400;">/ 历史大事件通鉴</span>
+      <a href="https://hot.myinfostream.com/">信息河 · InfoStream</a>
+      <span style="color:var(--text-muted); font-size:0.85rem; font-weight:400;">/ 🔥 破圈大事件通鉴</span>
     </div>
     <div class="nav-actions">
-      <a href="https://ai.myinfostream.com/models" class="btn-link">🤖 大模型档案</a>
+      <a href="https://myinfostream.com/" class="btn-link">🏠 返回主站</a>
+      <a href="https://ai.myinfostream.com/papers" class="btn-link">📄 AI 论文库</a>
+      <a href="https://ai.myinfostream.com/models" class="btn-link">🧠 大模型编年史</a>
       <a href="https://game.myinfostream.com/history" class="btn-link">🎮 游戏总账本</a>
-      <button id="themeToggleBtn" class="btn-link">🌓 主题</button>
+      <a href="https://hot.myinfostream.com/history" class="btn-link active">🔥 破圈大事件</a>
+      <a href="https://myinfostream.com/wealth" class="btn-link">💰 商业变现通鉴</a>
+      <button id="themeToggleBtn" class="btn-link">🌓 切换主题</button>
     </div>
   </nav>
 

@@ -1228,8 +1228,28 @@ buildLangSelect();
 // applyLang 末尾已经串好 buildTabs → renderEntries → reloadWidgets → resetFeed，
 // 这里不要再来一遍 —— 重复调会让首屏打两次 /api/feed，浪费一次上游抓取。
 applyLang(currentLang);
+highlightSubsiteNav();
 if (DEV_MODE) loadDiscover("");
 requestAnimationFrame(tick);
+
+// ---------- 全站子站导航高亮 ----------
+function highlightSubsiteNav() {
+  const links = document.querySelectorAll(".subsite-link");
+  if (!links.length) return;
+  const h = location.hostname.toLowerCase();
+  const p = location.pathname.toLowerCase();
+  links.forEach((a) => {
+    const href = a.getAttribute("href") || "";
+    let active = false;
+    if (href.includes("/wealth") && p.includes("/wealth")) active = true;
+    else if (href.includes("/papers") && p.includes("/papers")) active = true;
+    else if (href.includes("/models") && p.includes("/models")) active = true;
+    else if (href.includes("game.") && h.includes("game.")) active = true;
+    else if (href.includes("hot.") && h.includes("hot.")) active = true;
+    else if (href.endsWith("myinfostream.com/") && (h === "myinfostream.com" || h === "www.myinfostream.com") && p === "/") active = true;
+    a.classList.toggle("active", active);
+  });
+}
 
 // ---------- Cookie 合规提示条控制器 (Cookie Consent) ----------
 const cookieBanner = document.getElementById("cookieConsent");
