@@ -31,7 +31,7 @@ export async function onRequest(context) {
   if (pathname === "/index.html" || pathname === "/index.htm") pathname = "/";
   if (pathname !== "/" && pathname !== "") {
     // 专题落地页规范化：若访问带尾部斜杠的专题路由，自动 301 重定向至规范无斜杠路径
-    const cleanPaths = ["/wealth", "/papers", "/models", "/trends", "/games", "/history", "/contact", "/feedback"];
+    const cleanPaths = ["/wealth", "/papers", "/models", "/trends", "/games", "/history", "/contact", "/feedback", "/opensource"];
     if (cleanPaths.includes(pathname) && url.pathname !== pathname) {
       const redirectUrl = new URL(url.toString());
       redirectUrl.pathname = pathname;

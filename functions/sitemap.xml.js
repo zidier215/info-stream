@@ -59,6 +59,7 @@ export async function onRequest(context) {
       { loc: `https://${cfg.host}/games`, changefreq: "daily", priority: "0.9", lastmod: now },
       { loc: `https://${cfg.host}/trends`, changefreq: "daily", priority: "0.9", lastmod: now },
       { loc: `https://${cfg.host}/wealth`, changefreq: "weekly", priority: "0.9", lastmod: now },
+      { loc: `https://${cfg.host}/opensource`, changefreq: "weekly", priority: "0.9", lastmod: now },
       { loc: `https://${cfg.host}/about`, changefreq: "monthly", priority: "0.5", lastmod: now },
       { loc: `https://${cfg.host}/privacy`, changefreq: "monthly", priority: "0.5", lastmod: now },
       { loc: `https://${cfg.host}/editorial`, changefreq: "monthly", priority: "0.5", lastmod: now },

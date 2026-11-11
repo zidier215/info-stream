@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>全球商业软件开源自建替代 & 大模型降维重构全景图谱 · InfoStream</title>
+  <meta name="description" content="不要为昂贵软件支付订阅费：全面收录全球主流商业 SaaS（Notion、Figma、Zapier、Jasper、Jira、Airtable、Slack、Shopify 等）的高质量开源自建方案，深度拆解大模型与 Agent 对新时代订阅付费软件的降维打击机制。" />
+  <meta name="keywords" content="开源替代品,开源自建,大模型降维打击,Zapier替代,Notion开源替代,Figma开源替代,一人公司省钱,SaaS订阅陷阱,Docker一键部署,自托管软件" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://myinfostream.com/opensource" />
+  <meta name="google-adsense-account" content="ca-pub-1130777358854864" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- 全球多国 CDN 与第三方服务连接预热 (DNS-Prefetch & Preconnect) -->
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JBQYPMLVHR"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-JBQYPMLVHR');
+  </script>
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1130777358854864" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --bg-card: #131822;
+      --bg-card-hover: #1a2230;
+      --border: #232c3d;
+      --border-focus: #3b82f6;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.2);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --border: #e2e8f0;
+      --border-focus: #2563eb;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #2563eb;
+      --accent-glow: rgba(37, 99, 235, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.6;
+      padding-bottom: 60px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 顶部导航 */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(11, 14, 20, 0.88);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    [data-theme="light"] .top-nav {
+      background: rgba(248, 250, 252, 0.92);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .brand a {
+      color: var(--text);
+      text-decoration: none;
+    }
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-link {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-link:hover, .btn-link.active {
+      color: var(--text);
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* 快捷键提示样式 */
+    .btn-bookmark {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(234, 88, 12, 0.05));
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #f59e0b;
+      font-weight: 600;
+    }
+    .btn-bookmark:hover {
+      border-color: #f59e0b;
+      color: #fbbf24;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(234, 88, 12, 0.12));
+    }
+    .shortcut-kbd {
+      font-size: 10.5px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    [data-theme="light"] .shortcut-kbd {
+      background: rgba(0, 0, 0, 0.06);
+      border-color: rgba(0, 0, 0, 0.1);
+      color: #92400e;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    /* Hero */
+    .hero {
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+    }
+    .kicker {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: #10b981;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hero h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .lead {
+      font-size: 1.02rem;
+      color: var(--text-muted);
+      line-height: 1.68;
+      max-width: 980px;
+      margin-bottom: 20px;
+    }
+
+    /* 顶层宏观结论视窗 */
+    .thesis-box {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(59, 130, 246, 0.06));
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 0.94rem;
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .thesis-box b {
+      color: #10b981;
+    }
+
+    /* 核心数据看板 */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      transition: transform 0.15s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .stat-num {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .stat-num.highlight {
+      color: #10b981;
+    }
+    .stat-num.accent {
+      color: #f59e0b;
+    }
+    .stat-label {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    /* 筛选与搜索工具条 */
+    .filter-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .search-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .search-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .search-input:focus {
+      border-color: var(--border-focus);
+    }
+    .filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .chip:hover, .chip.active {
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .chip.chip-ai.active {
+      background: #f59e0b;
+      border-color: #f59e0b;
+      color: #000;
+      font-weight: 700;
+    }
+
+    /* 卡片列表 */
+    .oss-list {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .oss-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      transition: transform 0.2s, border-color 0.2s;
+      content-visibility: auto;
+      contain-intrinsic-size: 0 350px;
+    }
+    .oss-card:hover {
+      border-color: #475569;
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .target-info h3 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text);
+      margin: 4px 0 6px;
+    }
+    .category-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .target-sub {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.86rem;
+    }
+    .strike-price {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    .saving-tag {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    /* 徽章 */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .badge-ai {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    .badge-hybrid {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+    }
+    .badge-oss {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    /* 痛点栏 */
+    .pain-box {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      background: rgba(0,0,0,0.18);
+      border-left: 3px solid #ef4444;
+      padding: 8px 12px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 16px;
+    }
+    [data-theme="light"] .pain-box {
+      background: #fef2f2;
+    }
+
+    .section-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    /* 开源替代品胶囊网格 */
+    .alts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .alt-pill {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    [data-theme="light"] .alt-pill {
+      background: #f8fafc;
+    }
+    .alt-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .alt-name {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #10b981;
+    }
+    .alt-stars {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #fbbf24;
+    }
+    .alt-license {
+      font-size: 0.72rem;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--border);
+      color: var(--text-muted);
+    }
+    .alt-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .alt-code {
+      font-family: Consolas, monospace;
+      font-size: 0.76rem;
+      background: #000;
+      color: #38bdf8;
+      padding: 5px 8px;
+      border-radius: 6px;
+      overflow-x: auto;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+    }
+    .alt-code:hover {
+      border-color: #38bdf8;
+    }
+
+    /* 大模型降维打击专属区块 (核心亮点) */
+    .disruption-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(234, 88, 12, 0.04));
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+    .disruption-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      color: #fbbf24;
+    }
+    .disruption-stars {
+      color: #f59e0b;
+      letter-spacing: 2px;
+      font-size: 0.85rem;
+    }
+    .disruption-thesis {
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    .disruption-solution {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      border-top: 1px dashed rgba(245, 158, 11, 0.25);
+      padding-top: 8px;
+      line-height: 1.55;
+    }
+    .disruption-solution b {
+      color: #10b981;
+    }
+
+    /* 底部通用页脚 */
+    .footer-bar {
+      margin-top: 50px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-bar a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .footer-bar a:hover {
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Top Navigation (Synchronized across InfoStream Network) -->
+  <nav class="top-nav">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <a href="https://myinfostream.com/">信息河 · InfoStream</a>
+      <span style="color:var(--text-muted); font-size:0.86rem; font-weight:400;">/ 🔓 开源自建 &amp; 大模型降维通鉴</span>
+    </div>
+    <div class="nav-actions">
+      <a href="https://myinfostream.com/" class="btn-link">🏠 主站</a>
+      <a href="https://ai.myinfostream.com/papers" class="btn-link">📄 AI 论文库</a>
+      <a href="https://ai.myinfostream.com/models" class="btn-link">🧠 大模型编年史</a>
+      <a href="https://game.myinfostream.com/history" class="btn-link">🎮 游戏总账本</a>
+      <a href="https://hot.myinfostream.com/history" class="btn-link">🔥 破圈大事件</a>
+      <a href="https://myinfostream.com/wealth" class="btn-link">💰 商业变现通鉴</a>
+      <a href="https://myinfostream.com/opensource" class="btn-link active">🔓 开源与AI替代</a>
+      <a href="https://myinfostream.com/contact" class="btn-link">📬 联系站长</a>
+      <button id="bookmarkBtn" class="btn-link btn-bookmark" style="cursor:pointer;" title="收藏本通鉴 (Ctrl+D / ⌘+D)">⭐ 收藏 <kbd class="shortcut-kbd" id="bookmarkKbd">Ctrl+D</kbd></button>
+      <button id="themeToggleBtn" class="btn-link">🌓 切换主题</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Hero Header -->
+    <header class="hero">
+      <div class="kicker">OPEN SOURCE &amp; AI DISRUPTION ATLAS · 2026 全息通鉴</div>
+      <h1>全球商业软件开源自建替代 &amp; 大模型降维重构全景图谱</h1>
+      <p class="lead">
+        不要为昂贵软件支付月费。全面盘点全球主流商业 SaaS（Notion、Figma、Zapier、Jasper、Jira、Airtable、Slack、Shopify 等）的高质量开源自建方案；并深度剖析基座大模型、自主 Agent 与开源模型是如何将传统高昂订阅制软件彻底“降维打击”成白菜价底层基础设施的。
+      </p>
+
+      <div class="thesis-box">
+        <b>⚡ 降维打击核心硬逻辑：</b>传统订阅软件的护城河本质是“特定交互界面的规则封装”（如繁琐的流程连接器、公式编辑器、文案模版）。大模型时代，自然语言成为了唯一的通用界面，底层 API 与 MCP 协议抹平了所有中间商。配合开源自建方案，一人公司与极客团队完全可以实现 <b>0 平台订阅费、100% 数据本地自主掌控</b>。
+      </div>
+
+      <!-- 实时看板 -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num highlight" id="statTotalCount">16+ 款</div>
+          <div class="stat-label">收录商业标杆 SaaS</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num accent" id="statSavingYear">$7,600+</div>
+          <div class="stat-label">个人/一人公司年均可省订阅费</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num highlight" id="statAiDisrupt">85%</div>
+          <div class="stat-label">大模型降维重构率</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">数据私有化与完全自主可控</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 过滤器与搜索框 -->
+    <section class="filter-section">
+      <div class="search-row">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜索商业软件名（如 Notion, Zapier）、开源项目、技术栈或核心机制…" />
+      </div>
+
+      <div class="filter-chips" id="categoryChips">
+        <span class="chip active" data-cat="all">全部领域 (全部)</span>
+        <span class="chip" data-cat="productivity">📝 协同办公与知识库</span>
+        <span class="chip" data-cat="automation">⚡ 自动化与流程连接</span>
+        <span class="chip" data-cat="ai_tools">🧠 AI 与写作生产力</span>
+        <span class="chip" data-cat="design">🎨 设计与创意媒体</span>
+        <span class="chip" data-cat="dev_ops">💻 研发与项目管理</span>
+        <span class="chip" data-cat="communication">💬 通讯与团队协作</span>
+        <span class="chip" data-cat="marketing">📣 客户服务与营销</span>
+        <span class="chip" data-cat="ecommerce">💳 电商独立站与计费</span>
+      </div>
+
+      <div class="filter-chips" id="typeChips">
+        <span class="chip active" data-type="all">全部替代形态</span>
+        <span class="chip chip-ai" data-type="ai">🔥 大模型降维颠覆 (优先)</span>
+        <span class="chip" data-type="hybrid">⚡ 开源 + AI 双重重构</span>
+        <span class="chip" data-type="oss">🔓 纯开源自建替代</span>
+      </div>
+    </section>
+
+    <!-- 知识卡片流 (SSR 直出预渲染挂载点) -->
+    <div id="ossList" class="oss-list"></div>
+
+    <footer class="footer-bar">
+      <div>© 2026 信息河 InfoStream · 极客生产力与开源精神永存</div>
+      <div>
+        <a href="https://myinfostream.com/contact">反馈建议</a> ·
+        <a href="https://myinfostream.com/wealth">商业变现通鉴</a> ·
+        <a href="https://github.com/zidier215/info-stream" target="_blank" rel="noopener">GitHub 源码</a>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      // 主题切换
+      const themeBtn = document.getElementById("themeToggleBtn");
+      if (themeBtn) {
+        themeBtn.addEventListener("click", () => {
+          const current = document.documentElement.getAttribute("data-theme") || "dark";
+          const next = current === "dark" ? "light" : "dark";
+          document.documentElement.setAttribute("data-theme", next);
+          try { localStorage.setItem("infostream_theme", next); } catch {}
+        });
+      }
+      try {
+        const saved = localStorage.getItem("infostream_theme");
+        if (saved) document.documentElement.setAttribute("data-theme", saved);
+      } catch {}
+
+      // 复制命令提示
+      document.addEventListener("click", (e) => {
+        const code = e.target.closest(".alt-code");
+        if (code) {
+          const text = code.textContent.trim();
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => {
+              const old = code.textContent;
+              code.textContent = "✓ 已复制 Docker 部署命令至剪贴板！";
+              setTimeout(() => { code.textContent = old; }, 2000);
+            });
+          }
+        }
+      });
+
+      // 响应式客户端筛选
+      const data = window.__OPENSOURCE_DATA__ || [];
+      const listEl = document.getElementById("ossList");
+      const searchInput = document.getElementById("searchInput");
+      const catChips = document.querySelectorAll("#categoryChips .chip");
+      const typeChips = document.querySelectorAll("#typeChips .chip");
+
+      let currentCat = "all";
+      let currentType = "all";
+      let currentQ = "";
+
+      function escapeXml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&apos;");
+      }
+
+      function render() {
+        let filtered = data;
+        if (currentCat !== "all") {
+          filtered = filtered.filter(it => it.category === currentCat);
+        }
+        if (currentType !== "all") {
+          filtered = filtered.filter(it => {
+            if (currentType === "ai") return it.disruption_type === "ai" || it.disruption_type === "hybrid";
+            if (currentType === "oss") return it.disruption_type === "oss" || it.disruption_type === "hybrid";
+            return it.disruption_type === currentType;
+          });
+        }
+        if (currentQ) {
+          filtered = filtered.filter(it => {
+            const matchName = (it.name_cn || "").toLowerCase().includes(currentQ);
+            const matchTarget = (it.target_software || "").toLowerCase().includes(currentQ);
+            const matchThesis = (it.llm_disruption?.thesis || "").toLowerCase().includes(currentQ);
+            const matchAlt = (it.alternatives || []).some(a => (a.name || "").toLowerCase().includes(currentQ) || (a.desc || "").toLowerCase().includes(currentQ));
+            return matchName || matchTarget || matchThesis || matchAlt;
+          });
+        }
+
+        if (!filtered.length) {
+          listEl.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">没有找到匹配的软件替代方案，试试更换搜索词或筛选条件。</div>`;
+          return;
+        }
+
+        listEl.innerHTML = filtered.map(it => {
+          const typeBadge =
+            it.disruption_type === "ai"
+              ? `<span class="badge badge-ai">🔥 大模型降维颠覆</span>`
+              : it.disruption_type === "hybrid"
+              ? `<span class="badge badge-hybrid">⚡ 开源 + AI 双重重构</span>`
+              : `<span class="badge badge-oss">🔓 纯开源自建替代</span>`;
+
+          const altsHtml = (it.alternatives || []).map(a => `
+            <div class="alt-pill">
+              <div class="alt-top">
+                <span class="alt-name">${escapeXml(a.name)}</span>
+                <span class="alt-stars">★ ${escapeXml(a.stars || "")}</span>
+                <span class="alt-license">${escapeXml(a.license || "")}</span>
+              </div>
+              <p class="alt-desc">${escapeXml(a.desc || "")}</p>
+              ${a.one_click_cmd ? `<code class="alt-code" title="点击复制命令">${escapeXml(a.one_click_cmd)}</code>` : ""}
+            </div>
+          `).join("");
+
+          return `
+            <article class="oss-card" id="${escapeXml(it.id)}">
+              <div class="card-header">
+                <div class="target-info">
+                  <span class="category-tag">${escapeXml(it.category_cn)}</span>
+                  <h3>${escapeXml(it.name_cn)}</h3>
+                  <div class="target-sub">
+                    <span class="strike-price">原商业版: <s>${escapeXml(it.pricing_desc || "")}</s></span>
+                    <span class="saving-tag">年省约 $${it.estimated_yearly_saving_usd || 0}</span>
+                  </div>
+                </div>
+                ${typeBadge}
+              </div>
+
+              <div class="pain-box">
+                <b>传统商业痛点：</b>${escapeXml(it.pain_points || "")}
+              </div>
+
+              <div class="section-title">🌟 推荐开源自托管替代方案：</div>
+              <div class="alts-grid">
+                ${altsHtml}
+              </div>
+
+              ${it.llm_disruption?.is_disrupted ? `
+                <div class="disruption-box">
+                  <div class="disruption-header">
+                    <span class="disruption-icon">🤖</span>
+                    <b>大模型对该类 SaaS 的降维打击机制剖析：</b>
+                    <span class="disruption-stars">${"★".repeat(it.llm_disruption.level || 5)}</span>
+                  </div>
+                  <p class="disruption-thesis">${escapeXml(it.llm_disruption.thesis || "")}</p>
+                  <div class="disruption-solution">
+                    <b>💡 极客推荐实操落地：</b>${escapeXml(it.llm_disruption.ai_alternative_solution || "")}
+                  </div>
+                </div>
+              ` : ""}
+            </article>
+          `;
+        }).join("\n");
+      }
+
+      // 事件绑定
+      catChips.forEach(chip => {
+        chip.addEventListener("click", () => {
+          catChips.forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          currentCat = chip.dataset.cat;
+          render();
+        });
+      });
+
+      typeChips.forEach(chip => {
+        chip.addEventListener("click", () => {
+          typeChips.forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          currentType = chip.dataset.type;
+          render();
+        });
+      });
+
+      if (searchInput) {
+        let t = null;
+        searchInput.addEventListener("input", () => {
+          clearTimeout(t);
+          t = setTimeout(() => {
+            currentQ = searchInput.value.trim().toLowerCase();
+            render();
+          }, 150);
+        });
+      }
+    })();
+  </script>
+  <script src="/assets/bookmark.js" defer></script>
+</body>
+</html>
+

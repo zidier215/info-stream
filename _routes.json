@@ -17,6 +17,8 @@
     "/trends/*",
     "/wealth",
     "/wealth/*",
+    "/opensource",
+    "/opensource/*",
     "/api/*"
   ],
   "exclude": [

@@ -54,6 +54,12 @@
 /wealth/*
   Cache-Control: public, max-age=1800, s-maxage=86400, stale-while-revalidate=604800
 
+/opensource
+  Cache-Control: public, max-age=1800, s-maxage=86400, stale-while-revalidate=604800
+
+/opensource/*
+  Cache-Control: public, max-age=1800, s-maxage=86400, stale-while-revalidate=604800
+
 /papers
   Cache-Control: public, max-age=1800, s-maxage=86400, stale-while-revalidate=604800
 

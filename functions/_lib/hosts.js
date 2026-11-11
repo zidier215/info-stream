@@ -62,6 +62,7 @@ export const HOSTS = {
       { host: "game.myinfostream.com", path: "/history", key: "gamesdb", i18n: "entryGamesDb", fallback: "🎮 Epic 喜加一总账本", fallbackEn: "🎮 Epic Free Games Archive" },
       { host: "hot.myinfostream.com", path: "/history", key: "trendsdb", i18n: "entryTrendsDb", fallback: "🔥 互联网破圈大事件通鉴", fallbackEn: "🔥 Viral Trends Almanac" },
       { host: "myinfostream.com", path: "/wealth", key: "wealthdb", i18n: "entryWealthDb", fallback: "💰 商业变现与财富杠杆通鉴", fallbackEn: "💰 Commercial Wealth Almanac" },
+      { host: "myinfostream.com", path: "/opensource", key: "opensourcedb", i18n: "entryOpenSourceDb", fallback: "🔓 开源自建与大模型降维通鉴", fallbackEn: "🔓 Open Source & AI Disruption Almanac" },
       { host: "ai.myinfostream.com", path: "/", key: "ai", i18n: "entryAi", fallback: "AI 情报站", fallbackEn: "AI Intelligence" },
       { host: "news.myinfostream.com", path: "/", key: "news", i18n: "entryNews", fallback: "国际新闻站", fallbackEn: "World News" },
       { host: "game.myinfostream.com", path: "/", key: "game", i18n: "entryGame", fallback: "游戏站", fallbackEn: "Free Games" },
