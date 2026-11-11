@@ -1,12 +1,21 @@
 // functions/wealth.js
 // ---------------------------------------------------------------------------
 // 人类商业变现与财富杠杆演进通鉴 Clean URL 落地页路由处理 (/wealth)
-// 支持服务端 SSR 全量卡片直出、动态 Canonical 与 SEO 元数据
+// 支持服务端 SSR 全量卡片直出与速查表直出、动态 Canonical 与 SEO 结构化数据
 // ---------------------------------------------------------------------------
 
 import { resolveHost, MAIN_HOST, HOSTS } from "./_lib/hosts.js";
 import { WEALTH_SEED } from "./_lib/wealth_seed.js";
 import { escapeXml } from "./_lib/util.js";
+
+const VLABEL = {
+  "强": "v-strong",
+  "中": "v-mid",
+  "弱": "v-weak",
+  "早期": "v-early",
+  "已死": "v-dead",
+  "非法": "v-illegal"
+};
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -55,33 +64,64 @@ export async function onRequest(context) {
       const exHtml = (it.examples || [])
         .map((ex) => `<span class="ex-chip">${escapeXml(ex)}</span>`)
         .join("");
+      const vCls = VLABEL[it.validity] || "v-mid";
       return `
-        <article class="w-card" data-era="${escapeXml(it.era)}" data-lev="${escapeXml(it.leverage)}">
+        <article class="w-card" data-era="${escapeXml(it.era)}" data-struct="${escapeXml(it.structure)}">
           <div class="w-card-top">
             <span class="w-era-tag era-${escapeXml(it.era)}">${escapeXml(it.era_label)} · ${escapeXml(it.period)}</span>
-            <span class="w-lev-tag">${escapeXml(it.leverage_label)}</span>
+            <span class="w-struct-tag">${escapeXml(it.structure)}</span>
+            <span class="v ${vCls}">${escapeXml(it.validity)}</span>
           </div>
           <h3 class="w-title">${escapeXml(it.title)}</h3>
           <div class="w-formula"><code>📐 盈利公式：${escapeXml(it.formula)}</code></div>
-          <p class="w-essence">${escapeXml(it.essence)}</p>
+          <p class="w-essence"><strong>机制：</strong>${escapeXml(it.essence)}</p>
+          <div class="w-judgment"><strong>2026 位置与判断：</strong>${escapeXml(it.judgment)}</div>
           <div class="w-examples">
-            <div class="w-sec-label">📌 典型落地业态与实操载体：</div>
+            <div class="w-sec-label">📌 典型业态与载体：</div>
             <div class="ex-wrap">${exHtml}</div>
           </div>
           <div class="w-meta-grid">
             <div><span class="m-k">准入门槛：</span><span class="m-v">${escapeXml(it.barrier)}</span></div>
-            <div><span class="m-k">规模复利上限：</span><span class="m-v stars">${stars}</span></div>
+            <div><span class="m-k">规模复利上限：</span><span class="m-v stars">${stars}</span> (${escapeXml(it.scalability_raw || "中")})</div>
           </div>
-          <div class="w-risk">⚠️ <strong>周期风险与避坑：</strong>${escapeXml(it.risk_pitfall)}</div>
-          <div class="w-foot">${soloBadge}</div>
+          <div class="w-foot">
+            ${soloBadge}
+            <span style="font-size:0.76rem; color:var(--text-muted);">${escapeXml(it.leverage_label || "")}</span>
+          </div>
         </article>`;
     })
     .join("\n");
 
   html = html.replace(
     /<section class="wealth-grid" id="wealthList">[\s\S]*?<\/section>/i,
-    `<section class="wealth-grid" id="wealthList">\n${ssrCards}\n    </section>`
+    `<section class="wealth-grid" id="wealthList">\n${ssrCards}\n      </section>`
   );
+
+  // SSR 直出全景表格各时代数据
+  const renderTableRows = (eraCode) => {
+    return WEALTH_SEED.filter((x) => x.era_code === eraCode)
+      .map((it) => {
+        const vCls = VLABEL[it.validity] || "v-mid";
+        return `
+          <tr>
+            <td class="nm" data-l="方法">${escapeXml(it.title)}</td>
+            <td class="md" data-l="结构">${escapeXml(it.structure)}</td>
+            <td class="tiny" data-l="门槛">${escapeXml(it.barrier)}</td>
+            <td class="tiny" data-l="复制">${escapeXml(it.scalability_raw || "中")}</td>
+            <td data-l="有效性"><span class="v ${vCls}">${escapeXml(it.validity)}</span></td>
+            <td class="note" data-l="机制与判断">
+              <span class="lg">${escapeXml(it.essence)}</span>
+              <span class="jd">${escapeXml(it.judgment)}</span>
+            </td>
+          </tr>`;
+      })
+      .join("\n");
+  };
+
+  html = html.replace(/<tbody id="body-A"><\/tbody>/i, `<tbody id="body-A">${renderTableRows("A")}</tbody>`);
+  html = html.replace(/<tbody id="body-B"><\/tbody>/i, `<tbody id="body-B">${renderTableRows("B")}</tbody>`);
+  html = html.replace(/<tbody id="body-C"><\/tbody>/i, `<tbody id="body-C">${renderTableRows("C")}</tbody>`);
+  html = html.replace(/<tbody id="body-D"><\/tbody>/i, `<tbody id="body-D">${renderTableRows("D")}</tbody>`);
 
   return new Response(html, {
     status: 200,
