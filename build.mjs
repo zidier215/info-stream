@@ -56,6 +56,7 @@ const ENTRIES = [
   "trends.html",
   "wealth.html",
   "opensource.html",
+  "ship.html",
   "data"
 ];
 
@@ -110,7 +111,7 @@ for (const e of ENTRIES) {
 }
 
 // 为各独立专题生成目录镜像 (如 /wealth/index.html)，确保无论是否带尾部斜杠均 100% 正确命中
-const CLEAN_PAGES = ["wealth", "opensource", "papers", "models", "games", "trends", "about", "privacy", "contact", "editorial", "terms", "feedback"];
+const CLEAN_PAGES = ["wealth", "opensource", "ship", "papers", "models", "games", "trends", "about", "privacy", "contact", "editorial", "terms", "feedback"];
 for (const pName of CLEAN_PAGES) {
   const htmlSrc = pName === "feedback" ? join(OUT, "contact.html") : join(OUT, `${pName}.html`);
   if (existsSync(htmlSrc)) {

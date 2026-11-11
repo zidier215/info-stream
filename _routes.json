@@ -19,6 +19,8 @@
     "/wealth/*",
     "/opensource",
     "/opensource/*",
+    "/ship",
+    "/ship/*",
     "/api/*"
   ],
   "exclude": [

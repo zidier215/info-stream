@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>出海造筏与一人公司出海全景图谱 (全球收款/主体/分发/技术栈) · InfoStream</title>
+  <meta name="description" content="从 0 到 1 构建全球化独立商业产品：Stripe / LemonSqueezy / Paddle 全球收款通道实战横评、海外离岸合规实体设立、冷启动分发阵地、极限零成本技术栈与一人公司 6 大硬规律。" />
+  <meta name="keywords" content="出海造筏,一人公司出海,独立开发,Stripe收款,LemonSqueezy,怀俄明LLC,出海冷启动,Product Hunt冲榜,Show HN,出海技术栈,Micro-SaaS" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://myinfostream.com/ship" />
+  <meta name="google-adsense-account" content="ca-pub-1130777358854864" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- 全球多国 CDN 与第三方服务连接预热 (DNS-Prefetch & Preconnect) -->
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JBQYPMLVHR"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-JBQYPMLVHR');
+  </script>
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1130777358854864" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --bg-card: #131822;
+      --bg-card-hover: #1a2230;
+      --border: #232c3d;
+      --border-focus: #3b82f6;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.2);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --border: #e2e8f0;
+      --border-focus: #2563eb;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #2563eb;
+      --accent-glow: rgba(37, 99, 235, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.6;
+      padding-bottom: 60px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 顶部导航 */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(11, 14, 20, 0.88);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    [data-theme="light"] .top-nav {
+      background: rgba(248, 250, 252, 0.92);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .brand a {
+      color: var(--text);
+      text-decoration: none;
+    }
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background: #0ea5e9;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #0ea5e9;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-link {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-link:hover, .btn-link.active {
+      color: var(--text);
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .btn-bookmark {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(234, 88, 12, 0.05));
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #f59e0b;
+      font-weight: 600;
+    }
+    .btn-bookmark:hover {
+      border-color: #f59e0b;
+      color: #fbbf24;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(234, 88, 12, 0.12));
+    }
+    .shortcut-kbd {
+      font-size: 10.5px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    [data-theme="light"] .shortcut-kbd {
+      background: rgba(0, 0, 0, 0.06);
+      border-color: rgba(0, 0, 0, 0.1);
+      color: #92400e;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    /* Hero */
+    .hero {
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+    }
+    .kicker {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: #0ea5e9;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hero h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .lead {
+      font-size: 1.02rem;
+      color: var(--text-muted);
+      line-height: 1.68;
+      max-width: 980px;
+      margin-bottom: 20px;
+    }
+
+    /* 顶层硬核原则框 */
+    .principle-box {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(99, 102, 241, 0.06));
+      border: 1px solid rgba(14, 165, 233, 0.35);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 0.94rem;
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .principle-box b {
+      color: #38bdf8;
+    }
+
+    /* 统计看板 */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      transition: transform 0.15s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .stat-num {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .stat-num.highlight {
+      color: #38bdf8;
+    }
+    .stat-num.accent {
+      color: #10b981;
+    }
+    .stat-label {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    /* 模块切换导航条 */
+    .module-nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+    .mod-tab {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mod-tab:hover, .mod-tab.active {
+      color: #fff;
+      background: #0284c7;
+      border-color: #0284c7;
+    }
+
+    /* 搜索栏 */
+    .search-row {
+      margin-bottom: 24px;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .search-input:focus {
+      border-color: var(--border-focus);
+    }
+
+    /* 内容网格与卡片 */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 18px;
+    }
+    .ship-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      transition: transform 0.2s, border-color 0.2s;
+      content-visibility: auto;
+      contain-intrinsic-size: 0 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .ship-card:hover {
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+    .card-head h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
+      margin: 4px 0 2px;
+    }
+    .card-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 16px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .badge-accent {
+      background: rgba(14, 165, 233, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(14, 165, 233, 0.35);
+    }
+    .badge-green {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .info-row {
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .info-row b {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .info-row.danger {
+      color: #f87171;
+      background: rgba(239, 68, 68, 0.1);
+      padding: 6px 10px;
+      border-radius: 6px;
+      border-left: 3px solid #ef4444;
+    }
+    .info-row.danger b {
+      color: #fca5a5;
+    }
+
+    .card-box {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-top: 4px;
+    }
+    [data-theme="light"] .card-box {
+      background: #f8fafc;
+    }
+    .card-box b {
+      color: var(--text);
+    }
+
+    /* 一人公司出海利润测算器 */
+    .calculator-box {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 30px;
+    }
+    [data-theme="light"] .calculator-box {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .calc-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .calc-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .calc-input-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .calc-input-wrap label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .calc-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .calc-res-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      border-top: 1px dashed var(--border);
+      padding-top: 18px;
+    }
+    .calc-res-card {
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    [data-theme="light"] .calc-res-card {
+      background: #f1f5f9;
+    }
+    .calc-res-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+    .calc-res-val.profit {
+      color: #10b981;
+    }
+    .calc-res-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* 规则列表 */
+    .rules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .rule-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .rule-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #0284c7;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rule-body h4 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .rule-body p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .footer-bar {
+      margin-top: 50px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-bar a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .footer-bar a:hover {
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Top Navigation (Synchronized across InfoStream Network) -->
+  <nav class="top-nav">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <a href="https://myinfostream.com/">信息河 · InfoStream</a>
+      <span style="color:var(--text-muted); font-size:0.86rem; font-weight:400;">/ 🚀 出海造筏与一人公司</span>
+    </div>
+    <div class="nav-actions">
+      <a href="https://myinfostream.com/" class="btn-link">🏠 主站</a>
+      <a href="https://ai.myinfostream.com/papers" class="btn-link">📄 AI 论文库</a>
+      <a href="https://ai.myinfostream.com/models" class="btn-link">🧠 大模型编年史</a>
+      <a href="https://game.myinfostream.com/history" class="btn-link">🎮 游戏总账本</a>
+      <a href="https://hot.myinfostream.com/history" class="btn-link">🔥 破圈大事件</a>
+      <a href="https://myinfostream.com/wealth" class="btn-link">💰 商业变现通鉴</a>
+      <a href="https://myinfostream.com/opensource" class="btn-link">🔓 开源与AI替代</a>
+      <a href="https://myinfostream.com/ship" class="btn-link active">🚀 出海造筏指南</a>
+      <a href="https://myinfostream.com/contact" class="btn-link">📬 联系站长</a>
+      <button id="bookmarkBtn" class="btn-link btn-bookmark" style="cursor:pointer;" title="收藏本通鉴 (Ctrl+D / ⌘+D)">⭐ 收藏 <kbd class="shortcut-kbd" id="bookmarkKbd">Ctrl+D</kbd></button>
+      <button id="themeToggleBtn" class="btn-link">🌓 切换主题</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Hero Header -->
+    <header class="hero">
+      <div class="kicker">INDIE HACKER &amp; SOLOPRENEUR GLOBAL STACK · 2026 全息通鉴</div>
+      <h1>出海造筏与一人公司出海全景图谱</h1>
+      <p class="lead">
+        面向全球互联网市场的独立开发者与一人公司（Solopreneur）出海航海日志。全面收录全球主流收款通道横向测评、海外离岸合规实体设立、冷启动分发阵地、极限零成本技术栈与一人公司 6 大硬规律。
+      </p>
+
+      <div class="principle-box">
+        <b>🌊 航海家核心心法：</b>在现代云基建与大模型时代，个人建造一艘远洋“小筏”的技术门槛已降至历史最低。一人公司的胜负手从来不是“融资”或“招募多少人”，而是 <b>极端克制的固定成本</b>、<b>第一天就有真金白银现金流</b> 以及 <b>直面全球垂直小众市场的定价自主权</b>。
+      </div>
+
+      <!-- 概览看板 -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num highlight">4 大主流</div>
+          <div class="stat-label">全球支付通道 (Stripe/LemonSqueezy/Paddle/Creem)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num accent">$0 / 月起</div>
+          <div class="stat-label">极限技术栈固定月成本 (CF + Supabase)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num highlight">50+ 免费</div>
+          <div class="stat-label">全球高权重外链与 AI 导航收录目录</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num accent">&lt; 0.9%</div>
+          <div class="stat-label">出海生死红线：海外信用卡拒付率硬指标</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 模块切换选项卡 -->
+    <nav class="module-nav" id="moduleNav">
+      <button class="mod-tab active" data-tab="payments">💳 全球收款通道实战横评</button>
+      <button class="mod-tab" data-tab="incorporation">🏛️ 海外轻量合规主体 (美/英/新)</button>
+      <button class="mod-tab" data-tab="distribution">🚀 冷启动与全球分发渠道</button>
+      <button class="mod-tab" data-tab="stack">💻 一人公司极限零成本技术栈</button>
+      <button class="mod-tab" data-tab="rules">📐 一人公司 6 大商业硬规律</button>
+      <button class="mod-tab" data-tab="calculator">🧮 出海财务模型与利润测算器</button>
+    </nav>
+
+    <!-- 搜索栏 -->
+    <div class="search-row">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜索出海知识库（如 Stripe, 怀俄明, Product Hunt, Supabase, 拒付率…）" />
+    </div>
+
+    <!-- 动态内容渲染容器 (SSR 直出预渲染挂载点) -->
+    <section id="mainContent">
+      <div id="paymentsContainer" class="content-grid"></div>
+    </section>
+
+    <!-- 一人公司出海利润测算器 (内置组件) -->
+    <section id="calculatorSection" class="calculator-box" style="display:none;">
+      <div class="calc-title">🧮 一人公司出海财务模型与净利润推演器</div>
+      <p class="calc-desc">通过客单价、付费用户规模、支付渠道损耗及流失率，实时推演每月经常性收入 (MRR)、年收入 (ARR) 与实际税前净利润。</p>
+
+      <div class="calc-grid">
+        <div class="calc-input-wrap">
+          <label>月活跃付费客户数 (人)</label>
+          <input type="number" id="calcUsers" class="calc-input" value="150" min="1" step="10" />
+        </div>
+        <div class="calc-input-wrap">
+          <label>每月订阅客单价 (USD $)</label>
+          <input type="number" id="calcPrice" class="calc-input" value="29" min="1" step="5" />
+        </div>
+        <div class="calc-input-wrap">
+          <label>支付通道费率 (%)</label>
+          <input type="number" id="calcFeeRate" class="calc-input" value="5" min="1" max="15" step="0.5" />
+        </div>
+        <div class="calc-input-wrap">
+          <label>每月服务器与固定运营成本 (USD $)</label>
+          <input type="number" id="calcCost" class="calc-input" value="25" min="0" step="5" />
+        </div>
+      </div>
+
+      <div class="calc-res-grid">
+        <div class="calc-res-card">
+          <div class="calc-res-val" id="resMrr">$4,350</div>
+          <div class="calc-res-label">月经常性收入 (MRR)</div>
+        </div>
+        <div class="calc-res-card">
+          <div class="calc-res-val" id="resArr">$52,200</div>
+          <div class="calc-res-label">年化收入 (ARR)</div>
+        </div>
+        <div class="calc-res-card">
+          <div class="calc-res-val profit" id="resNetMonthly">$4,107</div>
+          <div class="calc-res-label">每月税前实际落袋净利润 (USD)</div>
+        </div>
+        <div class="calc-res-card">
+          <div class="calc-res-val profit" id="resNetRmb">¥29,570</div>
+          <div class="calc-res-label">每月折合人民币 (RMB 汇率约 7.2)</div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer-bar">
+      <div>© 2026 信息河 InfoStream · 敬畏市场，出海造筏，独立自强</div>
+      <div>
+        <a href="https://myinfostream.com/opensource">开源与AI替代</a> ·
+        <a href="https://myinfostream.com/wealth">商业变现通鉴</a> ·
+        <a href="https://myinfostream.com/contact">联系站长</a>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      // 主题切换
+      const themeBtn = document.getElementById("themeToggleBtn");
+      if (themeBtn) {
+        themeBtn.addEventListener("click", () => {
+          const current = document.documentElement.getAttribute("data-theme") || "dark";
+          const next = current === "dark" ? "light" : "dark";
+          document.documentElement.setAttribute("data-theme", next);
+          try { localStorage.setItem("infostream_theme", next); } catch {}
+        });
+      }
+      try {
+        const saved = localStorage.getItem("infostream_theme");
+        if (saved) document.documentElement.setAttribute("data-theme", saved);
+      } catch {}
+
+      const data = window.__SHIP_DATA__ || {};
+      const container = document.getElementById("mainContent");
+      const calcSection = document.getElementById("calculatorSection");
+      const tabs = document.querySelectorAll(".mod-tab");
+      const searchInput = document.getElementById("searchInput");
+
+      let currentTab = "payments";
+      let searchQ = "";
+
+      function escapeXml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&apos;");
+      }
+
+      function render() {
+        if (currentTab === "calculator") {
+          container.style.display = "none";
+          calcSection.style.display = "block";
+          updateCalc();
+          return;
+        }
+
+        container.style.display = "block";
+        calcSection.style.display = "none";
+
+        let html = "";
+        const q = searchQ.toLowerCase();
+
+        if (currentTab === "payments") {
+          let list = data.payments || [];
+          if (q) list = list.filter(p => p.name.toLowerCase().includes(q) || p.verdict.toLowerCase().includes(q) || p.best_for.toLowerCase().includes(q));
+          html = `<div class="content-grid">${list.map(p => `
+            <article class="ship-card" id="${escapeXml(p.id)}">
+              <div class="card-head">
+                <div>
+                  <span class="badge badge-accent">${escapeXml(p.type)}</span>
+                  <h3>${escapeXml(p.name)}</h3>
+                  <div class="card-subtitle"><b>模式：</b>${escapeXml(p.model)} · <b>费率：</b>${escapeXml(p.rate_desc)}</div>
+                </div>
+              </div>
+              <div class="info-row"><b>结算周期：</b>${escapeXml(p.payout_cycle)}</div>
+              <div class="info-row"><b>开户门槛：</b>${escapeXml(p.setup_barrier)}</div>
+              <div class="info-row"><b>税收合规：</b>${escapeXml(p.tax_vat_support)}</div>
+              <div class="info-row danger"><b>风控红线：</b>${escapeXml(p.chargeback_risk)}</div>
+              <div class="card-box">
+                <b>适用人群：</b>${escapeXml(p.best_for)}<br/>
+                <b>实战总结：</b>${escapeXml(p.verdict)}
+              </div>
+            </article>
+          `).join("")}</div>`;
+        } else if (currentTab === "incorporation") {
+          let list = data.incorporation || [];
+          if (q) list = list.filter(i => i.region.toLowerCase().includes(q) || i.summary.toLowerCase().includes(q) || i.best_for.toLowerCase().includes(q));
+          html = `<div class="content-grid">${list.map(i => `
+            <article class="ship-card" id="${escapeXml(i.id)}">
+              <div class="card-head">
+                <div>
+                  <span class="badge badge-green">离岸法人实体</span>
+                  <h3>${escapeXml(i.region)}</h3>
+                  <div class="card-subtitle"><b>注册成本：</b>${escapeXml(i.setup_cost)} · <b>年维成本：</b>${escapeXml(i.annual_cost)}</div>
+                </div>
+              </div>
+              <div class="info-row"><b>税收协定：</b>${escapeXml(i.tax_rate)}</div>
+              <div class="info-row"><b>股东隐私：</b>${escapeXml(i.privacy)}</div>
+              <div class="info-row"><b>银行账户：</b>${escapeXml(i.bank_account)}</div>
+              <div class="card-box">
+                <b>适合人群：</b>${escapeXml(i.best_for)}<br/>
+                <b>实战总结：</b>${escapeXml(i.summary)}
+              </div>
+            </article>
+          `).join("")}</div>`;
+        } else if (currentTab === "distribution") {
+          let list = data.distribution || [];
+          if (q) list = list.filter(d => d.name.toLowerCase().includes(d) || d.tactics.toLowerCase().includes(q) || d.mistakes.toLowerCase().includes(q));
+          html = `<div class="content-grid">${list.map(d => `
+            <article class="ship-card" id="${escapeXml(d.id)}">
+              <div class="card-head">
+                <div>
+                  <span class="badge badge-accent">${escapeXml(d.category_cn)}</span>
+                  <h3>${escapeXml(d.name)}</h3>
+                  <div class="card-subtitle"><b>推荐权重：</b>${escapeXml(d.weight)} · <b>官方入口：</b><a href="${escapeXml(d.url)}" target="_blank" rel="noopener" style="color:var(--accent); text-decoration:none;">前往链接 →</a></div>
+                </div>
+              </div>
+              <div class="info-row"><b>冲榜与获客秘籍：</b>${escapeXml(d.tactics)}</div>
+              <div class="info-row danger"><b>避坑与封号红线：</b>${escapeXml(d.mistakes)}</div>
+            </article>
+          `).join("")}</div>`;
+        } else if (currentTab === "stack") {
+          let list = data.stack || [];
+          if (q) list = list.filter(s => s.category.toLowerCase().includes(q) || s.chosen.toLowerCase().includes(q) || s.advantage.toLowerCase().includes(q));
+          html = `<div class="content-grid">${list.map(s => `
+            <article class="ship-card" id="${escapeXml(s.id)}">
+              <div class="card-head">
+                <div>
+                  <span class="badge badge-green">固定月费 $0</span>
+                  <h3>${escapeXml(s.category)}</h3>
+                  <div class="card-subtitle"><b>精选方案：</b>${escapeXml(s.chosen)}</div>
+                </div>
+              </div>
+              <div class="info-row"><b>免费额度：</b>${escapeXml(s.free_tier)}</div>
+              <div class="card-box">
+                <b>核心优势：</b>${escapeXml(s.advantage)}
+              </div>
+            </article>
+          `).join("")}</div>`;
+        } else if (currentTab === "rules") {
+          let list = data.rules || [];
+          if (q) list = list.filter(r => r.title.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q));
+          html = `<div class="rules-list">${list.map(r => `
+            <div class="rule-item">
+              <div class="rule-num">${r.num}</div>
+              <div class="rule-body">
+                <h4>${escapeXml(r.title)}</h4>
+                <p>${escapeXml(r.desc)}</p>
+              </div>
+            </div>
+          `).join("")}</div>`;
+        }
+
+        container.innerHTML = html;
+      }
+
+      // 计算器逻辑
+      function updateCalc() {
+        const users = parseFloat(document.getElementById("calcUsers").value) || 0;
+        const price = parseFloat(document.getElementById("calcPrice").value) || 0;
+        const feeRate = parseFloat(document.getElementById("calcFeeRate").value) || 5;
+        const cost = parseFloat(document.getElementById("calcCost").value) || 0;
+
+        const mrr = users * price;
+        const arr = mrr * 12;
+        const fee = mrr * (feeRate / 100);
+        const netMonthly = Math.max(0, mrr - fee - cost);
+        const netRmb = Math.round(netMonthly * 7.23);
+
+        document.getElementById("resMrr").textContent = `$${mrr.toLocaleString()}`;
+        document.getElementById("resArr").textContent = `$${arr.toLocaleString()}`;
+        document.getElementById("resNetMonthly").textContent = `$${Math.round(netMonthly).toLocaleString()}`;
+        document.getElementById("resNetRmb").textContent = `¥${netRmb.toLocaleString()}`;
+      }
+
+      ["calcUsers", "calcPrice", "calcFeeRate", "calcCost"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener("input", updateCalc);
+      });
+
+      tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          tabs.forEach(t => t.classList.remove("active"));
+          tab.classList.add("active");
+          currentTab = tab.dataset.tab;
+          render();
+        });
+      });
+
+      if (searchInput) {
+        let t = null;
+        searchInput.addEventListener("input", () => {
+          clearTimeout(t);
+          t = setTimeout(() => {
+            searchQ = searchInput.value.trim();
+            render();
+          }, 150);
+        });
+      }
+    })();
+  </script>
+  <script src="/assets/bookmark.js" defer></script>
+</body>
+</html>
