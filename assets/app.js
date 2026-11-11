@@ -192,6 +192,11 @@ const UI_I18N = {
   cookieText: { zh: "本站使用 Cookie 与本地存储（含 Google AdSense / DoubleClick 广告服务）以保障核心偏好记忆与免费资讯聚合运营。继续浏览即表示您同意我们的", "zh-Hant": "本站使用 Cookie 與本地儲存（含 Google AdSense / DoubleClick 廣告服務）以保障偏好記憶與免費資訊聚合營運。繼續瀏覽即表示您同意我們的", en: "We use cookies and local storage (including Google AdSense / DoubleClick) to remember your preferences and support our free aggregation service. By continuing, you agree to our", es: "Usamos cookies y almacenamiento local (incluido Google AdSense) para recordar tus preferencias. Al continuar, aceptas nuestra", fr: "Nous utilisons des cookies (y compris Google AdSense) pour mémoriser vos préférences. En continuant, vous acceptez notre", ja: "当サイトは設定の保存と無料運営（Google AdSense等）のためにCookieを使用します。閲覧を続けることで、当サイトの", de: "Wir verwenden Cookies (einschließlich Google AdSense), um Ihre Einstellungen zu speichern. Mit der Nutzung stimmen Sie unserer", ru: "Мы используем файлы cookie (включая Google AdSense) для сохранения настроек. Продолжая, вы соглашаетесь с нашей", ar: "نحن نستخدم ملفات تعريف الارتباط (بما في ذلك Google AdSense) لحفظ تفضيلاتك. بالاستمرار، فإنك توافق على", pt: "Usamos cookies (incluindo Google AdSense) para lembrar suas preferências. Ao continuar, você concorda com nossa" },
   cookiePolicyLink: { zh: "《隐私与 Cookie 政策》", "zh-Hant": "《隱私與 Cookie 政策》", en: "Privacy & Cookie Policy", es: "Política de Privacidad", fr: "Politique de Confidentialité", ja: "プライバシーポリシー", de: "Datenschutzerklärung", ru: "Политикой конфиденциальности", ar: "سياسة الخصوصية", pt: "Política de Privacidade" },
   cookieAccept: { zh: "同意并继续", "zh-Hant": "同意並繼續", en: "Accept & Continue", es: "Aceptar", fr: "Accepter", ja: "同意して続行", de: "Akzeptieren", ru: "Принять", ar: "موافق", pt: "Aceitar" },
+  bookmarkBtnText: { zh: "⭐ 收藏", "zh-Hant": "⭐ 加入書籤", en: "⭐ Bookmark", es: "⭐ Guardar", fr: "⭐ Favoris", ja: "⭐ ブックマーク", de: "⭐ Merken", ru: "⭐ В закладки", ar: "⭐ حفظ", pt: "⭐ Salvar" },
+  bookmarkToastTitle: { zh: "按 {key} 快速加入书签", "zh-Hant": "按 {key} 快速加入書籤", en: "Press {key} to bookmark", es: "Presiona {key} para guardar", fr: "Appuyez sur {key} pour ajouter", ja: "{key} でブックマークに追加", de: "{key} drücken zum Merken", ru: "Нажмите {key} для закладки", ar: "اضغط {key} للحفظ", pt: "Pressione {key} para salvar" },
+  bookmarkToastDesc: { zh: "本页链接已复制到剪贴板！随时回访不迷路。", "zh-Hant": "本頁連結已複製到剪貼簿！隨時回訪不迷路。", en: "URL copied to clipboard! Access anytime without losing track.", es: "¡Enlace copiado! Accede en cualquier momento.", fr: "Lien copié dans le presse-papiers !", ja: "URLをクリップボードにコピーしました！いつでも再訪可能。", de: "Link in die Zwischenablage kopiert!", ru: "Ссылка скопирована в буфер обмена!", ar: "تم نسخ الرابط إلى الحافظة!", pt: "Link copiado para a área de transferência!" },
+  bookmarkMobileToastTitle: { zh: "⭐ 添加至书签 / 主屏幕", "zh-Hant": "⭐ 加入書籤 / 主畫面", en: "⭐ Add to Bookmarks / Home Screen", es: "⭐ Agregar a marcadores / inicio", fr: "⭐ Ajouter aux favoris / écran d'accueil", ja: "⭐ ブックマーク / ホーム画面に追加", de: "⭐ Zu Lesezeichen / Startbildschirm", ru: "⭐ В закладки / на главный экран", ar: "⭐ إضافة إلى الإشارات / الشاشة الرئيسية", pt: "⭐ Adicionar aos favoritos / tela inicial" },
+  bookmarkMobileToastDesc: { zh: "点击浏览器底部分享或菜单按钮，选择「添加到主屏幕」或「加入书签」即可随时快速打开！", "zh-Hant": "點擊瀏覽器底部分享或選單按鈕，選擇「加入主畫面」或「加入書籤」即可隨時快速開啟！", en: "Tap browser menu/share button and choose 'Add to Home Screen' or 'Bookmark' for instant access!", es: "Toca compartir/menú del navegador y selecciona 'Agregar a inicio' o 'Marcadores'.", fr: "Appuyez sur partager/menu et choisissez 'Ajouter à l'écran d'accueil'.", ja: "ブラウザの共有/メニューボタンから「ホーム画面に追加」または「ブックマーク」を選択してください！", de: "Tippen Sie auf Teilen/Menü und wählen Sie 'Zum Startbildschirm hinzufügen'.", ru: "Нажмите 'Поделиться' в браузере и выберите 'На главный экран' или 'В закладки'!", ar: "انقر على زر المشاركة/القائمة واختر 'إضافة إلى الشاشة الرئيسية'!", pt: "Toque em compartilhar/menu e selecione 'Adicionar à tela inicial'!" },
 };
 
 function uiText(key) {
@@ -1427,3 +1432,84 @@ if (backToTopBtn) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 }
+
+// ---------------- 全站多语言智能收藏快捷按钮 (Ctrl+D / ⌘+D) ----------------
+function showBookmarkToast(key, isMobile) {
+  let wrap = document.querySelector(".bookmark-toast-wrap");
+  if (!wrap) {
+    wrap = document.createElement("div");
+    wrap.className = "bookmark-toast-wrap";
+    document.body.appendChild(wrap);
+  }
+
+  // 尝试自动将当前页面完整链接复制至剪贴板，方便用户随手粘贴分享
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(window.location.href);
+    }
+  } catch {}
+
+  const lang = (typeof currentLang !== "undefined" && currentLang) || "zh";
+  const titleTpl = isMobile
+    ? (UI_I18N.bookmarkMobileToastTitle?.[lang] || UI_I18N.bookmarkMobileToastTitle?.en)
+    : (UI_I18N.bookmarkToastTitle?.[lang] || UI_I18N.bookmarkToastTitle?.en);
+  const title = (titleTpl || "按 {key} 快速加入书签").replace("{key}", `<kbd class="bookmark-toast-kbd">${key}</kbd>`);
+  const desc = isMobile
+    ? (UI_I18N.bookmarkMobileToastDesc?.[lang] || UI_I18N.bookmarkMobileToastDesc?.en)
+    : (UI_I18N.bookmarkToastDesc?.[lang] || UI_I18N.bookmarkToastDesc?.en);
+
+  const toast = document.createElement("div");
+  toast.className = "bookmark-toast";
+  toast.innerHTML = `
+    <span class="bookmark-toast-icon">⭐</span>
+    <div class="bookmark-toast-body">
+      <div class="bookmark-toast-title">${title}</div>
+      <div class="bookmark-toast-desc">${desc}</div>
+    </div>
+    <button class="bookmark-toast-close" title="关闭" aria-label="关闭">&times;</button>
+  `;
+
+  const closeBtn = toast.querySelector(".bookmark-toast-close");
+  let timer = null;
+  const dismiss = () => {
+    if (timer) clearTimeout(timer);
+    toast.classList.add("toast-fadeout");
+    setTimeout(() => toast.remove(), 220);
+  };
+  closeBtn?.addEventListener("click", dismiss);
+  timer = setTimeout(dismiss, 3800);
+
+  wrap.appendChild(toast);
+}
+
+function initBookmarkButton() {
+  const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform || navigator.userAgent || "");
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const keyStr = isMac ? "⌘+D" : "Ctrl+D";
+
+  const kbdEl = document.getElementById("bookmarkKbd");
+  if (kbdEl) {
+    kbdEl.textContent = keyStr;
+    if (isMobile) kbdEl.hidden = true;
+  }
+
+  const btn = document.getElementById("bookmarkBtn");
+  if (btn) {
+    btn.title = isMobile ? "收藏本站" : `收藏本站 (${keyStr})`;
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      showBookmarkToast(keyStr, isMobile);
+    });
+  }
+
+  // 快捷键侦听提示
+  window.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === "d" || e.key === "D")) {
+      setTimeout(() => {
+        showBookmarkToast(keyStr, false);
+      }, 200);
+    }
+  });
+}
+
+initBookmarkButton();

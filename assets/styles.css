@@ -230,6 +230,154 @@ body {
   transform: translateY(-1px);
 }
 
+/* 顶层智能快捷收藏按钮 (Ctrl+D / ⌘+D) */
+.btn-bookmark {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(234, 88, 12, 0.05));
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #b45309;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .btn-bookmark {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(234, 88, 12, 0.1));
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #fbbf24;
+}
+
+.btn-bookmark:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(234, 88, 12, 0.12));
+  border-color: #f59e0b;
+  color: #d97706;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.18);
+}
+
+[data-theme="dark"] .btn-bookmark:hover {
+  color: #fef3c7;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
+
+.btn-bookmark .shortcut-kbd {
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 2px;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: inline-block;
+  line-height: 1.3;
+}
+
+[data-theme="dark"] .btn-bookmark .shortcut-kbd {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* 顶部智能收藏通知浮层 (Toast) */
+.bookmark-toast-wrap {
+  position: fixed;
+  top: 72px;
+  right: 20px;
+  z-index: 999999;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bookmark-toast {
+  pointer-events: auto;
+  max-width: 380px;
+  background: var(--card);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 12px;
+  padding: 13px 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(245, 158, 11, 0.15);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: bookmarkToastSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@keyframes bookmarkToastSlide {
+  from { opacity: 0; transform: translateY(-14px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.bookmark-toast.toast-fadeout {
+  animation: bookmarkToastFade 0.22s ease forwards;
+}
+
+@keyframes bookmarkToastFade {
+  to { opacity: 0; transform: translateY(-8px) scale(0.96); }
+}
+
+.bookmark-toast-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.bookmark-toast-body {
+  flex: 1;
+}
+
+.bookmark-toast-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bookmark-toast-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.bookmark-toast-kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  line-height: 1.4;
+}
+
+[data-theme="dark"] .bookmark-toast-kbd {
+  background: #78350f;
+  color: #fef3c7;
+  border-color: #b45309;
+}
+
+.bookmark-toast-close {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.bookmark-toast-close:hover {
+  color: var(--text);
+  background: var(--bg2);
+}
+
 /* ---------------- 顶部 Tab ---------------- */
 .tabs {
   position: sticky;

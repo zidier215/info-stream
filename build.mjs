@@ -87,10 +87,12 @@ for (const e of ENTRIES) {
   cpSync(src, join(OUT, e), { recursive: true });
 }
 
-// 为 /assets/styles.css 与 /assets/app.js 注入内容哈希 (?v=<hash>)，配合 _headers 的 immutable 强缓存实现构建自动破除旧缓存
+// 为 /assets/styles.css 与 /assets/app.js, /assets/bookmark.js 注入内容哈希 (?v=<hash>)，配合 _headers 的 immutable 强缓存实现构建自动破除旧缓存
 {
   const cssHash = createHash("sha256").update(readFileSync(join(OUT, "assets/styles.css"))).digest("hex").slice(0, 8);
   const jsHash = createHash("sha256").update(readFileSync(join(OUT, "assets/app.js"))).digest("hex").slice(0, 8);
+  const bmFile = join(OUT, "assets/bookmark.js");
+  const bmHash = existsSync(bmFile) ? createHash("sha256").update(readFileSync(bmFile)).digest("hex").slice(0, 8) : "";
   const htmlFiles = readdirSync(OUT).filter((f) => f.endsWith(".html"));
   for (const hf of htmlFiles) {
     const p = join(OUT, hf);
@@ -98,9 +100,12 @@ for (const e of ENTRIES) {
     html = html
       .replace(/(href=["']\/?assets\/styles\.css)(?:\?v=[^"']*)?(["'])/g, `$1?v=${cssHash}$2`)
       .replace(/((?:src|href)=["']\/?assets\/app\.js)(?:\?v=[^"']*)?(["'])/g, `$1?v=${jsHash}$2`);
+    if (bmHash) {
+      html = html.replace(/((?:src|href)=["']\/?assets\/bookmark\.js)(?:\?v=[^"']*)?(["'])/g, `$1?v=${bmHash}$2`);
+    }
     writeFileSync(p, html, "utf8");
   }
-  console.log(`  ✓ 静态资源版本指纹注入: styles.css?v=${cssHash}, app.js?v=${jsHash}`);
+  console.log(`  ✓ 静态资源版本指纹注入: styles.css?v=${cssHash}, app.js?v=${jsHash}${bmHash ? `, bookmark.js?v=${bmHash}` : ""}`);
 }
 
 // 为各独立专题生成目录镜像 (如 /wealth/index.html)，确保无论是否带尾部斜杠均 100% 正确命中
