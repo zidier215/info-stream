@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>高阶提示词模式与自主 Agent 架构通鉴 (20+ 工业级学术范式/工作流/System Prompt) · InfoStream</title>
+  <meta name="description" content="超越普通对话提示词：收录 Chain-of-Thought、Tree-of-Thoughts、ReAct、Reflexion 等工业级学术验证 Prompt 架构范式，编排分流、人机协同等自主 Agent 工作流模式，以及开箱即用的顶会审稿、代码重构、PRD编排系统提示词库。" />
+  <meta name="keywords" content="高阶提示词,Prompt工程,Agent架构,ReAct,Tree of Thoughts,Reflexion,思维链,MCP协议,多智能体工作流,System Prompt,反幻觉Prompt" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://myinfostream.com/prompt" />
+  <meta name="google-adsense-account" content="ca-pub-1130777358854864" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- 全球多国 CDN 与第三方服务连接预热 (DNS-Prefetch & Preconnect) -->
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JBQYPMLVHR"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-JBQYPMLVHR', { send_page_view: true });
+  </script>
+
+  <!-- Google AdSense 异步加载 -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1130777358854864" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-hover: #1f242c;
+      --surface-border: #30363d;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --text-bright: #f0f6fc;
+      --primary: #58a6ff;
+      --primary-rgb: 88, 166, 255;
+      --accent: #bc8cff;
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --code-bg: #090d13;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    html.light {
+      --bg: #f6f8fa;
+      --surface: #ffffff;
+      --surface-hover: #f3f4f6;
+      --surface-border: #d0d7de;
+      --text: #24292f;
+      --text-muted: #57606a;
+      --text-bright: #0969da;
+      --primary: #0969da;
+      --primary-rgb: 9, 105, 218;
+      --accent: #8250df;
+      --success: #1a7f37;
+      --warning: #9a6700;
+      --danger: #cf222e;
+      --code-bg: #f6f8fa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* 顶部导航 */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--surface-border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      backdrop-filter: blur(10px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text-bright);
+    }
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background: #bc8cff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(188, 140, 255, 0.6);
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-link {
+      background: transparent;
+      border: 1px solid var(--surface-border);
+      color: var(--text-muted);
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-link:hover, .btn-link.active {
+      color: var(--text-bright);
+      border-color: var(--primary);
+      background: rgba(var(--primary-rgb), 0.1);
+      text-decoration: none;
+    }
+    .shortcut-kbd {
+      display: inline-block;
+      padding: 1px 4px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--surface-border);
+      border-radius: 3px;
+      margin-left: 3px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 36px 16px 28px;
+      border-bottom: 1px solid var(--surface-border);
+      margin-bottom: 30px;
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(188, 140, 255, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(188, 140, 255, 0.35);
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+      color: var(--text-bright);
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 820px;
+      margin: 0 auto 24px;
+    }
+
+    /* Stats Dashboard */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      text-align: left;
+    }
+    .stat-val {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      font-family: var(--font-mono);
+    }
+    .stat-lbl {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Tabs & Search */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .tab-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tab-pill {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      color: var(--text-muted);
+      padding: 7px 15px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-pill.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      font-weight: 600;
+    }
+    .search-box {
+      position: relative;
+      min-width: 260px;
+      flex: 1;
+      max-width: 360px;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 8px 12px 8px 34px;
+      color: var(--text);
+      font-size: 0.88rem;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+    }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+    .prompt-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 12px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .prompt-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .card-head {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .card-head h3 {
+      font-size: 1.25rem;
+      color: var(--text-bright);
+    }
+    .badge {
+      align-self: flex-start;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-accent {
+      background: rgba(188, 140, 255, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(188, 140, 255, 0.3);
+    }
+    .card-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .card-desc {
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .structure-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--surface-border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      white-space: pre-wrap;
+      font-family: var(--font-mono);
+    }
+    .info-row {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 8px;
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .btn-copy {
+      background: transparent;
+      border: 1px solid var(--surface-border);
+      color: var(--primary);
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-copy:hover {
+      background: rgba(var(--primary-rgb), 0.15);
+    }
+    .code-box {
+      background: var(--code-bg);
+      border: 1px solid var(--surface-border);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #79c0ff;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Section divider */
+    .section-title {
+      font-size: 1.4rem;
+      color: var(--text-bright);
+      margin: 36px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Ad Banner */
+    .ad-slot-wrap {
+      margin: 40px auto;
+      text-align: center;
+      max-width: 970px;
+      overflow: hidden;
+    }
+
+    /* Toast */
+    #bookmarkToast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(22, 27, 34, 0.95);
+      border: 1px solid var(--primary);
+      color: var(--text-bright);
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+      backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <nav class="top-nav">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <a href="https://myinfostream.com/">信息河 · InfoStream</a>
+      <span style="color:var(--text-muted); font-size:0.86rem; font-weight:400;">/ 🧠 高阶提示词与 Agent 通鉴</span>
+    </div>
+    <div class="nav-actions">
+      <a href="https://myinfostream.com/" class="btn-link">🏠 主站</a>
+      <a href="https://ai.myinfostream.com/papers" class="btn-link">📄 AI 论文库</a>
+      <a href="https://ai.myinfostream.com/models" class="btn-link">🧠 大模型编年史</a>
+      <a href="https://game.myinfostream.com/history" class="btn-link">🎮 游戏总账本</a>
+      <a href="https://hot.myinfostream.com/history" class="btn-link">🔥 破圈大事件</a>
+      <a href="https://myinfostream.com/wealth" class="btn-link">💰 商业变现通鉴</a>
+      <a href="https://myinfostream.com/opensource" class="btn-link">🔓 开源与AI替代</a>
+      <a href="https://myinfostream.com/ship" class="btn-link">🚀 出海造筏指南</a>
+      <a href="https://myinfostream.com/prompt" class="btn-link active">🧠 提示词与Agent</a>
+      <a href="https://myinfostream.com/contact" class="btn-link">📬 联系站长</a>
+      <button id="bookmarkBtn" class="btn-link btn-bookmark" style="cursor:pointer;" title="收藏本通鉴 (Ctrl+D / ⌘+D)">⭐ 收藏 <kbd class="shortcut-kbd" id="bookmarkKbd">Ctrl+D</kbd></button>
+      <button id="themeToggleBtn" class="btn-link">🌓 切换主题</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Hero Header -->
+    <header class="hero">
+      <div class="hero-badge">Industrial-Grade Prompt Engineering &amp; Agentic Systems</div>
+      <h1>高阶提示词模式与自主 Agent 架构通鉴</h1>
+      <p>拒绝低效随意聊天：系统收录学术顶会验证的 20+ 工业级 Prompt 架构范式、核心自主 Agent 编排模式与开箱即用的顶会审稿、代码审查、PRD 编排高阶配方。</p>
+    </header>
+
+    <!-- Stats Dashboard -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="statPatterns">20+</div>
+        <div class="stat-lbl">学术验证 Prompt 架构范式</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statAgents">8 种</div>
+        <div class="stat-lbl">自主 Agent 核心工作流模式</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statPrompts">工业级</div>
+        <div class="stat-lbl">开箱即用 System Prompt 配方</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">100%</div>
+        <div class="stat-lbl">零废话 · 严格防幻觉与架构收敛</div>
+      </div>
+    </section>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="tab-pills" id="tabPills">
+        <button class="tab-pill active" data-tab="all">全部架构</button>
+        <button class="tab-pill" data-tab="patterns">🧠 学术 Prompt 范式</button>
+        <button class="tab-pill" data-tab="agents">🤖 自主 Agent 模式</button>
+        <button class="tab-pill" data-tab="prompts">📋 生产级 System Prompt</button>
+      </div>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="搜索模式、学术论文、适用场景..." />
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="cards-grid" id="cardsGrid">
+      <!-- SSR_PATTERNS_MOUNT -->
+      <!-- /SSR_PATTERNS_MOUNT -->
+    </div>
+
+    <!-- AdSense Slot -->
+    <div class="ad-slot-wrap">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-1130777358854864"
+           data-ad-slot="9012345678"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </main>
+
+  <div id="bookmarkToast"></div>
+
+  <script src="/bookmark.js" defer></script>
+  <script>
+    // 主题切换
+    const themeBtn = document.getElementById("themeToggleBtn");
+    const currentTheme = localStorage.getItem("info_theme") || "dark";
+    if (currentTheme === "light") document.documentElement.classList.add("light");
+    themeBtn.addEventListener("click", () => {
+      document.documentElement.classList.toggle("light");
+      const isLight = document.documentElement.classList.contains("light");
+      localStorage.setItem("info_theme", isLight ? "light" : "dark");
+    });
+
+    // 复制 Snippet
+    window.copySnippet = function(btn, targetId) {
+      const codeEl = document.getElementById(targetId);
+      if (!codeEl) return;
+      navigator.clipboard.writeText(codeEl.textContent).then(() => {
+        const oldText = btn.textContent;
+        btn.textContent = "已复制 ✓";
+        btn.style.color = "var(--success)";
+        setTimeout(() => {
+          btn.textContent = oldText;
+          btn.style.color = "var(--primary)";
+        }, 1800);
+      });
+    };
+
+    // 前端动态加载与筛选
+    let allData = { patterns: [], agents: [], prompts: [] };
+    let currentTab = "all";
+
+    async function loadData() {
+      try {
+        const res = await fetch("/api/prompt?tab=all");
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json.success && json.data) {
+          allData = json.data;
+          renderCards();
+        }
+      } catch (err) {
+        console.error("Failed to load prompt data", err);
+      }
+    }
+
+    function renderCards() {
+      const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+      const container = document.getElementById("cardsGrid");
+      let html = "";
+
+      // 1. Patterns
+      if (currentTab === "all" || currentTab === "patterns") {
+        const list = allData.patterns.filter(p => !q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || p.best_for.toLowerCase().includes(q));
+        list.forEach(p => {
+          html += `
+            <article class="prompt-card" id="${p.id}">
+              <div class="card-head">
+                <span class="badge badge-accent">${escapeHtml(p.badge)}</span>
+                <h3>${escapeHtml(p.name)}</h3>
+                <div class="card-subtitle"><b>学术论证：</b>${escapeHtml(p.paper)}</div>
+              </div>
+              <p class="card-desc">${escapeHtml(p.description)}</p>
+              <div class="structure-box"><b>架构推导流：</b>${escapeHtml(p.structure)}</div>
+              <div class="info-row"><b>最佳适用场景：</b>${escapeHtml(p.best_for)}</div>
+              <div class="info-row"><b>推荐主力模型：</b>${escapeHtml(p.best_models.join(", "))} · <b>Token 消耗系数：</b>${escapeHtml(p.token_multiplier)}</div>
+              <div class="code-header">
+                <span>Prompt 架构模板</span>
+                <button class="btn-copy" onclick="copySnippet(this, 'tmpl-${p.id}')">复制模板</button>
+              </div>
+              <pre class="code-box"><code id="tmpl-${p.id}">${escapeHtml(p.template)}</code></pre>
+            </article>
+          `;
+        });
+      }
+
+      // 2. Agents
+      if (currentTab === "all" || currentTab === "agents") {
+        const list = allData.agents.filter(a => !q || a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q) || a.pros.toLowerCase().includes(q));
+        list.forEach(a => {
+          html += `
+            <article class="prompt-card" id="${a.id}">
+              <div class="card-head">
+                <span class="badge badge-accent">${escapeHtml(a.badge)}</span>
+                <h3>${escapeHtml(a.name)}</h3>
+                <div class="card-subtitle"><b>复杂度：</b>${escapeHtml(a.complexity)} · <b>推荐技术栈：</b>${escapeHtml(a.best_stack)}</div>
+              </div>
+              <p class="card-desc">${escapeHtml(a.desc)}</p>
+              <div class="structure-box"><b>工作流拓扑拓扑：</b>\n${escapeHtml(a.architecture)}</div>
+              <div class="info-row"><b>优势：</b>${escapeHtml(a.pros)}</div>
+              <div class="info-row" style="color:var(--warning);"><b>注意事项：</b>${escapeHtml(a.cons)}</div>
+            </article>
+          `;
+        });
+      }
+
+      // 3. System Prompts
+      if (currentTab === "all" || currentTab === "prompts") {
+        const list = allData.prompts.filter(sp => !q || sp.title.toLowerCase().includes(q) || sp.prompt.toLowerCase().includes(q) || sp.tags.some(t => t.toLowerCase().includes(q)));
+        list.forEach(sp => {
+          html += `
+            <article class="prompt-card" id="${sp.id}">
+              <div class="card-head">
+                <span class="badge badge-accent">${escapeHtml(sp.badge)}</span>
+                <h3>${escapeHtml(sp.title)}</h3>
+                <div class="card-subtitle"><b>推荐对齐模型：</b>${escapeHtml(sp.best_match)}</div>
+              </div>
+              <div class="info-row"><b>技术标签：</b>${escapeHtml(sp.tags.join(" · "))}</div>
+              <div class="code-header">
+                <span>完整生产级 System Prompt</span>
+                <button class="btn-copy" onclick="copySnippet(this, 'sys-${sp.id}')">复制 Prompt</button>
+              </div>
+              <pre class="code-box"><code id="sys-${sp.id}">${escapeHtml(sp.prompt)}</code></pre>
+            </article>
+          `;
+        });
+      }
+
+      if (!html) {
+        html = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-muted);">未找到与 "${escapeHtml(q)}" 相关的模式或提示词</div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    // Tab 切换事件
+    document.getElementById("tabPills").addEventListener("click", (e) => {
+      const btn = e.target.closest(".tab-pill");
+      if (!btn) return;
+      document.querySelectorAll(".tab-pill").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentTab = btn.getAttribute("data-tab");
+      renderCards();
+    });
+
+    // 搜索事件防抖
+    let searchTimer = null;
+    document.getElementById("searchInput").addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(renderCards, 150);
+    });
+
+    loadData();
+  </script>
+</body>
+</html>

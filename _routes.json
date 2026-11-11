@@ -21,6 +21,8 @@
     "/opensource/*",
     "/ship",
     "/ship/*",
+    "/prompt",
+    "/prompt/*",
     "/api/*"
   ],
   "exclude": [
