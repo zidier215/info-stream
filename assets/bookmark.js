@@ -101,5 +101,15 @@
       setTimeout(showToast, 200);
     }
   });
+
+  // 移动端顶部横向滚动导航栏：自动将当前激活的导航胶囊居中展示
+  try {
+    const navActions = document.querySelector(".nav-actions");
+    const activeBtn = navActions && navActions.querySelector(".active");
+    if (navActions && activeBtn && navActions.scrollWidth > navActions.clientWidth) {
+      const targetLeft = activeBtn.offsetLeft - (navActions.clientWidth / 2) + (activeBtn.offsetWidth / 2);
+      navActions.scrollLeft = Math.max(0, targetLeft);
+    }
+  } catch {}
 })();
 

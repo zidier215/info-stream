@@ -564,6 +564,10 @@ h1 {
 
 @media (max-width: 760px) {
   .wrap { padding: 15px 15px 64px; }
+  .top-nav { gap: 8px; padding: 10px 0 12px; margin-bottom: 16px; }
+  .nav-actions { width: 100%; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+  .nav-actions::-webkit-scrollbar { display: none; }
+  .nav-actions > * { flex-shrink: 0; white-space: nowrap; }
   .timeline::before, .drail { display: none; }
   .day { grid-template-columns: 1fr; gap: 0; padding: 14px 0 6px; }
   .entry { grid-template-columns: 1fr; gap: 0; }

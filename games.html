@@ -560,6 +560,10 @@
     #toTop.show { display: flex; }
 
     @media (max-width: 768px) {
+      .nav-inner { padding: 0.55rem 0.9rem; gap: 0.45rem; }
+      .nav-actions { width: 100%; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+      .nav-actions::-webkit-scrollbar { display: none; }
+      .nav-actions > * { flex-shrink: 0; white-space: nowrap; }
       .metrics-grid { grid-template-columns: repeat(2, 1fr); }
       .search-input { min-width: 100%; }
       .filter-bar { flex-direction: column; align-items: stretch; }

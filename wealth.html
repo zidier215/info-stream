@@ -8,6 +8,30 @@
   <meta name="keywords" content="赚钱方法全图谱,商业模式通鉴,财富杠杆,收入结构,8种底层结构,纳瓦尔杠杆,一人公司,Micro-SaaS,AI Agent变现,信息差套利,被动收入,跨结构硬规律,红线清单" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <link rel="canonical" href="https://myinfostream.com/wealth" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="信息河 · InfoStream" />
+  <meta property="og:title" content="人类商业变现与财富杠杆演进通鉴 (98种商业形态全息图谱) · InfoStream" />
+  <meta property="og:description" content="按「底层收入结构」穷尽，按「首次规模化年代」分层。四大历史技术纪元、98 条具体商业变现形态全息图谱，拆解 8 种底层收入结构机制、跨结构 5 条硬规律、红线避坑清单与商业决策反推指南。" />
+  <meta property="og:url" content="https://myinfostream.com/wealth" />
+  <meta property="og:image" content="https://myinfostream.com/favicon.svg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="人类商业变现与财富杠杆演进通鉴 (98种商业形态全息图谱) · InfoStream" />
+  <meta name="twitter:description" content="四大历史技术纪元、98 条商业变现形态全息图谱，拆解 8 种底层收入结构与 5 条硬规律。" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "人类商业变现与财富杠杆演进通鉴",
+    "url": "https://myinfostream.com/wealth",
+    "description": "四大历史技术纪元、98 条具体商业变现形态全息图谱，拆解 8 种底层收入结构机制、跨结构 5 条硬规律与红线避坑清单。",
+    "inLanguage": "zh-CN",
+    "publisher": {
+      "@type": "Organization",
+      "name": "InfoStream 信息河",
+      "url": "https://myinfostream.com/"
+    }
+  }
+  </script>
   <meta name="google-adsense-account" content="ca-pub-1130777358854864" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
@@ -655,6 +679,10 @@
       .hero h1 { font-size: 1.8rem; }
     }
     @media (max-width: 760px) {
+      .top-nav { padding: 8px 14px; gap: 6px; }
+      .nav-actions { width: 100%; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+      .nav-actions::-webkit-scrollbar { display: none; }
+      .nav-actions > * { flex-shrink: 0; white-space: nowrap; }
       .container { padding: 16px 14px; }
       .controls { position: static; }
       .tablebox { border: 0; background: transparent; overflow: visible; }
@@ -1142,7 +1170,7 @@
         "非法": "v-illegal"
       };
 
-      let ALL_ITEMS = [];
+      let ALL_ITEMS = Array.isArray(window.__WEALTH_DATA__) ? window.__WEALTH_DATA__ : [];
 
       const wealthList = document.getElementById("wealthList");
       const cardViewWrap = document.getElementById("cardViewWrap");
@@ -1297,8 +1325,15 @@
         }
       }
 
-      // Fetch all items from API
+      // Fetch all items from API (or use SSR inline data directly)
       async function initData() {
+        if (ALL_ITEMS.length > 0) {
+          document.getElementById("statTotal").textContent = ALL_ITEMS.length + " 种";
+          document.getElementById("statSolo").textContent = ALL_ITEMS.filter((x) => x.solo_friendly).length + " 种";
+          document.getElementById("statScale").textContent = ALL_ITEMS.filter((x) => x.scalability === 5).length + " 种";
+          countEl.textContent = `显示 ${ALL_ITEMS.length} / ${ALL_ITEMS.length} 条`;
+          return;
+        }
         try {
           const res = await fetch("/api/wealth");
           if (!res.ok) return;

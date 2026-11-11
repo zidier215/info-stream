@@ -123,6 +123,14 @@ export async function onRequest(context) {
   html = html.replace(/<tbody id="body-C"><\/tbody>/i, `<tbody id="body-C">${renderTableRows("C")}</tbody>`);
   html = html.replace(/<tbody id="body-D"><\/tbody>/i, `<tbody id="body-D">${renderTableRows("D")}</tbody>`);
 
+  // 内联初始数据，消除客户端首屏二次 API 请求与 DOM 重绘闪烁
+  const seedJson = JSON.stringify(WEALTH_SEED)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+  html = html.replace(/<\/head>/i, `<script>window.__WEALTH_DATA__ = ${seedJson};</script>\n</head>`);
+
   return new Response(html, {
     status: 200,
     headers: {

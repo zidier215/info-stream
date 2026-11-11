@@ -61,6 +61,17 @@ const SUITES = [
   // 三态分类、以及前端徽章在十种语言下的拼装。纯夹具，不联网。
   { name: "gametest", args: [] },
   { name: "guardtest", args: [] },
+  // 9 大常青树专题库与反馈系统全量测试套件（纯本地秒级）
+  { name: "papertest", args: [] },
+  { name: "modelstest", args: [] },
+  { name: "gamestest", args: [] },
+  { name: "trendstest", args: [] },
+  { name: "wealthtest", args: [] },
+  { name: "opensourcetest", args: [] },
+  { name: "shiptest", args: [] },
+  { name: "prompttest", args: [] },
+  { name: "firetest", args: [] },
+  { name: "feedbacktest", args: [] },
   ...(full ? [{ name: "apitest", args: [] }] : []),
   ...(e2e ? [{ name: "webtest", args: ["http://myinfostream.test:8788/"], env: { SIM: "1" } }] : []),
   // staletest 拦截 /api/feed 注入 stale:true，验证前端横幅真的会弹出来 ——
