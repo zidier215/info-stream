@@ -5,6 +5,8 @@
     "/index.html",
     "/robots.txt",
     "/sitemap.xml",
+    "/feed.xml",
+    "/rss.xml",
     "/papers",
     "/papers/*",
     "/history",

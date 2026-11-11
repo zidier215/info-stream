@@ -181,6 +181,8 @@ console.log("  ✓ 未泄漏源码/测试脚本");
       if (!ref || /^(https?:|mailto:|tel:|javascript:|data:)/i.test(ref)) continue;
       const clean = ref.replace(/^\/+/, "");
       if (!clean) continue; // "/" 根路径
+      // 动态边缘 Functions 路由白名单（非静态文件）
+      if (clean === "feed.xml" || clean === "rss.xml") continue;
       const fullPath = join(OUT, clean);
       const htmlAlt = join(OUT, `${clean}.html`);
       if (!existsSync(fullPath) && !existsSync(htmlAlt)) {
