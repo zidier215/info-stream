@@ -182,20 +182,27 @@ export async function onRequest(context) {
       _captcha: "false",
     };
 
-    const mailRes = await fetch(`https://formsubmit.co/ajax/${TARGET_EMAIL}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "User-Agent": "InfoStream-Feedback-Worker/1.0",
-      },
-      body: JSON.stringify(dispatchPayload),
-    });
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 4000);
+    try {
+      const mailRes = await fetch(`https://formsubmit.co/ajax/${TARGET_EMAIL}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "User-Agent": "InfoStream-Feedback-Worker/1.0",
+        },
+        body: JSON.stringify(dispatchPayload),
+        signal: ctrl.signal,
+      });
 
-    if (mailRes.ok) {
-      mailDispatched = true;
-    } else {
-      console.warn("Mail dispatch gateway returned non-200:", mailRes.status);
+      if (mailRes.ok) {
+        mailDispatched = true;
+      } else {
+        console.warn("Mail dispatch gateway returned non-200:", mailRes.status);
+      }
+    } finally {
+      clearTimeout(tid);
     }
   } catch (err) {
     console.error("Mail dispatch gateway network error:", err?.message);

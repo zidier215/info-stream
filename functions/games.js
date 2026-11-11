@@ -90,7 +90,7 @@ export async function onRequest(context) {
     status: 200,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
+      "Cache-Control": "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800",
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "strict-origin-when-cross-origin",
       "X-InfoStream-Site": hostCfg.key,

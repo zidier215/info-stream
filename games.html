@@ -7,6 +7,12 @@
   <meta name="description" content="Epic Games Store 历年免费游戏全记录与白嫖总价值统计，按年份、3A殿堂大作、圣诞神秘喜加一多维检索，涵盖原价、赠送起止时间、DLC 包含情况与深度特色导读。" />
   <link rel="canonical" href="https://game.myinfostream.com/history" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <!-- 全球多国 CDN 与第三方服务连接预热 (DNS-Prefetch & Preconnect) -->
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
   <meta name="theme-color" content="#121217" />
   <!-- Google AdSense 验证代码 -->
   <meta name="google-adsense-account" content="ca-pub-1130777358854864" />
@@ -794,7 +800,7 @@
           return `
             <article class="g-card">
               <div class="g-cover-box">
-                <img src="${g.cover_url || '/favicon.svg'}" alt="${g.title_cn}" class="g-cover" loading="lazy" />
+                <img src="${g.cover_url || '/favicon.svg'}" alt="${g.title_cn}" class="g-cover" loading="lazy" decoding="async" />
                 <span class="badge-off">100% OFF</span>
                 ${g.is_aaa ? '<span class="badge-aaa">★ 3A殿堂</span>' : ''}
                 ${g.is_mystery ? '<span class="badge-mystery">🎁 圣诞/神秘连送</span>' : ''}

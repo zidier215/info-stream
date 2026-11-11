@@ -97,7 +97,7 @@ for (const e of ENTRIES) {
     let html = readFileSync(p, "utf8");
     html = html
       .replace(/(href=["']\/?assets\/styles\.css)(?:\?v=[^"']*)?(["'])/g, `$1?v=${cssHash}$2`)
-      .replace(/(src=["']\/?assets\/app\.js)(?:\?v=[^"']*)?(["'])/g, `$1?v=${jsHash}$2`);
+      .replace(/((?:src|href)=["']\/?assets\/app\.js)(?:\?v=[^"']*)?(["'])/g, `$1?v=${jsHash}$2`);
     writeFileSync(p, html, "utf8");
   }
   console.log(`  ✓ 静态资源版本指纹注入: styles.css?v=${cssHash}, app.js?v=${jsHash}`);

@@ -37,10 +37,23 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1130777358854864"
      crossorigin="anonymous"></script>
 
-  <!-- 现代字体体系与无衬线排版优化 -->
+  <!-- 全球多国 CDN 与第三方服务连接预热 (DNS-Prefetch & Preconnect) -->
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+
+  <!-- 核心静态样式与逻辑脚本关键路径预加载 -->
+  <link rel="preload" href="assets/styles.css" as="style" />
+  <link rel="preload" href="assets/app.js" as="script" />
+
+  <!-- 字体优化：非阻塞异步加载 + 本地系统级字体即时直出（彻底避免跨国网络 FOIT 白屏） -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" /></noscript>
 
   <!-- E-E-A-T 官方组织结构化数据 (Schema.org JSON-LD) -->
   <script type="application/ld+json">
@@ -359,7 +372,7 @@
   </div>
 
   <button id="backToTopBtn" class="back-to-top" title="回到顶部" aria-label="回到顶部" hidden>↑</button>
-  <script src="assets/app.js"></script>
+  <script src="assets/app.js" defer></script>
 </body>
 
 </html>
