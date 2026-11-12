@@ -348,6 +348,11 @@
       border: 1px solid rgba(16, 185, 129, 0.35);
       color: #34d399;
     }
+    .alert.warn {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+    }
     .alert.error {
       background: rgba(239, 68, 68, 0.12);
       border: 1px solid rgba(239, 68, 68, 0.35);
@@ -458,15 +463,27 @@
 
         <!-- Status Alerts -->
         <div class="alert success" id="alertSuccess">
-          <strong>✓ 发送成功！</strong>
+          <strong>✓ 邮件已成功投递！</strong>
           <p id="successMsg">您的反馈已成功送达站长邮箱 contact@myinfostream.com。信息河团队已收到，通常在 24–48 小时内处理回复。</p>
-          <button type="button" class="alert-btn" id="btnResetForm">再次发送新反馈</button>
+          <div style="margin-top:10px;">
+            <button type="button" class="alert-btn" id="btnResetForm">再次发送新反馈</button>
+          </div>
+        </div>
+
+        <div class="alert warn" id="alertWarn">
+          <strong>⚠️ 反馈已记录，邮件直达需本地客户端确认：</strong>
+          <p id="warnMsg">自动邮件转寄通道正在排队或等待站长首次激活。为确保 100% 送达站长信箱，请点击下方按钮直接调起系统邮件客户端发送（已为您自动填好所有内容）：</p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+            <a href="#" class="alert-btn" id="btnLaunchMailClient" style="background:var(--primary); color:#fff; border-color:var(--primary); text-decoration:none;">✉️ 立即调起邮件客户端发送</a>
+            <button type="button" class="alert-btn" id="btnCopyFeedbackText">📋 复制邮件正文</button>
+            <button type="button" class="alert-btn" id="btnResetWarnForm">再次发送新反馈</button>
+          </div>
         </div>
 
         <div class="alert error" id="alertError">
           <strong>⚠️ 提交失败：</strong>
           <span id="errorMsg">网络请求异常，请稍后重试。</span>
-          <div>
+          <div style="margin-top:10px;">
             <button type="button" class="alert-btn" id="btnMailtoFallback">打开本地邮件客户端发送</button>
           </div>
         </div>
@@ -583,15 +600,23 @@
       const btnIcon = document.getElementById("btnIcon");
       const btnText = document.getElementById("btnText");
       const alertSuccess = document.getElementById("alertSuccess");
+      const alertWarn = document.getElementById("alertWarn");
       const alertError = document.getElementById("alertError");
       const errorMsg = document.getElementById("errorMsg");
+      const warnMsg = document.getElementById("warnMsg");
       const btnResetForm = document.getElementById("btnResetForm");
+      const btnResetWarnForm = document.getElementById("btnResetWarnForm");
+      const btnLaunchMailClient = document.getElementById("btnLaunchMailClient");
+      const btnCopyFeedbackText = document.getElementById("btnCopyFeedbackText");
       const btnMailtoFallback = document.getElementById("btnMailtoFallback");
+
+      let currentMailDraft = "";
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         alertSuccess.style.display = "none";
+        alertWarn.style.display = "none";
         alertError.style.display = "none";
 
         const email = document.getElementById("userEmail").value.trim();
@@ -605,6 +630,8 @@
           errorMsg.textContent = "请完整填写邮箱与至少 5 个字符的反馈内容。";
           return;
         }
+
+        currentMailDraft = `工单编号: 生成中\n称呼: ${name || '匿名读者'}\n回复邮箱: ${email}\n分类: ${category}\n\n反馈内容:\n${message}`;
 
         // Disable button & show spinner
         btnSubmit.disabled = true;
@@ -631,9 +658,23 @@
 
           if (res.ok && data.success) {
             form.style.display = "none";
-            alertSuccess.style.display = "block";
-            if (data.message) {
-              document.getElementById("successMsg").textContent = data.message;
+            currentMailDraft = `工单编号: ${data.id || 'N/A'}\n称呼: ${name || '匿名读者'}\n回复邮箱: ${email}\n分类: ${category}\n\n反馈内容:\n${message}`;
+
+            if (data.dispatched) {
+              // 网关直接投递成功
+              alertSuccess.style.display = "block";
+              if (data.message) {
+                document.getElementById("successMsg").textContent = data.message;
+              }
+            } else {
+              // 网关待激活或排队，切换至备用客户端一键发送通道
+              alertWarn.style.display = "block";
+              if (data.message) {
+                warnMsg.textContent = data.message;
+              }
+              if (btnLaunchMailClient && data.mailto_url) {
+                btnLaunchMailClient.href = data.mailto_url;
+              }
             }
           } else {
             throw new Error(data.error || "邮件投递网关繁忙，请稍后重试。");
@@ -648,15 +689,31 @@
         }
       });
 
-      btnResetForm.addEventListener("click", () => {
+      function resetFormUI() {
         form.reset();
         charCount.textContent = "0 / 3000";
         catChips.forEach((c, idx) => c.classList.toggle("active", idx === 0));
         categoryInput.value = "功能与产品建议";
         form.style.display = "block";
         alertSuccess.style.display = "none";
+        alertWarn.style.display = "none";
         alertError.style.display = "none";
-      });
+      }
+
+      btnResetForm.addEventListener("click", resetFormUI);
+      if (btnResetWarnForm) btnResetWarnForm.addEventListener("click", resetFormUI);
+
+      if (btnCopyFeedbackText) {
+        btnCopyFeedbackText.addEventListener("click", () => {
+          if (currentMailDraft) {
+            navigator.clipboard.writeText(currentMailDraft).then(() => {
+              const old = btnCopyFeedbackText.textContent;
+              btnCopyFeedbackText.textContent = "已复制正文 ✓";
+              setTimeout(() => { btnCopyFeedbackText.textContent = old; }, 2000);
+            });
+          }
+        });
+      }
 
       btnMailtoFallback.addEventListener("click", () => {
         const email = document.getElementById("userEmail").value.trim();

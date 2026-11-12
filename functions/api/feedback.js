@@ -170,16 +170,23 @@ export async function onRequest(context) {
 
   // 5. 投递邮件至 contact@myinfostream.com
   let mailDispatched = false;
+  let mailStatus = "pending";
+
+  const subjectText = `[InfoStream 反馈] 【${cleanCategory}】来自 ${cleanName || cleanEmail}`;
+  const mailBodyText = `工单编号: ${feedbackId}\n称呼: ${cleanName || "匿名读者"}\n回复邮箱: ${cleanEmail}\n分类: ${cleanCategory}\n提交时间: ${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}\n\n详细内容:\n${cleanMessage}`;
+  const mailtoUrl = `mailto:${TARGET_EMAIL}?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(mailBodyText)}`;
+
   try {
     const dispatchPayload = {
       name: cleanName || "InfoStream 读者",
       email: cleanEmail,
-      _subject: `[InfoStream 反馈] 【${cleanCategory}】来自 ${cleanName || cleanEmail}`,
+      _subject: subjectText,
       category: cleanCategory,
       message: cleanMessage,
       page_url: page_url || "https://myinfostream.com/contact",
       submitted_at: new Date().toISOString(),
       _captcha: "false",
+      _template: "table",
     };
 
     const ctrl = new AbortController();
@@ -190,30 +197,47 @@ export async function onRequest(context) {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          "User-Agent": "InfoStream-Feedback-Worker/1.0",
+          Origin: "https://myinfostream.com",
+          Referer: "https://myinfostream.com/contact",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         },
         body: JSON.stringify(dispatchPayload),
         signal: ctrl.signal,
       });
 
-      if (mailRes.ok) {
+      const mailJson = await mailRes.json().catch(() => ({}));
+      if (mailRes.ok && (mailJson.success === "true" || mailJson.success === true)) {
         mailDispatched = true;
+        mailStatus = "delivered";
+      } else if (mailJson.message && mailJson.message.includes("Activation")) {
+        mailStatus = "needs_activation";
+        console.warn("FormSubmit requires activation at", TARGET_EMAIL);
       } else {
-        console.warn("Mail dispatch gateway returned non-200:", mailRes.status);
+        mailStatus = "gateway_error";
+        console.warn("Mail dispatch gateway returned:", mailRes.status, mailJson);
       }
     } finally {
       clearTimeout(tid);
     }
   } catch (err) {
+    mailStatus = "network_timeout";
     console.error("Mail dispatch gateway network error:", err?.message);
   }
+
+  const userNotice = mailDispatched
+    ? "✓ 您的反馈已通过边缘网络成功投递至站长邮箱 contact@myinfostream.com！通常在 24–48 小时内处理回复。"
+    : (mailStatus === "needs_activation"
+        ? "⚠️ 站长邮箱的自动转寄服务正在等待激活确认。为确保站长能立即收到，建议直接点击下方按钮调起系统邮件客户端发送。"
+        : "⚠️ 自动投递通道暂未直达，已为您生成预填邮件草稿，请点击下方按钮一键调起邮件客户端发送。");
 
   return new Response(
     JSON.stringify({
       success: true,
       id: feedbackId,
       dispatched: mailDispatched,
-      message: "您的反馈已成功发送！信息河团队已收到，通常在 24–48 小时内处理回复。",
+      mail_status: mailStatus,
+      mailto_url: mailtoUrl,
+      message: userNotice,
     }),
     {
       status: 200,
