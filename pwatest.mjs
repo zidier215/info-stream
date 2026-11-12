@@ -30,7 +30,7 @@ assert.ok(swContent.includes("Stale-While-Revalidate"), "包含 Stale-While-Reva
 console.log("  OK Service Worker 离线缓存引擎逻辑完备");
 
 console.log("\n=== 3. 测试 HTML 模板 PWA 元数据标签注入 ===");
-const htmlFiles = ["index.html", "wealth.html", "opensource.html", "ship.html", "prompt.html", "fire.html"];
+const htmlFiles = ["index.html", "wealth.html", "opensource.html", "ship.html", "prompt.html", "fire.html", "truth.html"];
 for (const file of htmlFiles) {
   const content = readFileSync(file, "utf8");
   assert.ok(content.includes('rel="manifest" href="/manifest.webmanifest"'), `${file} 包含 manifest 引用`);

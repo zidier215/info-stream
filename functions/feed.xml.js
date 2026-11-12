@@ -12,6 +12,7 @@ import { GAMES_SEED } from "./_lib/games_seed.js";
 import { TRENDS_SEED } from "./_lib/trends_seed.js";
 import { WEALTH_SEED } from "./_lib/wealth_seed.js";
 import { OPENSOURCE_SEED } from "./_lib/opensource_seed.js";
+import { TRUTH_CASES } from "./_lib/truth_seed.js";
 import { escapeXml } from "./_lib/util.js";
 
 export async function onRequest(context) {
@@ -96,6 +97,20 @@ export async function onRequest(context) {
         pubDate: buildDate,
         guid: `infostream-oss-${o.id || idx}`,
         category: "开源与AI替代",
+      });
+    });
+  }
+
+  // 6. 认知求真与毒鸡汤辟谣通鉴
+  if (cat === "all" || cat === "truth") {
+    (TRUTH_CASES || []).slice(0, 6).forEach((tc, idx) => {
+      items.push({
+        title: `[求真辟谣] ${tc.titles.zh}`,
+        link: `https://myinfostream.com/truth#${tc.id}`,
+        description: `【定性：${tc.verdict} · 毒度：${tc.toxicity}/10】${escapeXml(tc.subtitles.zh)}。破绽：${escapeXml(tc.flaws.zh)}`,
+        pubDate: buildDate,
+        guid: `infostream-truth-${tc.id || idx}`,
+        category: "认知求真",
       });
     });
   }

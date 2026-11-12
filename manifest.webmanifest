@@ -52,6 +52,13 @@
       "description": "达利欧全天候组合与 4% SWR 财务自由测算器",
       "url": "/fire",
       "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "认知求真与辟谣通鉴",
+      "short_name": "避雷指南",
+      "description": "分区域分语言拆解工业神话与伪科学谎言",
+      "url": "/truth",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
     }
   ],
   "categories": ["news", "productivity", "utilities", "business"]

@@ -60,6 +60,7 @@ const ENTRIES = [
   "ship.html",
   "prompt.html",
   "fire.html",
+  "truth.html",
   "data"
 ];
 

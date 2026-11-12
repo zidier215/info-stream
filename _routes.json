@@ -27,6 +27,8 @@
     "/prompt/*",
     "/fire",
     "/fire/*",
+    "/truth",
+    "/truth/*",
     "/api/*"
   ],
   "exclude": [

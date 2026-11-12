@@ -76,6 +76,8 @@ const SUITES = [
   { name: "pwatest", args: [] },
   // 官方标准 RSS 2.0 聚合订阅源测试
   { name: "rsstest", args: [] },
+  // 认知求真与毒鸡汤避雷通鉴分区域分语言套件
+  { name: "truthtest", args: [] },
   ...(full ? [{ name: "apitest", args: [] }] : []),
   ...(e2e ? [{ name: "webtest", args: ["http://myinfostream.test:8788/"], env: { SIM: "1" } }] : []),
   // staletest 拦截 /api/feed 注入 stale:true，验证前端横幅真的会弹出来 ——
